@@ -4,8 +4,8 @@
    The publishable/anon key is SAFE in this file. Row Level Security is
    what protects the data. NEVER put the service_role / secret key here.
    ===================================================================== */
-const SUPABASE_URL = "https://krqpqiazohafojnjybuz.supabase.co";
-const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_ANON_KEY_HERE";
+const SUPABASE_URL = "https://kdxckigyhpnwhwgjdgqq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_PlVBmRgFdhTkVMurXLiBFQ_NjiVssQp";
 
 // Where the portal lives once deployed. Used for password-reset links.
 const PORTAL_BASE  = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');

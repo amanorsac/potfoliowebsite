@@ -1,0 +1,103 @@
+# Client portal — setup
+
+Roughly 40 minutes end to end. Do it in this order.
+
+---
+
+## 1 · Database (10 min)
+
+1. Open your Supabase project → **SQL Editor** → **New query**
+2. Paste the whole of `supabase-setup.sql` → **Run**
+3. Go to **Authentication → Sign In / Providers** and turn **"Allow new users to sign up" OFF**
+
+That last step matters. Without it, anyone could register themselves.
+
+## 2 · Make yourself the admin (2 min)
+
+1. **Authentication → Users → Add user**
+2. Your email, a password, and tick **Auto Confirm User**
+3. Back in **SQL Editor**, run:
+
+```sql
+update public.profiles set is_admin = true where email = 'amanorsac@gmail.com';
+```
+
+Admin is what lets you see every client's projects instead of just your own.
+
+## 3 · Connect the site to Supabase (2 min)
+
+1. **Project Settings → API**
+2. Copy the **Project URL** and the **publishable / anon** key
+3. Open `assets/portal.js` and paste both into the two lines at the top
+
+**Only the anon key.** Never the `service_role` or `secret` key — that one bypasses every security rule and would be readable by anyone who views your page source.
+
+## 4 · Redirect URLs (3 min)
+
+**Authentication → URL Configuration**
+
+- **Site URL:** `https://your-site.pages.dev`
+- **Redirect URLs:** add both
+  - `https://your-site.pages.dev/portal/reset.html`
+  - `https://your-site.pages.dev/portal/**`
+
+If you end up on GitHub Pages at a subpath (`username.github.io/portfolio`), include the subpath in every entry. Password resets are known to misbehave on subpaths, which is one reason a Cloudflare custom domain at the root is the safer home.
+
+## 5 · Deploy
+
+Push to GitHub, connect Cloudflare Pages to the repo. Build command empty, output directory `/`.
+
+## 6 · Test before you let a client in (10 min)
+
+1. **Authentication → Users → Add user** — make a fake client, tick Auto Confirm
+2. **SQL Editor:** set them up with a project
+
+```sql
+insert into public.projects (client_id, title, artist, service)
+values ((select id from public.profiles where email = 'test@example.com'),
+        'Test Song', 'Test Artist', 'Mixing & Mastering');
+```
+
+3. Open the portal in a **private window**, log in as the test client
+4. Check every one of these:
+
+- [ ] They see their project and no one else's
+- [ ] Changing a stage in **Table Editor → project_stages** updates the page live, without a refresh
+- [ ] Submitting a revision works, and the counter drops
+- [ ] Submitting a **fourth** revision is refused
+- [ ] Logged out, `dashboard.html` bounces to login
+- [ ] Dark mode toggle persists across a refresh
+
+Point 4 is the one that matters most. If a test client can see another client's work, stop and fix RLS before going further.
+
+---
+
+## Running it day to day
+
+Everything happens in **Supabase → Table Editor**. No code, no redeploys.
+
+**New client:** Authentication → Add user → Auto Confirm. Send them the email and temporary password. They're forced to set their own on first login.
+
+**New project:** insert a row in `projects` with their `client_id`. The seven stages are created automatically.
+
+**Move a project along:** edit `project_stages` — set the finished stage to `done` and the next one to `active`. The client's screen updates within a second.
+
+**Waiting on the client:** set the stage to `blocked` and write what you need in the `note` field. Their tracker turns amber and says "Waiting on you."
+
+**Send a file:** insert into `deliverables` with a link.
+
+**Bill them:** create a Stripe Payment Link, then insert into `invoices` with `pay_url` set to it. Mark `status` = `paid` when it clears.
+
+## Stripe
+
+Start with **Payment Links** — no code at all. Create one in Stripe, paste the URL into the invoice row, and the client gets a Pay now button.
+
+For a 50/50 split, make two: "Deposit (50%)" and "Balance on delivery."
+
+Automatic paid-marking needs a webhook Edge Function. Worth adding once invoices become frequent enough that updating a row by hand is annoying. Not before.
+
+## Costs
+
+Supabase free, Cloudflare Pages free, GitHub free. Stripe takes 2.9% + 30¢ per payment.
+
+One catch: **a free Supabase project pauses after about 7 days with no database activity.** Logging in yourself once a week is enough to prevent it.

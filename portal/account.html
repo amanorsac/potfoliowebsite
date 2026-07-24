@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Account · Stephen Amanor Sackey</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Account</p>
+    <h1>Your details</h1>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h2>Profile</h2>
+      <form id="pf">
+        <div class="field"><label for="name">Name</label><input id="name"></div>
+        <div class="field"><label for="co">Company or artist name</label><input id="co"></div>
+        <div class="field"><label for="em">Email</label><input id="em" disabled></div>
+        <button class="btn" type="submit">Save</button>
+        <p class="msg" id="pm" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Password</h2>
+      <form id="pwf">
+        <div class="field"><label for="pw">New password</label>
+          <input id="pw" type="password" autocomplete="new-password"></div>
+        <div class="field"><label for="pw2">Type it again</label>
+          <input id="pw2" type="password" autocomplete="new-password"></div>
+        <button class="btn" type="submit">Change password</button>
+        <p class="msg" id="wm" role="status" aria-live="polite"></p>
+      </form>
+      <h2 style="margin-top:30px">Appearance</h2>
+      <button class="btn ghost" onclick="Theme.toggle()">Switch light / dark</button>
+    </div>
+  </div>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+
+(async () => {
+  const s = await requireSession(); if(!s) return;
+  const me = await mountChrome('account');
+  $('#name').value = me.full_name || ''; $('#co').value = me.company || ''; $('#em').value = me.email || '';
+
+  $('#pf').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m=$('#pm');
+    const { error } = await sb.from('profiles')
+      .update({ full_name:$('#name').value.trim(), company:$('#co').value.trim() }).eq('id', me.id);
+    say(m, error ? error.message : 'Saved.', error ? 'err':'ok');
+  });
+
+  $('#pwf').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m=$('#wm'), a=$('#pw').value, b=$('#pw2').value;
+    if(a.length<8) return say(m,'Use at least 8 characters.','err');
+    if(a!==b)      return say(m,'Those two do not match.','err');
+    const { error } = await sb.auth.updateUser({ password:a });
+    say(m, error ? error.message : 'Password changed.', error ? 'err':'ok');
+    if(!error){ $('#pw').value=''; $('#pw2').value=''; }
+  });
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Your projects · Stephen Amanor Sackey</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Client portal</p>
+    <h1 id="hello">Your projects</h1>
+    <p class="sub">Everything the studio is working on for you, and where each one has got to.</p>
+  </div>
+  <div id="list" class="grid2">
+    <div class="card"><div class="skeleton" style="width:60%"></div>
+      <div class="skeleton" style="width:40%;margin-top:12px"></div></div>
+  </div>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+
+(async () => {
+  const s = await requireSession(); if(!s) return;
+  const p = await mountChrome('projects');
+  if(p && (p.full_name)) $('#hello').textContent = 'Hello, ' + p.full_name.split(' ')[0];
+
+  const { data: projects, error } = await sb.from('projects')
+    .select('*, project_stages(sort_order,name,state)')
+    .order('created_at', { ascending:false });
+
+  const list = $('#list');
+  if(error){ list.innerHTML = '<div class="card"><p class="msg err">'+esc(error.message)+'</p></div>'; return; }
+  if(!projects || !projects.length){
+    list.innerHTML = '<div class="card"><p class="empty">No projects yet. Once the studio sets one up it appears here.</p></div>';
+    return;
+  }
+
+  list.innerHTML = projects.map(pr => {
+    const st = (pr.project_stages||[]).sort((a,b)=>a.sort_order-b.sort_order);
+    const done = st.filter(x=>x.state==='done').length;
+    const cur  = st.find(x=>x.state==='active') || st.find(x=>x.state==='blocked');
+    const pct  = st.length ? Math.round(done/st.length*100) : 0;
+    const blocked = st.some(x=>x.state==='blocked');
+    return '<a class="proj rise" href="project.html?id='+esc(pr.id)+'">'+
+      '<span class="pill '+(blocked?'warn':(pr.status==='delivered'?'ok':'accent'))+'">'+
+        (blocked ? 'Needs you' : esc(pr.status.replace("_"," "))) +'</span>'+
+      '<p class="title">'+esc(pr.title)+'</p>'+
+      '<p class="artist">'+esc(pr.artist || pr.service || '')+'</p>'+
+      '<div class="track-rail"><div class="track-fill" style="width:'+pct+'%"></div></div>'+
+      '<p class="meta" style="margin-top:14px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">'+
+        (cur ? esc(cur.name) : 'Complete') + ' \u00b7 ' + pct + '%</p>'+
+    '</a>';
+  }).join('');
+})();
+
+</script>
+</body>
+</html>

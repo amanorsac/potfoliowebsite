@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Billing · Stephen Amanor Sackey</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Billing</p>
+    <h1>Invoices</h1>
+    <p class="sub">Deposits and balances. Payments are handled by Stripe — the studio never sees your card details.</p>
+  </div>
+  <div class="card"><div id="inv"><div class="skeleton" style="width:50%"></div></div></div>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+
+(async () => {
+  const s = await requireSession(); if(!s) return;
+  await mountChrome('billing');
+  const { data: rows, error } = await sb.from('invoices')
+    .select('*, projects(title)').order('created_at',{ascending:false});
+  const box = $('#inv');
+  if(error){ box.innerHTML = '<p class="msg err">'+esc(error.message)+'</p>'; return; }
+  if(!rows || !rows.length){ box.innerHTML = '<p class="empty">Nothing outstanding.</p>'; return; }
+  box.innerHTML = rows.map(r => {
+    const paid = r.status === 'paid';
+    const pay  = safeUrl(r.pay_url);
+    return '<div class="row"><div>'+
+      '<h3>'+esc(r.label)+'</h3>'+
+      '<p class="meta">'+esc((r.projects&&r.projects.title)||'')+' \u00b7 '+when(r.created_at)+'</p></div>'+
+      '<div style="display:flex;align-items:center;gap:14px">'+
+        '<strong>'+money(r.amount_cents)+'</strong>'+
+        (paid ? '<span class="pill ok">Paid</span>'
+              : (pay ? '<a class="btn" style="align-self:auto;text-decoration:none" href="'+esc(pay)+'" target="_blank" rel="noopener">Pay now</a>'
+                     : '<span class="pill warn">Awaiting link</span>')) +
+      '</div></div>';
+  }).join('');
+})();
+
+</script>
+</body>
+</html>

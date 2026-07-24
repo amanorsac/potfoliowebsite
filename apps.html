@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HarmonieMD & EzPlay — Stephen Amanor Sackey</title>
+<meta name="description" content="Two audio applications built by a working engineer: a browser rehearsal platform for worship teams and a live performance platform that puts the band ahead of the track.">
+<meta property="og:title" content="HarmonieMD & EzPlay — Stephen Amanor Sackey">
+<meta property="og:description" content="Two audio applications built by a working engineer: a browser rehearsal platform for worship teams and a live performance platform that puts the band ahead of the track.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================
+   Stephen Amanor Sackey — shared design system
+   One stylesheet for all five pages. Each page sets
+   data-room on <body> to pick up its own accent colour.
+   =========================================================== */
+
+:root{
+  --ink:#16110D; --panel:#1E1712; --panel-2:#2A211A; --line:#3A2E24;
+  --paper:#F0E9DE; --muted:#9B8A79; --signal:#7FA88C;
+  --accent:#D0A24C;                      /* home / default: brass */
+  --display:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --rail:104px; --gut:clamp(20px,5vw,72px);
+}
+body[data-room="mixing"]{ --accent:#C9873F; }   /* copper, console */
+body[data-room="live"]  { --accent:#C4574B; }   /* tally red, on air */
+body[data-room="apps"]  { --accent:#7FA88C; }   /* signal green, software */
+body[data-room="piano"] { --accent:#D9C7A3; }   /* ivory, keys */
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+/* ---------- channel rack (room navigation) ---------- */
+.rack{position:fixed;left:0;top:0;bottom:0;width:var(--rail);border-right:1px solid var(--line);
+  background:linear-gradient(180deg,var(--panel) 0%,var(--ink) 100%);
+  display:flex;flex-direction:column;padding:20px 0;z-index:40}
+.rack-brand{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--accent);text-align:center;
+  text-transform:uppercase;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:6px;text-decoration:none;display:block}
+.rack-nav{display:flex;flex-direction:column;flex:1;justify-content:center}
+.strip{display:block;text-decoration:none;padding:10px 0 10px 14px;border-left:2px solid transparent;
+  transition:background .25s,border-color .25s}
+.strip:hover{background:var(--panel-2)}
+.strip.on{border-left-color:var(--accent);background:var(--panel-2)}
+.strip-name{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);transition:color .25s}
+.strip.on .strip-name{color:var(--paper)}
+.meter{display:flex;gap:2px;margin-top:5px}
+.meter i{width:4px;height:8px;background:var(--line);border-radius:.5px;transition:background .28s}
+.strip.on .meter i:nth-child(-n+3){background:var(--signal)}
+.strip.on .meter i:nth-child(4),.strip.on .meter i:nth-child(5){background:var(--accent)}
+.rack-foot{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);
+  text-align:center;padding-top:14px;border-top:1px solid var(--line)}
+
+/* ---------- shell ---------- */
+main{margin-left:var(--rail);padding:0 var(--gut)}
+.wrap{max-width:1020px;margin:0 auto}
+section{padding:clamp(92px,13vh,176px) 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 30px;display:flex;align-items:center;gap:12px}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--line);max-width:180px}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(33px,5vw,58px);line-height:1.06;margin:0 0 20px;letter-spacing:-.01em}
+h3{font-family:var(--display);font-weight:400;font-size:27px;margin:0 0 11px}
+.lede{color:var(--muted);max-width:50ch;margin:0 0 58px;font-size:17.5px;line-height:1.75}
+p{margin:0 0 16px}
+
+/* ---------- hero ---------- */
+.hero{min-height:93vh;display:flex;flex-direction:column;justify-content:center;padding-top:clamp(52px,8vh,92px)}
+.hero.short{min-height:72vh}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:30px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(50px,10.4vw,134px);line-height:.92;
+  margin:0 0 30px;letter-spacing:-.02em}
+h1 em{font-style:italic;color:var(--accent)}
+.hero.short h1{font-size:clamp(42px,8.2vw,98px)}
+.hero-thesis{font-size:clamp(18px,2.3vw,25px);line-height:1.62;max-width:32ch;margin:0 0 42px}
+.roles{display:flex;flex-wrap:wrap;gap:8px 10px;list-style:none;padding:0;margin:0 0 38px}
+.roles li{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:6px 13px}
+.wave{display:flex;align-items:flex-end;gap:3px;height:62px;opacity:.85}
+.wave span{flex:1;background:linear-gradient(180deg,var(--accent),var(--signal));border-radius:1px;
+  transform-origin:bottom;animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scaleY(.82)}50%{transform:scaleY(1)}}
+
+/* ---------- room cards (hub) ---------- */
+.rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px}
+.room{position:relative;display:block;text-decoration:none;border:1px solid var(--line);border-radius:4px;
+  padding:36px 32px 30px;background:var(--panel);overflow:hidden;
+  transition:border-color .3s,transform .3s,background .3s}
+.room::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--room);transition:width .3s}
+.room:hover{transform:translateY(-3px);border-color:var(--muted);background:var(--panel-2)}
+.room:hover::before{width:6px}
+.room-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--room);display:block;margin-bottom:11px}
+.room h3{margin-bottom:7px}
+.room p{color:var(--muted);font-size:14.5px;margin:0 0 16px}
+.room-go{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper)}
+
+/* ---------- credits / timeline clips ---------- */
+.ruler{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px}
+.lane{display:grid;grid-template-columns:160px 1fr;gap:26px;align-items:center;padding:24px 0;border-bottom:1px solid var(--line)}
+.lane-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.clip{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:3px;
+  padding:20px 24px;transition:border-color .25s,transform .25s,background .25s}
+.lane:hover .clip{background:#332920;border-color:var(--muted);transform:translateX(3px)}
+.clip-title{font-size:17px;font-weight:500;margin:0 0 3px}
+.clip-title span{font-style:italic;font-family:var(--display);font-size:20px}
+.clip-role{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin:0}
+.clip-note{color:var(--muted);font-size:14.5px;margin:6px 0 0}
+
+/* ---------- grids ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.cell{background:var(--ink);padding:36px 32px}
+.cell p{color:var(--muted);font-size:15px;margin:0}
+.cell .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:12px}
+
+/* ---------- numbered process ---------- */
+.steps{list-style:none;padding:0;margin:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:56px 1fr;gap:22px;padding:28px 0;border-bottom:1px solid var(--line)}
+.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  color:var(--accent);padding-top:5px}
+.steps h3{font-size:21px;margin:0 0 5px}
+.steps p{color:var(--muted);font-size:15px;margin:0}
+
+/* ---------- media embeds ---------- */
+.media-grid{display:grid;gap:18px}
+.media-grid.two{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.embed{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--panel)}
+.embed-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  padding:11px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+.embed-label b{color:var(--accent);font-weight:400}
+.embed iframe{display:block;width:100%;border:0}
+.embed.video iframe{aspect-ratio:16/9;height:auto}
+.embed.audio iframe{height:152px}
+.embed.audio.tall iframe{height:352px}
+
+/* ---------- A/B audio player ---------- */
+.ab{border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:20px 22px;margin-bottom:14px}
+.ab-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px}
+.ab-head h3{margin:0;font-size:22px}
+.ab-head .who{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ab-toggle{display:flex;gap:0;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-bottom:14px;width:max-content}
+.ab-toggle button{background:var(--panel-2);border:0;color:var(--muted);font-family:var(--mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;padding:10px 18px;cursor:pointer;transition:background .2s,color .2s}
+.ab-toggle button.on{background:var(--accent);color:var(--ink)}
+.ab audio{width:100%;height:38px}
+.ab-note{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--muted);margin:11px 0 0;line-height:1.7}
+
+/* ---------- photos ---------- */
+.shot{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:4px;background:var(--panel-2)}
+.shot img{width:100%;height:100%;object-fit:cover;filter:saturate(.88) contrast(1.04);transition:filter .5s,transform .7s}
+.shot::after{content:"";position:absolute;inset:0;background:var(--accent);mix-blend-mode:soft-light;opacity:.26;transition:opacity .5s;pointer-events:none}
+.shot:hover img{filter:none;transform:scale(1.02)}
+.shot:hover::after{opacity:0}
+.shot.empty{display:flex;align-items:center;justify-content:center;border-style:dashed;min-height:170px}
+.shot.empty img{display:none}
+.shot.empty::after{display:none}
+.slot-note{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:center;padding:20px;line-height:1.8;margin:0}
+.slot-note b{display:block;color:var(--accent);font-weight:400;margin-bottom:5px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.gallery .shot{aspect-ratio:4/5}
+
+/* ---------- app cards ---------- */
+.app{border:1px solid var(--line);border-radius:4px;padding:40px 38px;margin-bottom:18px;
+  background:linear-gradient(135deg,var(--panel) 0%,var(--ink) 70%)}
+.app-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;margin-bottom:12px}
+.app-head h3{font-size:31px;margin:0}
+.app-status{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);
+  border:1px solid var(--accent);border-radius:999px;padding:3px 10px}
+.app p{color:var(--muted);max-width:64ch}
+.spec{display:flex;flex-wrap:wrap;gap:7px;list-style:none;padding:0;margin:0}
+.spec li{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);background:var(--panel-2);border-radius:2px;padding:5px 10px}
+
+/* ---------- keyboard motif (piano) ---------- */
+.keys{display:flex;height:74px;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0 0 8px}
+.keys i{flex:1;background:var(--paper);border-right:1px solid #cbbfae;position:relative}
+.keys i:last-child{border-right:0}
+.keys i.b{flex:.62;background:#120E0B}
+.keys i.f{background:var(--accent)}
+
+/* ---------- about ---------- */
+.about-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;align-items:start}
+.about p{max-width:54ch;font-size:17px;line-height:1.75}
+.about p.first::first-letter{font-family:var(--display);font-size:56px;line-height:.85;float:left;padding:6px 12px 0 0;color:var(--accent)}
+.portrait{aspect-ratio:4/5;position:sticky;top:40px}
+
+/* ---------- contact ---------- */
+.contact-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+.mail{font-family:var(--display);font-size:clamp(24px,3.6vw,40px);text-decoration:none;display:inline-block;
+  line-height:1.2;border-bottom:1px solid var(--line);transition:border-color .25s,color .25s;word-break:break-word}
+.mail:hover{color:var(--accent);border-color:var(--accent)}
+.contact-meta{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:26px;line-height:2}
+form{display:flex;flex-direction:column;gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+input,select,textarea{background:var(--panel);border:1px solid var(--line);border-radius:3px;color:var(--paper);
+  font-family:var(--body);font-size:15px;padding:12px 14px;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none}
+textarea{resize:vertical;min-height:118px}
+button.send{background:var(--accent);color:var(--ink);border:0;border-radius:3px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;padding:15px 22px;cursor:pointer;transition:background .2s,transform .1s}
+button.send:active{transform:translateY(1px)}
+button.send[disabled]{opacity:.55;cursor:default}
+.form-msg{font-family:var(--mono);font-size:11px;letter-spacing:.06em;line-height:1.7;margin:0;min-height:1.2em}
+.form-msg.ok{color:var(--signal)}
+.form-msg.err{color:#D98A6A}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* ---------- cross-links + footer ---------- */
+.next{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.next a{text-decoration:none;border:1px solid var(--line);border-radius:4px;padding:28px 30px;background:var(--panel);
+  transition:border-color .25s,background .25s}
+.next a:hover{border-color:var(--muted);background:var(--panel-2)}
+.next span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.next b{font-family:var(--display);font-weight:400;font-size:22px}
+footer{margin-left:var(--rail);padding:24px var(--gut);border-top:1px solid var(--line);font-family:var(--mono);
+  font-size:10px;letter-spacing:.11em;color:var(--muted);text-transform:uppercase;
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+footer a{text-decoration:none}
+footer a:hover{color:var(--accent)}
+
+.rise{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+.rise.in{opacity:1;transform:none}
+
+@media (max-width:900px){
+  .about-grid,.contact-grid{grid-template-columns:1fr;gap:32px}
+  .portrait{position:static;max-width:330px}
+}
+@media (max-width:860px){
+  :root{--rail:0px}
+  .rack{position:sticky;top:0;bottom:auto;width:100%;height:auto;flex-direction:row;align-items:center;padding:0 10px;
+    overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);background:var(--panel)}
+  .rack-brand,.rack-foot,.meter{display:none}
+  .rack-nav{flex-direction:row;justify-content:flex-start}
+  .strip{border-left:0;border-bottom:2px solid transparent;padding:14px 12px 11px;white-space:nowrap}
+  .strip.on{border-bottom-color:var(--accent);background:transparent}
+  main,footer{margin-left:0}
+  .lane{grid-template-columns:1fr;gap:9px}
+  .hero{min-height:74vh}
+  .steps li{grid-template-columns:38px 1fr;gap:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rise{opacity:1;transform:none}
+}
+
+/* ---------- full-bleed hero image ---------- */
+.hero{position:relative;isolation:isolate}
+.hero-bg{position:absolute;top:0;bottom:0;left:50%;
+  margin-left:calc(-50vw + var(--rail)/2);width:calc(100vw - var(--rail));
+  z-index:-2;overflow:hidden;background:var(--panel)}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 30%;
+  filter:saturate(.72) contrast(1.06) brightness(.78)}
+.hero-bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--ink) 0%,rgba(22,17,13,.92) 38%,rgba(22,17,13,.55) 68%,rgba(22,17,13,.75) 100%)}
+.hero-bg.tint::after{background:linear-gradient(180deg,rgba(22,17,13,.55) 0%,rgba(22,17,13,.8) 55%,var(--ink) 100%)}
+.hero-bg .field{position:absolute;inset:0;display:flex;align-items:center;gap:4px;padding:0 3vw;opacity:.16}
+.hero-bg .field span{flex:1;background:var(--accent);border-radius:1px;transform-origin:center}
+.hero .wave{position:relative;z-index:1}
+.hero > *:not(.hero-bg){position:relative;z-index:1}
+
+/* ---------- full-bleed image band ---------- */
+.band{position:relative;left:50%;margin-left:calc(-50vw + var(--rail)/2);width:calc(100vw - var(--rail));
+  height:clamp(260px,44vh,480px);overflow:hidden;background:var(--panel-2);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.band img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) contrast(1.05) brightness(.86)}
+.band .cap{position:absolute;left:var(--gut);bottom:26px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--paper);text-shadow:0 1px 12px rgba(0,0,0,.9)}
+.band.empty{display:flex;align-items:center;justify-content:center;border-style:dashed}
+
+/* ---------- taller gallery, feature first tile ---------- */
+.gallery .shot:first-child{grid-column:span 2}
+@media (max-width:640px){ .gallery .shot:first-child{grid-column:span 1} }
+
+</style>
+</head>
+<body data-room="apps">
+
+<nav class="rack" aria-label="Rooms">
+  <a class="rack-brand" href="index.html">S·A·S</a>
+  <div class="rack-nav">
+    <a class="strip" href="index.html"><span class="strip-name">Home</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="mixing.html"><span class="strip-name">Mixing</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="live.html"><span class="strip-name">Live</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="piano.html"><span class="strip-name">Piano</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip on" href="apps.html"><span class="strip-name">Apps</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="portal/login.html"><span class="strip-name">Clients</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="index.html#contact"><span class="strip-name">Contact</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+  </div>
+  <div class="rack-foot">EST</div>
+</nav>
+<main><div class="wrap">
+  <header class="hero short">
+    <div class="hero-eyebrow">04 — Software</div>
+    <h1>Tools I built<br>because they <em>didn’t exist</em></h1>
+    <p class="hero-thesis">Both came out of a real Sunday going wrong. I am the user before the developer.</p>
+    <div class="wave" aria-hidden="true"></div>
+  </header>
+
+  <section>
+    <div class="app rise">
+      <div class="app-head"><h3>HarmonieMD</h3><span class="app-status">Coming soon</span></div>
+      <p><b>The problem.</b> Three vocalists in a room, one learning an alto line while the others wait. That part could have been learned at home.</p>
+      <p><b>What it does.</b> Singers open the song in a browser, solo their own part, and turn up already knowing it. Seven buses, stem isolation, full multitrack editing.</p>
+      <p><b>Under it.</b> An AudioWorklet PCM capture engine replaced a path that introduced buffer-level artifacts, so recording is sample-accurate in the browser. Voice encoding sits at OPUS 48 kbps mono, set by testing intelligibility against storage cost.</p>
+      <ul class="spec"><li>AudioWorklet PCM capture</li><li>Sample-accurate recording</li><li>Seven track buses</li><li>Per-part stem isolation</li><li>Virtualised timeline</li><li>Clip editing, undo/redo</li><li>OPUS 48 kbps mono</li></ul>
+    </div>
+
+    <div class="app rise">
+      <div class="app-head"><h3>EzPlay</h3><span class="app-status">Coming soon</span></div>
+      <p><b>The problem.</b> Backing tracks turn a live band into playback operators. Nobody can stretch a moment, and the show has to sound like the record whether the room wants that or not.</p>
+      <p><b>What it does.</b> Puts the band ahead of the track. Performers control loops, stems, and arrangement live, and the track follows.</p>
+      <ul class="spec"><li>Live loop control</li><li>Stem-level playback</li><li>Arrangement on the fly</li><li>Band-led timing</li></ul>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Why me</p>
+    <h2>Built by someone who has to use it on Sunday</h2>
+    <div class="grid">
+      <div class="cell rise"><span class="tag">Tested live</span><h3>In a real room</h3><p>Used by a working team on an actual service, not in a demo.</p></div>
+      <div class="cell rise"><span class="tag">Audio first</span><h3>Signal, then UI</h3><p>The capture engine came before the interface.</p></div>
+      <div class="cell rise"><span class="tag">Volunteers</span><h3>Non-technical users</h3><p>For people who have never opened a session window.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Early access</p>
+    <h2>Want in when it opens?</h2>
+    <p class="lede">Both are in private testing. Tell me which one and what your team looks like.</p>
+    <div class="next">
+      <a href="index.html#contact"><span>Join the list</span><b>Get in touch →</b></a>
+      <a href="mixing.html"><span>01 — Studio</span><b>Mixing &amp; Mastering</b></a>
+      <a href="live.html"><span>02 — On air</span><b>Live &amp; Stream</b></a>
+    </div>
+  </section>
+
+</div></main>
+
+<footer>
+  <span><a href="index.html">← Back to the hub</a></span>
+  <span>Stephen Amanor Sackey · Virginia, United States</span>
+</footer>
+
+<script>
+/* ===========================================================
+   EDIT THIS BLOCK ONLY.
+   Everything on every page reads from here.
+   =========================================================== */
+var CONFIG = {
+
+  /* 1. CONTACT FORM -----------------------------------------
+     Sign up free at formspree.io, create a form, paste the URL.
+     Leave empty and the form falls back to opening an email app. */
+  formEndpoint: "",
+
+  /* 2. SOCIAL LINKS -----------------------------------------
+     Leave any empty and it won't render. */
+  social: {
+    youtube:   "",
+    instagram: "",
+    spotify:   ""
+  },
+
+  /* 3. SONGS AND VIDEOS -------------------------------------
+     THIS IS THE LIST YOU GROW. To add a song you worked on,
+     copy one line below, paste it above the others, and change
+     the details. Paste the WHOLE link - YouTube or Spotify,
+     either works, the page figures out which.
+
+     rooms: which pages it shows on. Options are
+       "home"  "mixing"  "live"  "piano"
+     Use as many as apply. Leave it out and it shows everywhere.
+
+     Newest first. Delete any line you do not want. */
+  works: [
+
+    { url:   "",
+      title: "Unveiled",
+      artist:"Kingsley Anyenor",
+      role:  "Mix & Master",
+      rooms: ["home","mixing"] },
+
+    { url:   "",
+      title: "Home",
+      artist:"Viv Adjei",
+      role:  "Mix & Master",
+      rooms: ["home","mixing"] },
+
+    { url:   "",
+      title: "Perfect God",
+      artist:"Diana Hamilton",
+      role:  "Arrangement & Piano",
+      rooms: ["home","piano"] },
+
+    { url:   "",
+      title: "Nyame Nti",
+      artist:"Blossom 3io",
+      role:  "Production & Mix",
+      rooms: ["home","mixing"] },
+
+    { url:   "",
+      title: "Sunday service",
+      artist:"Full stream",
+      role:  "Live & Broadcast Mix",
+      rooms: ["live"] }
+
+  ],
+
+  /* 5. BEFORE / AFTER CLIPS ---------------------------------
+     Put mp3 files in the audio folder. 15-20 seconds each is plenty.
+     Same passage in both so the comparison is honest. */
+  ab: [
+    { title:"Close-harmony vocal", who:"Three-part trio",
+      raw:"audio/vocal-raw.mp3", mixed:"audio/vocal-mixed.mp3",
+      note:"Rough stems against the finished mix. Same eight bars." },
+    { title:"Live worship capture", who:"Single take, no re-tracking",
+      raw:"audio/live-raw.mp3", mixed:"audio/live-mixed.mp3",
+      note:"Board feed against the mixed and mastered release." },
+    { title:"Master chain", who:"Mix against final master",
+      raw:"audio/master-before.mp3", mixed:"audio/master-after.mp3",
+      note:"Level matched by ear so the comparison is about tone, not loudness." }
+  ],
+
+  /* 6. PHOTOS -----------------------------------------------
+     Drop files in the images folder. */
+  portrait: "images/portrait.jpg",
+
+  /* Big background photo behind the headline on each page.
+     Landscape, wide, at least 2000px across. Leave "" to keep
+     the generated waveform field instead. */
+  hero: {
+    home:   "images/hero-home.jpg",
+    mixing: "images/hero-mixing.jpg",
+    live:   "images/hero-live.jpg",
+    piano:  "images/hero-piano.jpg",
+    apps:   ""
+  },
+
+  /* Full-width photo strips between sections. */
+  band: {
+    home:   { src:"images/band-home.jpg",   cap:"Front of house" },
+    mixing: { src:"images/band-mixing.jpg", cap:"At the desk" },
+    live:   { src:"images/band-live.jpg",   cap:"Sunday, mid-service" },
+    piano:  { src:"images/band-piano.jpg",  cap:"Keys" }
+  },
+  gallery: {
+    home:   ["images/studio-01.jpg","images/live-01.jpg","images/session-01.jpg","images/live-02.jpg"],
+    mixing: ["images/desk-01.jpg","images/desk-02.jpg","images/session-02.jpg"],
+    live:   ["images/foh-01.jpg","images/stream-01.jpg","images/stage-01.jpg"],
+    piano:  ["images/piano-01.jpg","images/piano-02.jpg","images/piano-03.jpg"]
+  },
+
+  email: "amanorsac@gmail.com"
+};
+/* ==================== stop editing here ==================== */
+
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $  = function(s,r){ return (r||document).querySelector(s); };
+  var $$ = function(s,r){ return [].slice.call((r||document).querySelectorAll(s)); };
+
+  /* ---- hero background: photo, or a generated field if there is none ---- */
+  var heroEl = $('.hero');
+  if (heroEl) {
+    var room = document.body.getAttribute('data-room') || 'home';
+    var bg = document.createElement('div');
+    bg.className = 'hero-bg';
+    var src = (CONFIG.hero || {})[room];
+
+    function field(){
+      bg.classList.remove('tint');
+      var f = document.createElement('div');
+      f.className = 'field';
+      for (var k=0;k<110;k++){
+        var bar=document.createElement('span'), u=k/110;
+        var h = 8 + Math.abs(Math.sin(u*13.7))*46 + Math.abs(Math.sin(u*3.1))*34 + Math.abs(Math.sin(u*41))*12;
+        bar.style.height = Math.min(h,92)+'%';
+        f.appendChild(bar);
+      }
+      bg.innerHTML=''; bg.appendChild(f);
+    }
+
+    if (src) {
+      bg.classList.add('tint');
+      var im = new Image();
+      im.src = src; im.alt = ''; im.loading = 'eager';
+      im.onerror = field;
+      bg.appendChild(im);
+    } else { field(); }
+    heroEl.insertBefore(bg, heroEl.firstChild);
+  }
+
+  /* ---- full-width photo band ---- */
+  var bandEl = $('#band');
+  if (bandEl) {
+    var b = (CONFIG.band || {})[document.body.getAttribute('data-room') || 'home'];
+    if (b && b.src) {
+      var bi = new Image();
+      bi.src = b.src; bi.alt = b.cap || ''; bi.loading='lazy';
+      bi.onerror = function(){
+        bandEl.classList.add('empty');
+        bandEl.innerHTML = '<p class="slot-note"><b>Wide photo slot</b>'+b.src+'</p>';
+      };
+      bandEl.appendChild(bi);
+      if (b.cap) { var c=document.createElement('span'); c.className='cap'; c.textContent=b.cap; bandEl.appendChild(c); }
+    } else {
+      bandEl.classList.add('empty');
+      bandEl.innerHTML = '<p class="slot-note"><b>Wide photo slot</b>set it in the CONFIG block</p>';
+    }
+  }
+
+  /* ---- waveform ---- */
+  var wave = $('.wave');
+  if (wave) {
+    for (var i=0,n=64;i<n;i++){
+      var b=document.createElement('span'), t=i/n;
+      b.style.height = Math.min(16+Math.abs(Math.sin(t*9.4))*44+Math.abs(Math.sin(t*2.1))*20,62)+'px';
+      if(!reduce) b.style.animationDelay=(t*2.6).toFixed(2)+'s';
+      wave.appendChild(b);
+    }
+  }
+
+  /* ---- photo slots ---- */
+  function shot(src,alt,cls){
+    var d=document.createElement('div');
+    d.className='shot'+(cls?' '+cls:'');
+    if(!src){ blank(d,'no file set'); return d; }
+    var img=new Image();
+    img.src=src; img.alt=alt||''; img.loading='lazy';
+    img.onerror=function(){ blank(d,src); };
+    d.appendChild(img);
+    return d;
+  }
+  function blank(el,name){
+    el.classList.add('empty');
+    el.innerHTML='<p class="slot-note"><b>Photo slot</b>'+name+'</p>';
+  }
+
+  var ps=$('#portrait-slot');
+  if(ps){
+    var made=shot(CONFIG.portrait,'Stephen Amanor Sackey');
+    ps.className=made.className+' portrait';
+    ps.innerHTML=made.innerHTML;
+    if(made.firstChild && made.firstChild.tagName==='IMG') ps.appendChild(made.firstChild);
+  }
+
+  var gal=$('#gallery');
+  if(gal){
+    var key=gal.getAttribute('data-set')||'home';
+    (CONFIG.gallery[key]||[]).forEach(function(src){ gal.appendChild(shot(src,'Studio and live work')); });
+  }
+
+  /* ---- works: paste any YouTube or Spotify link ---- */
+  function parseLink(url){
+    if(!url) return null;
+    var m;
+    if((m = url.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/)))
+      return { kind:'video', src:'https://www.youtube-nocookie.com/embed/'+m[1]+'?rel=0' };
+    if((m = url.match(/open\.spotify\.com\/(track|album|artist|playlist|episode)\/([A-Za-z0-9]+)/)))
+      return { kind:'audio'+(m[1]==='album'||m[1]==='artist'||m[1]==='playlist'?' tall':''),
+               src:'https://open.spotify.com/embed/'+m[1]+'/'+m[2]+'?theme=0' };
+    return null;
+  }
+
+  $$('[data-works]').forEach(function(grid){
+    var only = grid.getAttribute('data-works');           // "" = everything
+    var list = (CONFIG.works||[]).filter(function(w){
+      if(!only) return true;
+      return !w.rooms || w.rooms.indexOf(only) !== -1;
+    });
+
+    var shown = 0;
+    list.forEach(function(w){
+      var link = parseLink(w.url);
+      var box = document.createElement('div');
+      box.className = 'embed ' + (link ? link.kind : 'video') + ' rise';
+      var head = '<div class="embed-label"><span>' + (w.title||'Untitled') +
+                 (w.artist ? ' \u00b7 ' + w.artist : '') + '</span>' +
+                 (w.role ? '<b>' + w.role + '</b>' : '') + '</div>';
+      if(link){
+        box.innerHTML = head + '<iframe src="'+link.src+'" title="'+(w.title||'')+'" loading="lazy" '+
+          'frameborder="0" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+        shown++;
+      } else {
+        box.innerHTML = head + '<p class="slot-note"><b>Paste a link</b>YouTube or Spotify, in the works list</p>';
+      }
+      grid.appendChild(box);
+    });
+
+    if(!list.length) grid.parentNode.removeChild(grid);
+  });
+
+  /* ---- A/B players ---- */
+  var abWrap=$('#ab-grid');
+  if(abWrap) (CONFIG.ab||[]).forEach(function(c,idx){
+    var box=document.createElement('div');
+    box.className='ab rise';
+    box.innerHTML =
+      '<div class="ab-head"><h3>'+c.title+'</h3><span class="who">'+(c.who||'')+'</span></div>'+
+      '<div class="ab-toggle"><button type="button" data-k="raw" class="on">Before</button>'+
+      '<button type="button" data-k="mixed">After</button></div>'+
+      '<audio controls preload="none" src="'+c.raw+'"></audio>'+
+      '<p class="ab-note">'+(c.note||'')+'</p>';
+    var audio=$('audio',box), btns=$$('button',box);
+    var missing=false;
+    audio.addEventListener('error',function(){
+      if(missing) return; missing=true;
+      $('.ab-note',box).textContent='Audio slot — add '+c.raw+' and '+c.mixed+' to the audio folder.';
+    });
+    btns.forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var was=audio.currentTime, playing=!audio.paused;
+        btns.forEach(function(b){ b.classList.toggle('on', b===btn); });
+        audio.src = c[btn.getAttribute('data-k')];
+        audio.currentTime = was || 0;       // stay at the same moment in the passage
+        if(playing) audio.play();
+      });
+    });
+    abWrap.appendChild(box);
+  });
+
+  /* ---- social links ---- */
+  var soc=$('#social');
+  if(soc){
+    var out=[];
+    Object.keys(CONFIG.social).forEach(function(k){
+      if(CONFIG.social[k]) out.push('<a href="'+CONFIG.social[k]+'" target="_blank" rel="noopener">'+k+'</a>');
+    });
+    if(out.length) soc.innerHTML=out.join(' &nbsp;·&nbsp; ');
+  }
+
+  /* ---- contact form ---- */
+  var form=$('#contact-form');
+  if(form){
+    var msg=$('#form-msg'), send=$('#send');
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      msg.className='form-msg';
+      var name=form.name.value.trim(), email=form.email.value.trim(), body=form.message.value.trim();
+      if(!name||!email||!body){ msg.textContent='Fill in your name, email, and a note about the project.'; msg.className='form-msg err'; return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent="That email address doesn't look right."; msg.className='form-msg err'; return; }
+      if(form._gotcha.value) return;
+
+      if(!CONFIG.formEndpoint){
+        window.location.href='mailto:'+CONFIG.email+'?subject='+
+          encodeURIComponent(form.service.value+' enquiry from '+name)+
+          '&body='+encodeURIComponent(body+'\n\n'+name+'\n'+email);
+        msg.textContent='Opening your email app.'; msg.className='form-msg ok'; return;
+      }
+
+      send.disabled=true; send.textContent='Sending';
+      fetch(CONFIG.formEndpoint,{method:'POST',headers:{'Accept':'application/json'},body:new FormData(form)})
+        .then(function(r){ if(!r.ok) throw new Error();
+          form.reset();
+          msg.textContent="Got it. I'll come back to you within two working days.";
+          msg.className='form-msg ok';
+        })
+        .catch(function(){
+          msg.textContent="That didn't send. Email "+CONFIG.email+" directly and I'll pick it up.";
+          msg.className='form-msg err';
+        })
+        .then(function(){ send.disabled=false; send.textContent='Send message'; });
+    });
+  }
+
+  /* ---- reveal ---- */
+  if('IntersectionObserver' in window){
+    var ro=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); ro.unobserve(e.target); } });
+    },{rootMargin:'0px 0px -8% 0px',threshold:.08});
+    $$('.rise').forEach(function(el){ ro.observe(el); });
+  } else {
+    $$('.rise').forEach(function(el){ el.classList.add('in'); });
+  }
+})();
+
+</script>
+</body>
+</html>

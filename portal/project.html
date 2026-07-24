@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Project · Stephen Amanor Sackey</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow"><a href="dashboard.html" style="color:inherit;text-decoration:none">&larr; All projects</a></p>
+    <h1 id="title">Loading…</h1>
+    <p class="sub" id="artist"></p>
+  </div>
+
+  <div class="card rise">
+    <div class="card-head"><h2>Progress</h2><span class="pill" id="status"></span></div>
+    <div id="track"></div>
+    <div class="track-note" id="track-note"></div>
+  </div>
+
+  <div class="card rise">
+    <div class="card-head"><h2>Files</h2><span class="pill" id="filecount"></span></div>
+    <div id="files"><p class="empty">Nothing here yet.</p></div>
+    <details style="margin-top:20px">
+      <summary style="cursor:pointer;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)">Send the studio a file</summary>
+      <form id="linkform" style="margin-top:16px">
+        <p class="hint">Stems and multitracks are far too big to upload here. Put them on Dropbox, WeTransfer, or Google Drive, set the link so anyone with it can view, and paste it below.</p>
+        <div class="fieldrow">
+          <div class="field half"><label for="flabel">What is it</label>
+            <input id="flabel" placeholder="Stems for Track 3" required></div>
+          <div class="field half"><label for="furl">Link</label>
+            <input id="furl" type="url" placeholder="https://…" required></div>
+        </div>
+        <button class="btn" type="submit">Send link</button>
+        <p class="msg" id="lm" role="status" aria-live="polite"></p>
+      </form>
+    </details>
+  </div>
+
+  <div class="card rise">
+    <div class="card-head"><h2>Revisions</h2><span class="pill" id="revpill"></span></div>
+    <div class="rounds" id="rounds"></div>
+    <p class="hint" style="margin-top:12px">Your package includes three rounds. Bundle everything you notice into one submission per round and we will get there faster.</p>
+    <div id="revlist" style="margin-top:22px"></div>
+
+    <details id="revwrap" style="margin-top:22px">
+      <summary style="cursor:pointer;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)">Request a revision</summary>
+      <form id="revform" style="margin-top:18px">
+        <p class="hint">One note per thing you noticed. The more precise you are, the closer the next version lands. A reference track is the single most useful thing you can give me.</p>
+        <div id="notes"></div>
+        <button class="btn ghost" type="button" id="addnote">+ Another note</button>
+        <div class="field"><label for="ref">Reference track (optional)</label>
+          <input id="ref" type="url" placeholder="https://open.spotify.com/… or a YouTube link"></div>
+        <button class="btn" id="revgo" type="submit">Submit this round</button>
+        <p class="msg" id="rm" role="status" aria-live="polite"></p>
+      </form>
+    </details>
+  </div>
+
+  <div class="card rise">
+    <div class="card-head"><h2>Messages</h2></div>
+    <div id="msgs"><p class="empty">No messages yet.</p></div>
+    <form id="msgform" style="margin-top:18px">
+      <div class="field"><label for="mbody">Add a message</label>
+        <textarea id="mbody" placeholder="Anything you want to flag" required></textarea></div>
+      <button class="btn" type="submit">Send</button>
+      <p class="msg" id="mm" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+
+const PID = new URLSearchParams(location.search).get('id');
+
+const ELEMENTS = ['Overall','Lead vocal','Backing vocals','Kick','Snare','Bass','Guitars','Keys','Low end','Highs','Stereo width','Reverb / space'];
+function noteRow(i){
+  return '<div class="card" style="box-shadow:none;background:var(--surface-2);margin-bottom:12px">'+
+    '<div class="fieldrow">'+
+      '<div class="field half"><label>Where (timecode)</label><input class="n-time" placeholder="1:32"></div>'+
+      '<div class="field half"><label>What element</label><select class="n-el">'+
+        ELEMENTS.map(e=>'<option>'+e+'</option>').join('')+'</select></div>'+
+    '</div>'+
+    '<div class="field"><label>What you are hearing now</label>'+
+      '<input class="n-hear" placeholder="The vocal disappears under the guitars"></div>'+
+    '<div class="field"><label>What you want instead</label>'+
+      '<textarea class="n-want" placeholder="Bring it forward so the words sit on top, without making it harsh"></textarea></div>'+
+    '<div class="field"><label>Priority</label><select class="n-pri">'+
+      '<option value="must">Must fix</option><option value="nice">Nice to have</option></select></div>'+
+  '</div>';
+}
+
+(async () => {
+  const s = await requireSession(); if(!s) return;
+  const me = await mountChrome('projects');
+  if(!PID){ location.replace('dashboard.html'); return; }
+
+  async function load(){
+    const { data: pr, error } = await sb.from('projects').select('*').eq('id', PID).single();
+    if(error || !pr){ $('#title').textContent = 'Project not found'; return; }
+    $('#title').textContent  = pr.title;
+    $('#artist').textContent = [pr.artist, pr.service].filter(Boolean).join(' \u00b7 ');
+    const stp = $('#status'); stp.textContent = pr.status.replace('_',' ');
+    stp.className = 'pill ' + (pr.status === 'delivered' ? 'ok' : 'accent');
+
+    const { data: stages } = await sb.from('project_stages').select('*').eq('project_id', PID);
+    renderTrack($('#track'), stages || [], pr);
+
+    // ---- revisions
+    const used = pr.revisions_used, allowed = pr.revisions_allowed;
+    const left = Math.max(0, allowed - used);
+    const rp = $('#revpill');
+    rp.textContent = left + ' of ' + allowed + ' left';
+    rp.className = 'pill ' + (left === 0 ? 'warn' : left === 1 ? 'warn' : 'accent');
+    $('#rounds').innerHTML = Array.from({length:allowed}, (_,i) =>
+      '<i class="'+(i < used ? (i === allowed-1 ? 'last' : 'used') : '')+'"></i>').join('');
+    if(left === 0){
+      $('#revwrap').innerHTML = '<p class="hint">You have used all '+allowed+
+        ' rounds. Extra rounds are available \u2014 message me below and I will send a link.</p>';
+    }
+
+    const { data: revs } = await sb.from('revision_requests')
+      .select('*, revision_notes(*)').eq('project_id', PID).order('round_no');
+    $('#revlist').innerHTML = (revs && revs.length) ? revs.map(r =>
+      '<div class="row" style="align-items:flex-start"><div>'+
+        '<h3>Round '+r.round_no+'</h3>'+
+        '<p class="meta">'+ (r.revision_notes||[]).length +' notes \u00b7 '+ when(r.created_at) +'</p>'+
+      '</div><span class="pill '+(r.status==='done'?'ok':'')+'">'+esc(r.status.replace('_',' '))+'</span></div>'
+    ).join('') : '<p class="empty">No revisions requested yet.</p>';
+
+    // ---- files
+    const { data: files } = await sb.from('deliverables')
+      .select('*').eq('project_id', PID).order('created_at',{ascending:false});
+    $('#filecount').textContent = (files||[]).length + ' items';
+    $('#files').innerHTML = (files && files.length) ? files.map(f =>
+      '<div class="row"><div><h3>'+esc(f.label)+'</h3>'+
+      '<p class="meta">'+(f.direction==='to_client'?'From the studio':'You sent this')+' \u00b7 '+when(f.created_at)+'</p></div>'+
+      '<span>'+linkHtml(f.url,'Open')+'</span></div>').join('')
+      : '<p class="empty">Nothing here yet.</p>';
+
+    // ---- messages
+    const { data: msgs } = await sb.from('messages')
+      .select('*').eq('project_id', PID).order('created_at');
+    $('#msgs').innerHTML = (msgs && msgs.length) ? msgs.map(m =>
+      '<div class="row" style="align-items:flex-start"><div>'+
+      '<p style="margin:0 0 4px">'+esc(m.body)+'</p>'+
+      '<p class="meta">'+when(m.created_at)+'</p></div></div>').join('')
+      : '<p class="empty">No messages yet.</p>';
+  }
+
+  await load();
+
+  // live progress
+  sb.channel('proj-'+PID)
+    .on('postgres_changes',{event:'*',schema:'public',table:'project_stages',filter:'project_id=eq.'+PID}, load)
+    .on('postgres_changes',{event:'*',schema:'public',table:'projects',filter:'id=eq.'+PID}, load)
+    .subscribe();
+
+  // ---- send a link
+  $('#linkform').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m=$('#lm'), url=safeUrl($('#furl').value), label=$('#flabel').value.trim();
+    if(!label) return say(m,'Give it a name so I know what it is.','err');
+    if(!url)   return say(m,'That link does not look right. It should start with https://','err');
+    const { error } = await sb.from('deliverables').insert({
+      project_id:PID, label, url, direction:'from_client', uploaded_by: me.id });
+    if(error) return say(m,error.message,'err');
+    say(m,'Got it, thanks.','ok'); e.target.reset(); load();
+  });
+
+  // ---- revision form
+  const notes = $('#notes');
+  notes.insertAdjacentHTML('beforeend', noteRow(0));
+  $('#addnote').addEventListener('click', () => notes.insertAdjacentHTML('beforeend', noteRow()));
+
+  $('#revform').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m=$('#rm'), go=$('#revgo');
+    const rows = $$('.card', notes).map(c => ({
+      timecode: $('.n-time',c).value.trim(),
+      element:  $('.n-el',c).value,
+      hearing:  $('.n-hear',c).value.trim(),
+      wanted:   $('.n-want',c).value.trim(),
+      priority: $('.n-pri',c).value
+    })).filter(n => n.wanted || n.hearing);
+    if(!rows.length) return say(m,'Add at least one note before submitting.','err');
+
+    go.disabled = true; go.textContent = 'Submitting';
+    const { data: rev, error } = await sb.from('revision_requests')
+      .insert({ project_id:PID, submitted_by: me.id }).select().single();
+    go.disabled = false; go.textContent = 'Submit this round';
+
+    if(error){
+      return say(m, /REVISION_LIMIT_REACHED/.test(error.message)
+        ? 'You have used all your revision rounds. Message me and I will send a link for an extra one.'
+        : error.message, 'err');
+    }
+    const ref = safeUrl($('#ref').value);
+    await sb.from('revision_notes').insert(rows.map(n => Object.assign(n, {
+      revision_id: rev.id, reference_url: ref })));
+    say(m,'Submitted. I will come back to you shortly.','ok');
+    notes.innerHTML = noteRow(0); $('#ref').value=''; load();
+  });
+
+  // ---- messages
+  $('#msgform').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m=$('#mm'), body=$('#mbody').value.trim();
+    if(!body) return;
+    const { error } = await sb.from('messages').insert({ project_id:PID, sender_id:me.id, body });
+    if(error) return say(m,error.message,'err');
+    $('#mbody').value=''; say(m,'Sent.','ok'); load();
+  });
+})();
+
+</script>
+</body>
+</html>

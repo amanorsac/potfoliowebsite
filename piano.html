@@ -400,8 +400,8 @@ var CONFIG = {
      Newest first. Delete any line you do not want. */
   works: [
 
-    { url:   "",
-      title: "Unveiled",
+    { url:   "https://www.youtube.com/playlist?list=OLAK5uy_n74Hdmc1nF0HK9jpFxboc99tjXZD_Xuhg",
+      title: "THE UNVEILED (full album)",
       artist:"Kingsley Anyenor",
       role:  "Mix & Master",
       rooms: ["home","mixing"] },
@@ -582,6 +582,8 @@ var CONFIG = {
     var m;
     if((m = url.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/)))
       return { kind:'video', src:'https://www.youtube-nocookie.com/embed/'+m[1]+'?rel=0' };
+    if((m = url.match(/[?&]list=([\w-]+)/)))
+      return { kind:'video', src:'https://www.youtube-nocookie.com/embed/videoseries?list='+m[1] };
     if((m = url.match(/open\.spotify\.com\/(track|album|artist|playlist|episode)\/([A-Za-z0-9]+)/)))
       return { kind:'audio'+(m[1]==='album'||m[1]==='artist'||m[1]==='playlist'?' tall':''),
                src:'https://open.spotify.com/embed/'+m[1]+'/'+m[2]+'?theme=0' };

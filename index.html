@@ -19,9 +19,9 @@
    =========================================================== */
 
 :root{
-  --ink:#16110D; --panel:#1E1712; --panel-2:#2A211A; --line:#3A2E24;
-  --paper:#F0E9DE; --muted:#9B8A79; --signal:#7FA88C;
-  --accent:#D0A24C;                      /* home / default: brass */
+  --ink:#F7F6F2; --panel:#FFFFFF; --panel-2:#F0EEE8; --line:#E3E0D8;
+  --paper:#1A1830; --muted:#6E6B7A; --signal:#3C3489;
+  --accent:#EF9F27;                      /* home / default: brand orange */
   --display:'Instrument Serif',Georgia,'Times New Roman',serif;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -75,12 +75,12 @@ h3{font-family:var(--display);font-weight:400;font-size:27px;margin:0 0 11px}
 p{margin:0 0 16px}
 
 /* ---------- hero ---------- */
-.hero{min-height:93vh;display:flex;flex-direction:column;justify-content:center;padding-top:clamp(52px,8vh,92px)}
+.hero{min-height:78vh;display:flex;flex-direction:column;justify-content:flex-start;padding-top:clamp(64px,12vh,150px)}
 .hero.short{min-height:72vh}
 .hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
   color:var(--accent);margin-bottom:30px}
-h1{font-family:var(--display);font-weight:400;font-size:clamp(50px,10.4vw,134px);line-height:.92;
-  margin:0 0 30px;letter-spacing:-.02em}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(40px,7.2vw,92px);line-height:.94;
+  margin:0 0 26px;letter-spacing:-.02em}
 h1 em{font-style:italic;color:var(--accent)}
 .hero.short h1{font-size:clamp(42px,8.2vw,98px)}
 .hero-thesis{font-size:clamp(18px,2.3vw,25px);line-height:1.62;max-width:32ch;margin:0 0 42px}
@@ -113,7 +113,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .lane-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
 .clip{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:3px;
   padding:20px 24px;transition:border-color .25s,transform .25s,background .25s}
-.lane:hover .clip{background:#332920;border-color:var(--muted);transform:translateX(3px)}
+.lane:hover .clip{background:var(--panel-2);border-color:var(--muted);transform:translateX(3px)}
 .clip-title{font-size:17px;font-weight:500;margin:0 0 3px}
 .clip-title span{font-style:italic;font-family:var(--display);font-size:20px}
 .clip-role{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin:0}
@@ -262,10 +262,10 @@ footer a:hover{color:var(--accent)}
   margin-left:calc(-50vw + var(--rail)/2);width:calc(100vw - var(--rail));
   z-index:-2;overflow:hidden;background:var(--panel)}
 .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 30%;
-  filter:saturate(.72) contrast(1.06) brightness(.78)}
+  filter:saturate(.68) contrast(1.02) brightness(1.06)}
 .hero-bg::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,var(--ink) 0%,rgba(22,17,13,.92) 38%,rgba(22,17,13,.55) 68%,rgba(22,17,13,.75) 100%)}
-.hero-bg.tint::after{background:linear-gradient(180deg,rgba(22,17,13,.55) 0%,rgba(22,17,13,.8) 55%,var(--ink) 100%)}
+  background:linear-gradient(90deg,var(--ink) 0%,rgba(247,246,242,.92) 40%,rgba(247,246,242,.6) 70%,rgba(247,246,242,.8) 100%)}
+.hero-bg.tint::after{background:linear-gradient(180deg,rgba(247,246,242,.5) 0%,rgba(247,246,242,.82) 55%,var(--ink) 100%)}
 .hero-bg .field{position:absolute;inset:0;display:flex;align-items:center;gap:4px;padding:0 3vw;opacity:.16}
 .hero-bg .field span{flex:1;background:var(--accent);border-radius:1px;transform-origin:center}
 .hero .wave{position:relative;z-index:1}
@@ -277,7 +277,7 @@ footer a:hover{color:var(--accent)}
   border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .band img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) contrast(1.05) brightness(.86)}
 .band .cap{position:absolute;left:var(--gut);bottom:26px;font-family:var(--mono);font-size:10px;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--paper);text-shadow:0 1px 12px rgba(0,0,0,.9)}
+  letter-spacing:.16em;text-transform:uppercase;color:#F7F6F2;text-shadow:0 1px 12px rgba(0,0,0,.9)}
 .band.empty{display:flex;align-items:center;justify-content:center;border-style:dashed}
 
 /* ---------- taller gallery, feature first tile ---------- */
@@ -307,7 +307,7 @@ footer a:hover{color:var(--accent)}
   <header class="hero">
     <div class="hero-eyebrow">Accra &nbsp;→&nbsp; Virginia</div>
     <h1>Stephen<br>Amanor <em>Sackey</em></h1>
-    <p class="hero-thesis">Eleven years on voices. I mix records, run live and broadcast audio, play piano on sessions, and build the software I couldn't find.</p>
+    <p class="hero-thesis">A music producer, audio engineer, session pianist, and software developer dedicated to pushing the boundaries of music production, live performance, and creative technology.</p>
     <ul class="roles"><li>Producer</li><li>Mixing &amp; Mastering</li><li>Music Director</li><li>Broadcast Post</li><li>Pianist</li><li>Founder</li></ul>
     <div class="wave" aria-hidden="true"></div>
   </header>
@@ -329,7 +329,7 @@ footer a:hover{color:var(--accent)}
         <p>Capture, front of house, and broadcast post on a weekly clock.</p>
         <span class="room-go">Enter →</span>
       </a>
-      <a class="room rise" href="piano.html" style="--room:#D9C7A3">
+      <a class="room rise" href="piano.html" style="--room:#B08D57">
         <span class="room-tag">03 — Keys</span>
         <h3>Piano</h3>
         <p>Gospel highlife, sessions, and teaching worship players.</p>

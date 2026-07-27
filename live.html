@@ -60,8 +60,32 @@ img{display:block;max-width:100%}
 .rack-foot{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);
   text-align:center;padding-top:14px;border-top:1px solid var(--line)}
 
+/* ---------- site header (top bar) ---------- */
+.sitehead{position:fixed;top:0;left:var(--rail);right:0;height:56px;z-index:45;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--ink);border-bottom:1px solid var(--line)}
+.sitehead-name{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;padding-left:var(--gut);white-space:nowrap}
+.sitehead-name:hover{color:var(--paper)}
+.sitehead-actions{align-self:stretch;display:flex;align-items:center;gap:16px;
+  background:var(--accent);padding:0 clamp(18px,3vw,32px);color:#fff}
+.sitehead-actions a{color:#fff;text-decoration:none;display:inline-flex;align-items:center}
+.sh-login{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+  opacity:.95;transition:opacity .2s}
+.sh-login:hover{opacity:1}
+.sh-social{display:inline-flex;align-items:center;gap:13px}
+.sh-social a{opacity:.9;transition:opacity .2s,transform .2s}
+.sh-social a:hover{opacity:1;transform:translateY(-1px)}
+.sh-social svg{width:18px;height:18px;display:block;fill:currentColor}
+@media(max-width:860px){
+  main{padding-top:0}
+  .sitehead{position:static;left:0;height:auto;z-index:auto}
+  .sitehead-name{display:none}
+  .sitehead-actions{width:100%;justify-content:flex-end;height:46px}
+}
+
 /* ---------- shell ---------- */
-main{margin-left:var(--rail);padding:0 var(--gut)}
+main{margin-left:var(--rail);padding:56px var(--gut) 0}
 .wrap{max-width:1080px;margin:0 auto}
 section{padding:clamp(104px,15vh,208px) 0;border-bottom:1px solid var(--line)}
 section:last-of-type{border-bottom:0}
@@ -300,6 +324,14 @@ footer a:hover{color:var(--accent)}
   </div>
   <div class="rack-foot">EST</div>
 </nav>
+
+<div class="sitehead">
+  <a class="sitehead-name" href="index.html">Stephen Amanor Sackey</a>
+  <div class="sitehead-actions">
+    <a class="sh-login" href="portal/login.html">Clients</a>
+    <span class="sh-social" id="head-social"></span>
+  </div>
+</div>
 <main><div class="wrap">
   <header class="hero short">
     <div class="hero-eyebrow">02 — On air</div>
@@ -382,9 +414,11 @@ var CONFIG = {
   /* 2. SOCIAL LINKS -----------------------------------------
      Leave any empty and it won't render. */
   social: {
-    youtube:   "",
     instagram: "https://instagram.com/amanorsac",
-    spotify:   ""
+    tiktok:    "",
+    youtube:   "",
+    spotify:   "",
+    x:         ""
   },
 
   /* 3. SONGS AND VIDEOS -------------------------------------
@@ -648,6 +682,26 @@ var CONFIG = {
   });
 
   /* ---- social links ---- */
+  /* ---- header socials (icons) ---- */
+  var ICON = {
+    instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.2.05 1.8.25 2.2.42.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.17.4.37 1 .42 2.2.06 1.3.07 1.7.07 4.9s0 3.6-.07 4.9c-.05 1.2-.25 1.8-.42 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.17-1 .37-2.2.42-1.3.06-1.7.07-4.9.07s-3.6 0-4.9-.07c-1.2-.05-1.8-.25-2.2-.42-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.17-.4-.37-1-.42-2.2C2.21 15.6 2.2 15.2 2.2 12s0-3.6.07-4.9c.05-1.2.25-1.8.42-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.17 1-.37 2.2-.42C8.4 2.21 8.8 2.2 12 2.2Zm0 1.8c-3.1 0-3.5 0-4.7.07-.9.04-1.4.2-1.7.31-.42.16-.72.36-1.04.68-.32.32-.52.62-.68 1.04-.11.3-.27.8-.31 1.7C3.99 8.5 4 8.9 4 12s0 3.5.07 4.7c.04.9.2 1.4.31 1.7.16.42.36.72.68 1.04.32.32.62.52 1.04.68.3.11.8.27 1.7.31C9 20 9.4 20 12 20s3.5 0 4.7-.07c.9-.04 1.4-.2 1.7-.31.42-.16.72-.36 1.04-.68.32-.32.52-.62.68-1.04.11-.3.27-.8.31-1.7.07-1.2.07-1.6.07-4.7s0-3.5-.07-4.7c-.04-.9-.2-1.4-.31-1.7a2.8 2.8 0 0 0-.68-1.04 2.8 2.8 0 0 0-1.04-.68c-.3-.11-.8-.27-1.7-.31C15.5 4 15.1 4 12 4Zm0 3.05a4.95 4.95 0 1 1 0 9.9 4.95 4.95 0 0 1 0-9.9Zm0 1.8a3.15 3.15 0 1 0 0 6.3 3.15 3.15 0 0 0 0-6.3Zm5.15-3.2a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3Z"/></svg>',
+    tiktok:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 5.82a4.28 4.28 0 0 1-1.05-2.82h-3.02v11.9a2.5 2.5 0 1 1-2.5-2.5c.2 0 .4.02.59.06V9.4a5.6 5.6 0 0 0-.59-.03A5.5 5.5 0 1 0 15.55 15V9.28a7.2 7.2 0 0 0 4.2 1.35V7.6a4.28 4.28 0 0 1-3.15-1.78Z"/></svg>',
+    youtube:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7.5a3 3 0 0 0-2.1-2.12C19 4.9 12 4.9 12 4.9s-7 0-8.9.48A3 3 0 0 0 1 7.5 31.4 31.4 0 0 0 .55 12 31.4 31.4 0 0 0 1 16.5a3 3 0 0 0 2.1 2.12C5 19.1 12 19.1 12 19.1s7 0 8.9-.48A3 3 0 0 0 23 16.5 31.4 31.4 0 0 0 23.45 12 31.4 31.4 0 0 0 23 7.5ZM9.75 15.3V8.7l5.7 3.3-5.7 3.3Z"/></svg>',
+    spotify:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 14.42a.75.75 0 0 1-1.03.25c-2.82-1.72-6.36-2.11-10.54-1.16a.75.75 0 1 1-.33-1.46c4.57-1.04 8.5-.59 11.65 1.34.35.22.46.7.25 1.03Zm1.23-2.73a.94.94 0 0 1-1.29.31c-3.23-1.98-8.15-2.56-11.97-1.4a.94.94 0 1 1-.54-1.8c4.37-1.32 9.8-.68 13.5 1.6.44.27.58.85.3 1.29Zm.1-2.84C14.2 8.63 8.02 8.4 4.54 9.46a1.12 1.12 0 1 1-.65-2.15C7.9 6.1 14.72 6.37 18.9 8.85a1.12 1.12 0 1 1-1.16 1.92Z"/></svg>',
+    x:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.53 3h3.02l-6.6 7.54L21.75 21h-6.06l-4.75-6.2L5.5 21H2.47l7.06-8.07L2.25 3h6.21l4.29 5.67L17.53 3Zm-1.06 16.2h1.67L7.6 4.7H5.8l10.67 14.5Z"/></svg>'
+  };
+  var head=$('#head-social');
+  if(head){
+    var order=['instagram','tiktok','youtube','spotify','x'];
+    order.concat(Object.keys(CONFIG.social).filter(function(k){return order.indexOf(k)<0;}))
+      .forEach(function(k){
+        var url=CONFIG.social[k]; if(!url||!ICON[k]) return;
+        var a=document.createElement('a');
+        a.href=url; a.target='_blank'; a.rel='noopener'; a.setAttribute('aria-label',k); a.title=k;
+        a.innerHTML=ICON[k]; head.appendChild(a);
+      });
+  }
+
   var soc=$('#social');
   if(soc){
     var out=[];

@@ -106,6 +106,28 @@ h1 em{font-style:italic;color:var(--accent)}
 .room p{color:var(--muted);font-size:14.5px;margin:0 0 16px}
 .room-go{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper)}
 
+/* ---------- door arrangements (editorial, alternating) ---------- */
+.arrangements{display:flex;flex-direction:column;gap:clamp(48px,8vw,116px)}
+.arr{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,76px);align-items:center;text-decoration:none;color:inherit}
+.arr:nth-child(even){grid-template-columns:.95fr 1.05fr}
+.arr:nth-child(even) .arr-media{order:2}
+.arr-media{aspect-ratio:5/4;overflow:hidden;border-radius:10px;background:var(--panel-2);border:1px solid var(--line)}
+.arr-media img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.02);transition:transform .7s ease}
+.arr:hover .arr-media img{transform:scale(1.045)}
+.arr-media.solid{display:flex;align-items:center;justify-content:center;border:0;
+  background:linear-gradient(135deg,var(--room),color-mix(in srgb,var(--room) 55%,#141228))}
+.arr-media.solid span{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#F7F6F2}
+.arr-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--room);display:block;margin-bottom:16px}
+.arr-body h3{font-family:var(--display);font-weight:400;font-size:clamp(31px,4.2vw,56px);line-height:1.0;margin:0 0 16px;letter-spacing:-.01em}
+.arr-body p{color:var(--muted);font-size:17px;line-height:1.7;max-width:40ch;margin:0 0 22px}
+.arr-go{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--room);
+  border-bottom:1px solid transparent;padding-bottom:2px;transition:border-color .25s}
+.arr:hover .arr-go{border-color:var(--room)}
+@media(max-width:760px){
+  .arr,.arr:nth-child(even){grid-template-columns:1fr}
+  .arr:nth-child(even) .arr-media{order:0}
+}
+
 /* ---------- credits / timeline clips ---------- */
 .ruler{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
   color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px}
@@ -316,30 +338,42 @@ footer a:hover{color:var(--accent)}
     <p class="eyebrow">Four rooms</p>
     <h2>Pick a door</h2>
     <p class="lede">Same person, four different jobs.</p>
-    <div class="rooms">
-      <a class="room rise" href="mixing.html" style="--room:#C9873F">
-        <span class="room-tag">01 — Studio</span>
-        <h3>Mixing &amp; Mastering</h3>
-        <p>Close harmony, lead vocals, full masters. Hear the before and after.</p>
-        <span class="room-go">Enter →</span>
+    <div class="arrangements">
+      <a class="arr rise" href="mixing.html" style="--room:#C0722B">
+        <div class="arr-media"><img src="images/hero-mixing.jpg" alt="Mixing and mastering" loading="lazy"></div>
+        <div class="arr-body">
+          <span class="arr-tag">01 — Studio</span>
+          <h3>Mixing &amp; Mastering</h3>
+          <p>Close harmony, lead vocals, full masters. Hear the before and after.</p>
+          <span class="arr-go">Enter the room →</span>
+        </div>
       </a>
-      <a class="room rise" href="live.html" style="--room:#C4574B">
-        <span class="room-tag">02 — On air</span>
-        <h3>Live &amp; Stream</h3>
-        <p>Capture, front of house, and broadcast post on a weekly clock.</p>
-        <span class="room-go">Enter →</span>
+      <a class="arr rise" href="live.html" style="--room:#C24A3E">
+        <div class="arr-media"><img src="images/hero-live.jpg" alt="Live and broadcast" loading="lazy"></div>
+        <div class="arr-body">
+          <span class="arr-tag">02 — On air</span>
+          <h3>Live &amp; Broadcast</h3>
+          <p>Capture, front of house, and broadcast post on a weekly clock.</p>
+          <span class="arr-go">Enter the room →</span>
+        </div>
       </a>
-      <a class="room rise" href="piano.html" style="--room:#9A7B3F">
-        <span class="room-tag">03 — Keys</span>
-        <h3>Piano</h3>
-        <p>Gospel highlife, sessions, and teaching worship players.</p>
-        <span class="room-go">Enter →</span>
+      <a class="arr rise" href="piano.html" style="--room:#9A7B3F">
+        <div class="arr-media"><img src="images/hero-piano.jpg" alt="Piano" loading="lazy"></div>
+        <div class="arr-body">
+          <span class="arr-tag">03 — Keys</span>
+          <h3>Piano</h3>
+          <p>Gospel highlife, sessions, and teaching worship players.</p>
+          <span class="arr-go">Enter the room →</span>
+        </div>
       </a>
-      <a class="room rise" href="apps.html" style="--room:#7FA88C">
-        <span class="room-tag">04 — Software</span>
-        <h3>HarmonieMD &amp; EzPlay</h3>
-        <p>Two applications, written for problems I hit on the job.</p>
-        <span class="room-go">Enter →</span>
+      <a class="arr rise" href="apps.html" style="--room:#2E8B6E">
+        <div class="arr-media solid"><span>HarmonieMD · EzPlay</span></div>
+        <div class="arr-body">
+          <span class="arr-tag">04 — Software</span>
+          <h3>HarmonieMD &amp; EzPlay</h3>
+          <p>Two applications, written for problems I hit on the job.</p>
+          <span class="arr-go">Enter the room →</span>
+        </div>
       </a>
     </div>
   </section>
@@ -448,7 +482,7 @@ var CONFIG = {
      Leave any empty and it won't render. */
   social: {
     youtube:   "",
-    instagram: "",
+    instagram: "https://instagram.com/amanorsac",
     spotify:   ""
   },
 

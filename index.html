@@ -27,10 +27,10 @@
   --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
   --rail:104px; --gut:clamp(20px,5vw,72px);
 }
-body[data-room="mixing"]{ --accent:#C9873F; }   /* copper, console */
-body[data-room="live"]  { --accent:#C4574B; }   /* tally red, on air */
-body[data-room="apps"]  { --accent:#7FA88C; }   /* signal green, software */
-body[data-room="piano"] { --accent:#D9C7A3; }   /* ivory, keys */
+body[data-room="mixing"]{ --accent:#C0722B; }   /* copper, console */
+body[data-room="live"]  { --accent:#C24A3E; }   /* tally red, on air */
+body[data-room="apps"]  { --accent:#2E8B6E; }   /* signal green, software */
+body[data-room="piano"] { --accent:#9A7B3F; }   /* bronze keys */
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -63,15 +63,15 @@ img{display:block;max-width:100%}
 
 /* ---------- shell ---------- */
 main{margin-left:var(--rail);padding:0 var(--gut)}
-.wrap{max-width:1020px;margin:0 auto}
-section{padding:clamp(92px,13vh,176px) 0;border-bottom:1px solid var(--line)}
+.wrap{max-width:1080px;margin:0 auto}
+section{padding:clamp(104px,15vh,208px) 0;border-bottom:1px solid var(--line)}
 section:last-of-type{border-bottom:0}
 .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;
   color:var(--accent);margin:0 0 30px;display:flex;align-items:center;gap:12px}
 .eyebrow::after{content:"";flex:1;height:1px;background:var(--line);max-width:180px}
-h2{font-family:var(--display);font-weight:400;font-size:clamp(33px,5vw,58px);line-height:1.06;margin:0 0 20px;letter-spacing:-.01em}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(35px,5.6vw,66px);line-height:1.04;margin:0 0 22px;letter-spacing:-.015em}
 h3{font-family:var(--display);font-weight:400;font-size:27px;margin:0 0 11px}
-.lede{color:var(--muted);max-width:50ch;margin:0 0 58px;font-size:17.5px;line-height:1.75}
+.lede{color:var(--muted);max-width:54ch;margin:0 0 64px;font-size:18.5px;line-height:1.78}
 p{margin:0 0 16px}
 
 /* ---------- hero ---------- */
@@ -184,7 +184,7 @@ h1 em{font-style:italic;color:var(--accent)}
 
 /* ---------- keyboard motif (piano) ---------- */
 .keys{display:flex;height:74px;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0 0 8px}
-.keys i{flex:1;background:var(--paper);border-right:1px solid #cbbfae;position:relative}
+.keys i{flex:1;background:#F2ECDE;border-right:1px solid #cbbfae;position:relative}
 .keys i:last-child{border-right:0}
 .keys i.b{flex:.62;background:#120E0B}
 .keys i.f{background:var(--accent)}
@@ -329,7 +329,7 @@ footer a:hover{color:var(--accent)}
         <p>Capture, front of house, and broadcast post on a weekly clock.</p>
         <span class="room-go">Enter →</span>
       </a>
-      <a class="room rise" href="piano.html" style="--room:#B08D57">
+      <a class="room rise" href="piano.html" style="--room:#9A7B3F">
         <span class="room-tag">03 — Keys</span>
         <h3>Piano</h3>
         <p>Gospel highlife, sessions, and teaching worship players.</p>

@@ -18,18 +18,18 @@
    =========================================================== */
 
 :root{
-  --ink:#16110D; --panel:#1E1712; --panel-2:#2A211A; --line:#3A2E24;
-  --paper:#F0E9DE; --muted:#9B8A79; --signal:#7FA88C;
-  --accent:#D0A24C;                      /* home / default: brass */
+  --ink:#F7F6F2; --panel:#FFFFFF; --panel-2:#F0EEE8; --line:#E3E0D8;
+  --paper:#1A1830; --muted:#6E6B7A; --signal:#3C3489;
+  --accent:#EF9F27;                      /* home / default: brand orange */
   --display:'Instrument Serif',Georgia,'Times New Roman',serif;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
   --rail:104px; --gut:clamp(20px,5vw,72px);
 }
-body[data-room="mixing"]{ --accent:#C9873F; }   /* copper, console */
-body[data-room="live"]  { --accent:#C4574B; }   /* tally red, on air */
-body[data-room="apps"]  { --accent:#7FA88C; }   /* signal green, software */
-body[data-room="piano"] { --accent:#D9C7A3; }   /* ivory, keys */
+body[data-room="mixing"]{ --accent:#C0722B; }   /* copper, console */
+body[data-room="live"]  { --accent:#C24A3E; }   /* tally red, on air */
+body[data-room="apps"]  { --accent:#2E8B6E; }   /* signal green, software */
+body[data-room="piano"] { --accent:#9A7B3F; }   /* bronze keys */
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -43,8 +43,8 @@ img{display:block;max-width:100%}
 .rack{position:fixed;left:0;top:0;bottom:0;width:var(--rail);border-right:1px solid var(--line);
   background:linear-gradient(180deg,var(--panel) 0%,var(--ink) 100%);
   display:flex;flex-direction:column;padding:20px 0;z-index:40}
-.rack-brand{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--accent);text-align:center;
-  text-transform:uppercase;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:6px;text-decoration:none;display:block}
+.rack-brand{padding:2px 12px 14px;border-bottom:1px solid var(--line);margin-bottom:6px;text-decoration:none;display:block}
+.rack-brand img{width:100%;height:auto;display:block}
 .rack-nav{display:flex;flex-direction:column;flex:1;justify-content:center}
 .strip{display:block;text-decoration:none;padding:10px 0 10px 14px;border-left:2px solid transparent;
   transition:background .25s,border-color .25s}
@@ -62,15 +62,15 @@ img{display:block;max-width:100%}
 
 /* ---------- shell ---------- */
 main{margin-left:var(--rail);padding:0 var(--gut)}
-.wrap{max-width:1020px;margin:0 auto}
-section{padding:clamp(92px,13vh,176px) 0;border-bottom:1px solid var(--line)}
+.wrap{max-width:1080px;margin:0 auto}
+section{padding:clamp(104px,15vh,208px) 0;border-bottom:1px solid var(--line)}
 section:last-of-type{border-bottom:0}
 .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;
   color:var(--accent);margin:0 0 30px;display:flex;align-items:center;gap:12px}
 .eyebrow::after{content:"";flex:1;height:1px;background:var(--line);max-width:180px}
-h2{font-family:var(--display);font-weight:400;font-size:clamp(33px,5vw,58px);line-height:1.06;margin:0 0 20px;letter-spacing:-.01em}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(35px,5.6vw,66px);line-height:1.04;margin:0 0 22px;letter-spacing:-.015em}
 h3{font-family:var(--display);font-weight:400;font-size:27px;margin:0 0 11px}
-.lede{color:var(--muted);max-width:50ch;margin:0 0 58px;font-size:17.5px;line-height:1.75}
+.lede{color:var(--muted);max-width:54ch;margin:0 0 64px;font-size:18.5px;line-height:1.78}
 p{margin:0 0 16px}
 
 /* ---------- hero ---------- */
@@ -112,7 +112,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .lane-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
 .clip{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:3px;
   padding:20px 24px;transition:border-color .25s,transform .25s,background .25s}
-.lane:hover .clip{background:#332920;border-color:var(--muted);transform:translateX(3px)}
+.lane:hover .clip{background:var(--panel-2);border-color:var(--muted);transform:translateX(3px)}
 .clip-title{font-size:17px;font-weight:500;margin:0 0 3px}
 .clip-title span{font-style:italic;font-family:var(--display);font-size:20px}
 .clip-role{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;color:var(--accent);text-transform:uppercase;margin:0}
@@ -183,7 +183,7 @@ h1 em{font-style:italic;color:var(--accent)}
 
 /* ---------- keyboard motif (piano) ---------- */
 .keys{display:flex;height:74px;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0 0 8px}
-.keys i{flex:1;background:var(--paper);border-right:1px solid #cbbfae;position:relative}
+.keys i{flex:1;background:#F2ECDE;border-right:1px solid #cbbfae;position:relative}
 .keys i:last-child{border-right:0}
 .keys i.b{flex:.62;background:#120E0B}
 .keys i.f{background:var(--accent)}
@@ -261,10 +261,10 @@ footer a:hover{color:var(--accent)}
   margin-left:calc(-50vw + var(--rail)/2);width:calc(100vw - var(--rail));
   z-index:-2;overflow:hidden;background:var(--panel)}
 .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 30%;
-  filter:saturate(.72) contrast(1.06) brightness(.78)}
+  filter:saturate(.68) contrast(1.02) brightness(1.06)}
 .hero-bg::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,var(--ink) 0%,rgba(22,17,13,.92) 38%,rgba(22,17,13,.55) 68%,rgba(22,17,13,.75) 100%)}
-.hero-bg.tint::after{background:linear-gradient(180deg,rgba(22,17,13,.55) 0%,rgba(22,17,13,.8) 55%,var(--ink) 100%)}
+  background:linear-gradient(90deg,var(--ink) 0%,rgba(247,246,242,.92) 40%,rgba(247,246,242,.6) 70%,rgba(247,246,242,.8) 100%)}
+.hero-bg.tint::after{background:linear-gradient(180deg,rgba(247,246,242,.5) 0%,rgba(247,246,242,.82) 55%,var(--ink) 100%)}
 .hero-bg .field{position:absolute;inset:0;display:flex;align-items:center;gap:4px;padding:0 3vw;opacity:.16}
 .hero-bg .field span{flex:1;background:var(--accent);border-radius:1px;transform-origin:center}
 .hero .wave{position:relative;z-index:1}
@@ -276,7 +276,7 @@ footer a:hover{color:var(--accent)}
   border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .band img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) contrast(1.05) brightness(.86)}
 .band .cap{position:absolute;left:var(--gut);bottom:26px;font-family:var(--mono);font-size:10px;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--paper);text-shadow:0 1px 12px rgba(0,0,0,.9)}
+  letter-spacing:.16em;text-transform:uppercase;color:#F7F6F2;text-shadow:0 1px 12px rgba(0,0,0,.9)}
 .band.empty{display:flex;align-items:center;justify-content:center;border-style:dashed}
 
 /* ---------- taller gallery, feature first tile ---------- */
@@ -288,7 +288,7 @@ footer a:hover{color:var(--accent)}
 <body data-room="mixing">
 
 <nav class="rack" aria-label="Rooms">
-  <a class="rack-brand" href="index.html">S·A·S</a>
+  <a class="rack-brand" href="index.html" aria-label="Studio Amanorsac — home"><img src="images/logo.svg" alt="Studio Amanorsac"></a>
   <div class="rack-nav">
     <a class="strip" href="index.html"><span class="strip-name">Home</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip on" href="mixing.html"><span class="strip-name">Mixing</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>

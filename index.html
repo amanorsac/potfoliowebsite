@@ -27,10 +27,10 @@
   --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
   --rail:104px; --gut:clamp(20px,5vw,72px);
 }
-body[data-room="mixing"]{ --accent:#C0722B; --ink:#F7F1E8; --panel:#FFFDF9; --panel-2:#F1E8DA; --line:#E7DCCB; }  /* warm copper console */
-body[data-room="live"]  { --accent:#C24A3E; --ink:#F8F0ED; --panel:#FFFCFB; --panel-2:#F3E5E0; --line:#EBD9D2; }  /* on-air red */
-body[data-room="apps"]  { --accent:#2E8B6E; --ink:#EEF4F0; --panel:#FFFFFF; --panel-2:#E4EDE7; --line:#D9E5DD; }  /* cool software green */
-body[data-room="piano"] { --accent:#9A7B3F; --ink:#F6F2E9; --panel:#FFFDF7; --panel-2:#EFE8D8; --line:#E6DDC9; }  /* parchment bronze */
+body[data-room="mixing"]{ --accent:#C0722B; --ink:#F2E6D2; --panel:#FBF4E6; --panel-2:#EAD9BF; --line:#DDC9A8; }  /* warm copper console */
+body[data-room="live"]  { --accent:#C24A3E; --ink:#F6E3DC; --panel:#FDF0EB; --panel-2:#EFD3CA; --line:#E4C1B6; }  /* on-air blush */
+body[data-room="apps"]  { --accent:#2E8B6E; --ink:#E1EDE6; --panel:#F2F9F5; --panel-2:#D1E4D9; --line:#C2DACC; }  /* cool software mint */
+body[data-room="piano"] { --accent:#9A7B3F; --ink:#F0E7D2; --panel:#FAF4E5; --panel-2:#E7D9BD; --line:#D9C8A4; }  /* parchment gold */
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -264,8 +264,8 @@ footer a:hover{color:var(--accent)}
 .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 30%;
   filter:saturate(.68) contrast(1.02) brightness(1.06)}
 .hero-bg::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,var(--ink) 0%,rgba(247,246,242,.92) 40%,rgba(247,246,242,.6) 70%,rgba(247,246,242,.8) 100%)}
-.hero-bg.tint::after{background:linear-gradient(180deg,rgba(247,246,242,.5) 0%,rgba(247,246,242,.82) 55%,var(--ink) 100%)}
+  background:linear-gradient(90deg,var(--ink) 0%,color-mix(in srgb,var(--ink) 90%,transparent) 42%,color-mix(in srgb,var(--ink) 55%,transparent) 72%,color-mix(in srgb,var(--ink) 78%,transparent) 100%)}
+.hero-bg.tint::after{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 45%,transparent) 0%,color-mix(in srgb,var(--ink) 80%,transparent) 55%,var(--ink) 100%)}
 .hero-bg .field{position:absolute;inset:0;display:flex;align-items:center;gap:4px;padding:0 3vw;opacity:.16}
 .hero-bg .field span{flex:1;background:var(--accent);border-radius:1px;transform-origin:center}
 .hero .wave{position:relative;z-index:1}

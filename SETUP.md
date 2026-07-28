@@ -80,18 +80,31 @@ The dashboard lives at `portal/admin.html` and only opens for a profile with
 `is_admin = true`. Anyone else is bounced to their own project list. The
 **Admin** link appears in the portal nav automatically once you are admin.
 
-### a. File storage (2 min)
+> **Two different places.** Anything SQL goes in the **SQL Editor** in your
+> browser. Anything starting with `supabase ...` is a **terminal** command on
+> your own computer — pasting it into the SQL Editor gives you
+> `syntax error at or near "supabase"`. Step (b) can be done without a
+> terminal at all; see the dashboard route below.
 
-SQL Editor → paste **`supabase-storage-setup.sql`** → Run.
+### a. File storage (2 min) — SQL Editor
+
+SQL Editor → paste the **contents of `supabase-storage-setup.sql`** → Run.
 
 That makes a **private** `deliverables` bucket. Files are never public: the
 portal hands out signed links that expire after an hour, and a client can
 only reach files under their own project's folder.
 
-### b. The create-client function (5 min)
+### b. The create-client function (5 min) — **optional**
 
 Creating a login needs the `service_role` key, which must never sit in a
-public page — so it runs server side instead. Install the Supabase CLI, then:
+public page — so it runs server side instead.
+
+**Easiest route, no terminal:** Supabase → **Edge Functions** → **Create a
+function** → name it exactly `create-client` → paste the contents of
+`supabase/functions/create-client/index.ts` → Deploy.
+
+**Or, if you have the Supabase CLI installed,** run these in a **terminal on
+your computer** (not the SQL Editor):
 
 ```bash
 supabase login

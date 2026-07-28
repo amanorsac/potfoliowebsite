@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Project · Studio admin</title>
+<script>
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/portal.css">
+<style>
+  .stagerow{display:grid;grid-template-columns:26px 1fr 150px;gap:12px;align-items:center;
+    padding:12px 0;border-bottom:1px solid var(--line)}
+  .stagerow:last-child{border-bottom:0}
+  .stagerow .n{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .stagerow input[type=text]{margin-top:6px;font-size:13px}
+  .stagerow select{padding:8px 10px}
+  .rev{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:12px;background:var(--surface-2)}
+  .note{border-left:3px solid var(--accent);padding:10px 0 10px 14px;margin:12px 0}
+  .note p{margin:0 0 4px}
+  .note .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .back{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);text-decoration:none}
+  .back:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <a class="back" href="admin.html">← All projects</a>
+  <div class="head" style="margin-top:14px">
+    <p class="eyebrow" id="client">…</p>
+    <h1 id="title">Project</h1>
+    <p class="sub" id="sub"></p>
+  </div>
+
+  <div class="grid2">
+    <!-- ---------------- stages ---------------- -->
+    <div class="card">
+      <div class="card-head"><h2>Progress</h2><span class="hint">The client sees this live</span></div>
+      <div id="stages"><div class="skeleton" style="width:60%"></div></div>
+      <p class="msg" id="s-msg" role="status" aria-live="polite"></p>
+    </div>
+
+    <!-- ---------------- send a file ---------------- -->
+    <div class="card">
+      <div class="card-head"><h2>Send a file</h2></div>
+      <p class="hint">Upload it, or paste a link (WeTransfer, Drive, Dropbox).</p>
+      <form id="fileform">
+        <div class="field"><label for="f-label">What is it</label>
+          <input id="f-label" type="text" placeholder="Mix v1 — rough" required></div>
+        <div class="field"><label for="f-file">Upload</label>
+          <input id="f-file" type="file"></div>
+        <div class="field"><label for="f-url">…or paste a link</label>
+          <input id="f-url" type="url" placeholder="https://"></div>
+        <button class="btn" id="f-go" type="submit">Send to client</button>
+        <p class="msg" id="f-msg" role="status" aria-live="polite"></p>
+      </form>
+      <div style="margin-top:18px" id="files"></div>
+    </div>
+  </div>
+
+  <!-- ---------------- mix reviews ---------------- -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head"><h2>Mix reviews</h2><span class="hint" id="revcount"></span></div>
+    <div id="revs"><div class="skeleton" style="width:50%"></div></div>
+  </div>
+
+  <!-- ---------------- messages ---------------- -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head"><h2>Messages</h2></div>
+    <div id="msgs"></div>
+    <form id="msgform" style="margin-top:14px">
+      <div class="field"><label for="m-body">Reply to the client</label>
+        <textarea id="m-body" placeholder="What you changed, what you need, when it lands." required></textarea></div>
+      <button class="btn" id="m-go" type="submit">Send message</button>
+      <p class="msg" id="m-msg" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+(async () => {
+  const me = await requireAdmin(); if(!me) return;
+  await mountChrome('admin');
+
+  const PID = new URLSearchParams(location.search).get('id');
+  if(!PID){ location.replace('admin.html'); return; }
+
+  const STATES = ['pending','active','done','blocked'];
+
+  async function load(){
+    /* ---- project + client ---- */
+    const { data: pr, error } = await sb.from('projects')
+      .select('*, profiles!projects_client_id_fkey(full_name,email)')
+      .eq('id', PID).single();
+
+    if(error || !pr){
+      $('#title').textContent = 'Not found';
+      say($('#s-msg'), error ? error.message : 'No such project.', 'err');
+      return;
+    }
+
+    $('#title').textContent = pr.title;
+    $('#client').textContent = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Unknown client';
+    $('#sub').textContent = [pr.artist, pr.service,
+      'Revisions ' + pr.revisions_used + '/' + pr.revisions_allowed,
+      pr.due_date ? 'Due ' + when(pr.due_date) : null].filter(Boolean).join(' · ');
+
+    /* ---- stages ---- */
+    const { data: stages } = await sb.from('project_stages')
+      .select('*').eq('project_id', PID).order('sort_order');
+
+    $('#stages').innerHTML = (stages||[]).map(s =>
+      '<div class="stagerow" data-id="'+esc(s.id)+'">'+
+        '<span class="n">'+String(s.sort_order).padStart(2,'0')+'</span>'+
+        '<div><b>'+esc(s.name)+'</b>'+
+          '<input type="text" class="s-note" placeholder="Note for the client (optional)" value="'+esc(s.note||'')+'">'+
+        '</div>'+
+        '<select class="s-state">'+ STATES.map(v =>
+          '<option value="'+v+'"'+(v===s.state?' selected':'')+'>'+v+'</option>').join('') +
+        '</select>'+
+      '</div>').join('') || '<p class="empty">No stages.</p>';
+
+    // save on change — no separate save button to forget
+    $$('.stagerow').forEach(row => {
+      const id = row.getAttribute('data-id');
+      const save = async () => {
+        const state = $('.s-state', row).value;
+        const note  = $('.s-note', row).value.trim() || null;
+        const { error } = await sb.from('project_stages')
+          .update({ state, note, updated_at: new Date().toISOString() }).eq('id', id);
+        say($('#s-msg'), error ? error.message : 'Saved. The client sees it now.', error ? 'err' : 'ok');
+      };
+      $('.s-state', row).addEventListener('change', save);
+      $('.s-note', row).addEventListener('change', save);
+    });
+
+    /* ---- deliverables ---- */
+    const { data: files } = await sb.from('deliverables')
+      .select('*').eq('project_id', PID).order('created_at',{ascending:false});
+
+    const rows = await Promise.all((files||[]).map(async f => {
+      const href = await fileHref(f);
+      return '<div class="row"><div><h3>'+esc(f.label)+'</h3>'+
+        '<p class="meta">'+(f.direction==='to_client'?'You sent this':'From the client')+
+        ' · '+when(f.created_at)+'</p></div>'+
+        '<span>'+(href
+          ? '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">Open</a>'
+          : '<span class="meta">no link</span>')+'</span></div>';
+    }));
+    $('#files').innerHTML = rows.length ? rows.join('') : '<p class="empty">Nothing sent yet.</p>';
+
+    /* ---- mix reviews ---- */
+    const { data: revs } = await sb.from('revision_requests')
+      .select('*, revision_notes(*)').eq('project_id', PID).order('round_no');
+
+    $('#revcount').textContent = (revs||[]).length + ' rounds';
+    $('#revs').innerHTML = (revs && revs.length) ? revs.map(r => {
+      const notes = (r.revision_notes||[]).map(n =>
+        '<div class="note">'+
+          (n.timecode ? '<p class="lbl">'+esc(n.timecode)+(n.element?' · '+esc(n.element):'')+'</p>'
+                      : (n.element?'<p class="lbl">'+esc(n.element)+'</p>':''))+
+          (n.hearing ? '<p><b>Hearing:</b> '+esc(n.hearing)+'</p>' : '')+
+          (n.wanted  ? '<p><b>Wants:</b> '+esc(n.wanted)+'</p>' : '')+
+          (n.reference_url ? '<p>'+linkHtml(n.reference_url,'Reference')+'</p>' : '')+
+          (n.priority ? '<p class="lbl">'+esc(n.priority)+'</p>' : '')+
+        '</div>').join('') || '<p class="empty">No notes on this round.</p>';
+
+      return '<div class="rev" data-rev="'+esc(r.id)+'">'+
+        '<div class="card-head" style="margin-bottom:6px">'+
+          '<h3>Round '+r.round_no+'</h3>'+
+          '<span class="pill '+(r.status==='done'?'ok':(r.status==='in_progress'?'accent':'warn'))+'">'+
+            esc(String(r.status).replace('_',' '))+'</span>'+
+        '</div>'+
+        '<p class="meta">Submitted '+when(r.created_at)+'</p>'+
+        notes+
+        '<div class="fieldrow" style="margin-top:10px;align-items:flex-end">'+
+          '<div class="field half"><label>Status</label>'+
+          '<select class="r-status">'+['open','in_progress','done'].map(v =>
+            '<option value="'+v+'"'+(v===r.status?' selected':'')+'>'+v.replace('_',' ')+'</option>').join('')+
+          '</select></div>'+
+        '</div>'+
+      '</div>';
+    }).join('') : '<p class="empty">No revision requests yet.</p>';
+
+    $$('.rev').forEach(box => {
+      const id = box.getAttribute('data-rev');
+      $('.r-status', box).addEventListener('change', async e => {
+        const { error } = await sb.from('revision_requests')
+          .update({ status: e.target.value }).eq('id', id);
+        if(error) alert(error.message); else load();
+      });
+    });
+
+    /* ---- messages ---- */
+    const { data: msgs } = await sb.from('messages')
+      .select('*').eq('project_id', PID).order('created_at');
+    $('#msgs').innerHTML = (msgs && msgs.length) ? msgs.map(m =>
+      '<div class="row" style="align-items:flex-start"><div>'+
+        '<p style="margin:0 0 4px">'+esc(m.body)+'</p>'+
+        '<p class="meta">'+(m.sender_id===me.id?'You':'Client')+' · '+when(m.created_at)+'</p>'+
+      '</div></div>').join('') : '<p class="empty">No messages yet.</p>';
+  }
+
+  await load();
+
+  /* ---------- send a file ---------- */
+  $('#fileform').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('#f-msg'), go = $('#f-go');
+    const label = $('#f-label').value.trim();
+    const file  = $('#f-file').files[0];
+    const link  = $('#f-url').value.trim();
+
+    if(!file && !link) return say(m, 'Pick a file or paste a link.', 'err');
+    if(link && !safeUrl(link)) return say(m, 'That link must start with http:// or https://', 'err');
+
+    go.disabled = true;
+    let storage_path = null, url = null;
+
+    if(file){
+      say(m, 'Uploading…');
+      // keep the original name but strip anything awkward for a storage key
+      const clean = file.name.replace(/[^\w.\-]+/g,'_');
+      const path  = PID + '/' + Date.now() + '-' + clean;
+      const { error: upErr } = await sb.storage.from('deliverables')
+        .upload(path, file, { upsert:false, contentType: file.type || undefined });
+      if(upErr){
+        go.disabled = false;
+        return say(m, /bucket/i.test(upErr.message)
+          ? 'Storage bucket missing — run supabase-storage-setup.sql once.'
+          : upErr.message, 'err');
+      }
+      storage_path = path;
+    }
+    if(link) url = safeUrl(link);
+
+    const { error } = await sb.from('deliverables').insert({
+      project_id: PID, label, url, storage_path,
+      direction: 'to_client', uploaded_by: me.id
+    });
+    go.disabled = false;
+    if(error) return say(m, error.message, 'err');
+
+    say(m, 'Sent. It is on their project page now.', 'ok');
+    e.target.reset();
+    await load();
+  });
+
+  /* ---------- reply ---------- */
+  $('#msgform').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('#m-msg'), go = $('#m-go');
+    const body = $('#m-body').value.trim();
+    if(!body) return;
+    go.disabled = true;
+    const { error } = await sb.from('messages')
+      .insert({ project_id: PID, sender_id: me.id, body });
+    go.disabled = false;
+    if(error) return say(m, error.message, 'err');
+    say(m, 'Sent.', 'ok');
+    $('#m-body').value = '';
+    await load();
+  });
+})();
+</script>
+</body>
+</html>

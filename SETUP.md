@@ -72,9 +72,59 @@ Point 4 is the one that matters most. If a test client can see another client's 
 
 ---
 
+---
+
+## 7 · Admin dashboard (one-time setup)
+
+The dashboard lives at `portal/admin.html` and only opens for a profile with
+`is_admin = true`. Anyone else is bounced to their own project list. The
+**Admin** link appears in the portal nav automatically once you are admin.
+
+### a. File storage (2 min)
+
+SQL Editor → paste **`supabase-storage-setup.sql`** → Run.
+
+That makes a **private** `deliverables` bucket. Files are never public: the
+portal hands out signed links that expire after an hour, and a client can
+only reach files under their own project's folder.
+
+### b. The create-client function (5 min)
+
+Creating a login needs the `service_role` key, which must never sit in a
+public page — so it runs server side instead. Install the Supabase CLI, then:
+
+```bash
+supabase login
+supabase link --project-ref kdxckigyhpnwhwgjdgqq
+supabase functions deploy create-client
+```
+
+The function checks the caller's own JWT and refuses anyone who is not admin
+before it touches the service key. Keys are injected by the platform; you do
+not paste any into the code.
+
+Skip this step and everything else still works — you would just add the login
+under **Authentication → Add user** by hand, as before.
+
+### What the dashboard does
+
+- **Add a client** — creates the login and shows a temporary password **once**.
+  Pass it on; they must change it at first sign in.
+- **Start a project** — pick the client, title, artist, service, due date and
+  revision cap. The seven stages are seeded automatically.
+- **Progress** — change a stage's state or note; it saves as you change it and
+  the client's tracker updates live.
+- **Send a file** — upload it or paste a link. It appears on their project page.
+- **Mix reviews** — read each round's notes (timecode, element, what they hear,
+  what they want, reference) and move it open → in progress → done.
+- **Messages** — reply to the client in the project thread.
+
+---
+
 ## Running it day to day
 
-Everything happens in **Supabase → Table Editor**. No code, no redeploys.
+Everything below can also be done in **Supabase → Table Editor** if you prefer
+the raw rows — the dashboard just does the same writes with fewer clicks.
 
 **New client:** Authentication → Add user → Auto Confirm. Send them the email and temporary password. They're forced to set their own on first login.
 

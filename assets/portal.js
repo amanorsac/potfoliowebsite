@@ -87,6 +87,7 @@ async function mountChrome(active){
       '<a href="dashboard.html" class="'+(active==='projects'?'on':'')+'">Projects</a>'+
       '<a href="billing.html"   class="'+(active==='billing' ?'on':'')+'">Billing</a>'+
       '<a href="account.html"   class="'+(active==='account' ?'on':'')+'">Account</a>'+
+      (p && p.is_admin ? '<a href="admin.html" class="'+(active==='admin'?'on':'')+'">Admin</a>' : '')+
       '<a href="../index.html">Studio site</a>'+
     '</nav>'+
     '<span class="who">'+esc(name)+'</span>'+
@@ -103,6 +104,28 @@ async function mountChrome(active){
   return p;
 }
 async function signOut(){ await sb.auth.signOut(); location.replace('login.html'); }
+
+/** Admin-only guard. Bounces clients back to their own dashboard. */
+async function requireAdmin(){
+  const session = await requireSession();
+  if(!session) return null;
+  const p = await currentProfile();
+  if(!p || !p.is_admin){ location.replace('dashboard.html'); return null; }
+  return p;
+}
+
+/** A working href for a deliverable: a pasted link, or a short-lived
+ *  signed URL for a file sitting in the private storage bucket. */
+async function fileHref(f){
+  if(!f) return null;
+  if(f.url) return safeUrl(f.url);
+  if(f.storage_path){
+    const { data } = await sb.storage.from('deliverables')
+      .createSignedUrl(f.storage_path, 60 * 60);   // one hour
+    return data ? data.signedUrl : null;
+  }
+  return null;
+}
 
 /* ---------- progress tracker ---------- */
 const CHECK = '<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';

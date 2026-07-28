@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Studio admin · Stephen Amanor Sackey</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/portal.css">
+<style>
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:26px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+  .stat b{display:block;font-family:var(--display,inherit);font-size:30px;line-height:1.1;font-weight:400}
+  .stat span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .pw{font-family:var(--mono);font-size:13px;background:var(--surface-2);border:1px dashed var(--line);
+      border-radius:8px;padding:12px 14px;margin-top:12px;word-break:break-all}
+</style>
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Studio admin</p>
+    <h1>Clients &amp; projects</h1>
+    <p class="sub">Everything you would otherwise do by hand in the Supabase table editor.</p>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="grid2">
+    <!-- ---------------- new client ---------------- -->
+    <div class="card">
+      <div class="card-head"><h2>Add a client</h2></div>
+      <p class="hint">Creates their login. They are forced to set their own password the first time they sign in.</p>
+      <form id="clientform">
+        <div class="field"><label for="c-name">Full name</label>
+          <input id="c-name" type="text" autocomplete="off" required></div>
+        <div class="field"><label for="c-email">Email</label>
+          <input id="c-email" type="email" autocomplete="off" required></div>
+        <div class="field"><label for="c-company">Company <span class="hint">optional</span></label>
+          <input id="c-company" type="text" autocomplete="off"></div>
+        <button class="btn" id="c-go" type="submit">Create login</button>
+        <p class="msg" id="c-msg" role="status" aria-live="polite"></p>
+        <div id="c-pw"></div>
+      </form>
+    </div>
+
+    <!-- ---------------- new project ---------------- -->
+    <div class="card">
+      <div class="card-head"><h2>Start a project</h2></div>
+      <p class="hint">The seven stages are created automatically.</p>
+      <form id="projform">
+        <div class="field"><label for="p-client">Client</label>
+          <select id="p-client" required></select></div>
+        <div class="field"><label for="p-title">Song / project title</label>
+          <input id="p-title" type="text" required></div>
+        <div class="fieldrow">
+          <div class="field half"><label for="p-artist">Artist</label>
+            <input id="p-artist" type="text"></div>
+          <div class="field half"><label for="p-due">Due date</label>
+            <input id="p-due" type="date"></div>
+        </div>
+        <div class="fieldrow">
+          <div class="field half"><label for="p-service">Service</label>
+            <select id="p-service">
+              <option>Mixing &amp; Mastering</option><option>Mixing</option><option>Mastering</option>
+              <option>Production</option><option>Session piano</option><option>Music direction</option>
+              <option>Live or broadcast audio</option>
+            </select></div>
+          <div class="field half"><label for="p-revs">Revisions allowed</label>
+            <input id="p-revs" type="number" min="0" max="10" value="3"></div>
+        </div>
+        <button class="btn" id="p-go" type="submit">Create project</button>
+        <p class="msg" id="p-msg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ---------------- projects ---------------- -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head"><h2>All projects</h2><span class="hint" id="projcount"></span></div>
+    <div id="projects"><div class="skeleton" style="width:55%"></div></div>
+  </div>
+
+  <!-- ---------------- clients ---------------- -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head"><h2>Clients</h2><span class="hint" id="clientcount"></span></div>
+    <div id="clients"><div class="skeleton" style="width:40%"></div></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+(async () => {
+  const me = await requireAdmin(); if(!me) return;
+  await mountChrome('admin');
+
+  const clientSel = $('#p-client');
+
+  async function load(){
+    // ---- clients
+    const { data: people } = await sb.from('profiles')
+      .select('*').order('created_at',{ascending:false});
+    const clients = (people||[]).filter(p => !p.is_admin);
+
+    $('#clientcount').textContent = clients.length + (clients.length===1?' client':' clients');
+    $('#clients').innerHTML = clients.length ? clients.map(c =>
+      '<div class="row"><div><h3>'+esc(c.full_name || c.email)+'</h3>'+
+      '<p class="meta">'+esc(c.email||'')+(c.company?' · '+esc(c.company):'')+'</p></div>'+
+      '<span class="meta">joined '+when(c.created_at)+'</span></div>').join('')
+      : '<p class="empty">No clients yet. Add one above.</p>';
+
+    clientSel.innerHTML = clients.length
+      ? clients.map(c => '<option value="'+esc(c.id)+'">'+esc(c.full_name || c.email)+'</option>').join('')
+      : '<option value="">— add a client first —</option>';
+
+    // ---- projects
+    const { data: projects } = await sb.from('projects')
+      .select('*, profiles!projects_client_id_fkey(full_name,email), project_stages(sort_order,name,state)')
+      .order('created_at',{ascending:false});
+
+    $('#projcount').textContent = (projects||[]).length + ' total';
+    $('#projects').innerHTML = (projects && projects.length) ? projects.map(pr => {
+      const st = (pr.project_stages||[]).sort((a,b)=>a.sort_order-b.sort_order);
+      const done = st.filter(x=>x.state==='done').length;
+      const cur  = st.find(x=>x.state==='active') || st.find(x=>x.state==='blocked');
+      const pct  = st.length ? Math.round(done/st.length*100) : 0;
+      const blocked = st.some(x=>x.state==='blocked');
+      const who = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Unknown client';
+      return '<div class="row"><div>'+
+        '<h3><a href="admin-project.html?id='+esc(pr.id)+'">'+esc(pr.title)+'</a></h3>'+
+        '<p class="meta">'+esc(who)+' · '+esc(pr.artist || pr.service || '')+
+        ' · '+(cur?esc(cur.name):'Complete')+' ('+pct+'%)</p></div>'+
+        '<span class="pill '+(blocked?'warn':(pr.status==='delivered'?'ok':'accent'))+'">'+
+          (blocked?'Blocked':esc(String(pr.status).replace('_',' ')))+'</span></div>';
+    }).join('') : '<p class="empty">No projects yet.</p>';
+
+    // ---- headline numbers
+    const open = (projects||[]).filter(p => p.status === 'active').length;
+    const { count: reviews } = await sb.from('revision_requests')
+      .select('id',{count:'exact',head:true}).neq('status','done');
+    $('#stats').innerHTML =
+      '<div class="stat"><b>'+clients.length+'</b><span>Clients</span></div>'+
+      '<div class="stat"><b>'+open+'</b><span>Active projects</span></div>'+
+      '<div class="stat"><b>'+(reviews||0)+'</b><span>Open mix reviews</span></div>';
+  }
+
+  await load();
+
+  /* ---------- create a client login (via the Edge Function) ---------- */
+  $('#clientform').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('#c-msg'), go = $('#c-go'), out = $('#c-pw');
+    out.innerHTML = ''; say(m, 'Creating…');
+    go.disabled = true;
+
+    const { data:{ session } } = await sb.auth.getSession();
+    try {
+      const res = await fetch(SUPABASE_URL + '/functions/v1/create-client', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (session ? session.access_token : ''),
+          'apikey': SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          full_name: $('#c-name').value.trim(),
+          email:     $('#c-email').value.trim(),
+          company:   $('#c-company').value.trim()
+        })
+      });
+      const body = await res.json();
+      if(!res.ok) throw new Error(body.error || 'That did not work.');
+
+      say(m, 'Login created.', 'ok');
+      out.innerHTML = '<div class="pw"><b>Send them these once:</b><br>'+
+        esc(body.email)+'<br>temporary password: <b>'+esc(body.password)+'</b><br>'+
+        '<span class="hint">Shown only now. They must change it on first sign in.</span></div>';
+      e.target.reset();
+      await load();
+    } catch(err){
+      say(m, err.message === 'Failed to fetch'
+        ? 'Could not reach the create-client function. Is it deployed?'
+        : err.message, 'err');
+    } finally { go.disabled = false; }
+  });
+
+  /* ---------- create a project ---------- */
+  $('#projform').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('#p-msg'), go = $('#p-go');
+    const client_id = clientSel.value;
+    if(!client_id) return say(m, 'Add a client first.', 'err');
+
+    go.disabled = true; say(m, 'Creating…');
+    const { error } = await sb.from('projects').insert({
+      client_id,
+      title:  $('#p-title').value.trim(),
+      artist: $('#p-artist').value.trim() || null,
+      service: $('#p-service').value,
+      due_date: $('#p-due').value || null,
+      revisions_allowed: parseInt($('#p-revs').value, 10) || 3
+    });
+    go.disabled = false;
+    if(error) return say(m, error.message, 'err');
+    say(m, 'Project created with its seven stages.', 'ok');
+    e.target.reset(); $('#p-revs').value = 3;
+    await load();
+  });
+})();
+</script>
+</body>
+</html>

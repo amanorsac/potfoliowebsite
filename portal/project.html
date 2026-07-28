@@ -144,11 +144,15 @@ function noteRow(i){
     const { data: files } = await sb.from('deliverables')
       .select('*').eq('project_id', PID).order('created_at',{ascending:false});
     $('#filecount').textContent = (files||[]).length + ' items';
-    $('#files').innerHTML = (files && files.length) ? files.map(f =>
-      '<div class="row"><div><h3>'+esc(f.label)+'</h3>'+
-      '<p class="meta">'+(f.direction==='to_client'?'From the studio':'You sent this')+' \u00b7 '+when(f.created_at)+'</p></div>'+
-      '<span>'+linkHtml(f.url,'Open')+'</span></div>').join('')
-      : '<p class="empty">Nothing here yet.</p>';
+    const fileRows = await Promise.all((files||[]).map(async f => {
+      const href = await fileHref(f);          // pasted link, or signed storage URL
+      return '<div class="row"><div><h3>'+esc(f.label)+'</h3>'+
+        '<p class="meta">'+(f.direction==='to_client'?'From the studio':'You sent this')+' \u00b7 '+when(f.created_at)+'</p></div>'+
+        '<span>'+(href
+          ? '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">Open</a>'
+          : '<span class="meta">no link</span>')+'</span></div>';
+    }));
+    $('#files').innerHTML = fileRows.length ? fileRows.join('') : '<p class="empty">Nothing here yet.</p>';
 
     // ---- messages
     const { data: msgs } = await sb.from('messages')

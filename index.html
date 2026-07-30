@@ -8,6 +8,13 @@
 <meta property="og:title" content="Stephen Amanor Sackey">
 <meta property="og:description" content="Producer, mixing and mastering engineer, music director, pianist, app founder.">
 <meta property="og:type" content="website">
+<link rel="icon" href="images/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="images/logo.svg">
+<meta property="og:image" content="https://potfoliowebsite.amanorsac.workers.dev/images/hero-home.jpg">
+<meta property="og:url" content="https://potfoliowebsite.amanorsac.workers.dev/">
+<meta property="og:site_name" content="Studio Amanorsac">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://potfoliowebsite.amanorsac.workers.dev/images/hero-home.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,16 +27,20 @@
 
 :root{
   --ink:#F7F6F2; --panel:#FFFFFF; --panel-2:#F0EEE8; --line:#E3E0D8;
-  --paper:#1A1830; --muted:#6E6B7A; --signal:#3C3489;
+  --paper:#1A1830; --muted:#6B6358; --signal:#3C3489;
   --accent:#EF9F27;                      /* home / default: brand orange */
   --display:'Instrument Serif',Georgia,'Times New Roman',serif;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
   --rail:104px; --gut:clamp(20px,5vw,72px);
+  /* motion tokens — strong curves; browser defaults are too weak */
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --ease-in-out:cubic-bezier(.77,0,.175,1);
+  --dur-fast:160ms; --dur:240ms; --dur-slow:520ms;
 }
 body[data-room="mixing"]{ --accent:#C0722B; --ink:#F2E6D2; --panel:#FBF4E6; --panel-2:#EAD9BF; --line:#DDC9A8; }  /* warm copper console */
 body[data-room="live"]  { --accent:#C24A3E; --ink:#F6E3DC; --panel:#FDF0EB; --panel-2:#EFD3CA; --line:#E4C1B6; }  /* on-air blush */
-body[data-room="apps"]  { --accent:#2E8B6E; --ink:#E1EDE6; --panel:#F2F9F5; --panel-2:#D1E4D9; --line:#C2DACC; }  /* cool software mint */
+body[data-room="apps"]  { --accent:#2E8B6E; --ink:#E1EDE6; --panel:#F2F9F5; --panel-2:#D1E4D9; --line:#C2DACC; --muted:#5C6B64; }  /* cool software mint */
 body[data-room="piano"] { --accent:#9A7B3F; --ink:#F0E7D2; --panel:#FAF4E5; --panel-2:#E7D9BD; --line:#D9C8A4; }  /* parchment gold */
 
 *{box-sizing:border-box}
@@ -95,12 +106,14 @@ section:last-of-type{border-bottom:0}
 .eyebrow::after{content:"";flex:1;height:1px;background:var(--line);max-width:180px}
 h2{font-family:var(--display);font-weight:400;font-size:clamp(35px,5.6vw,66px);line-height:1.04;margin:0 0 22px;letter-spacing:-.015em}
 h3{font-family:var(--display);font-weight:400;font-size:27px;margin:0 0 11px}
+h1,h2,h3{text-wrap:balance}
+p,.lede{text-wrap:pretty}
 .lede{color:var(--muted);max-width:54ch;margin:0 0 64px;font-size:18.5px;line-height:1.78}
 p{margin:0 0 16px}
 
 /* ---------- hero ---------- */
-.hero{min-height:78vh;display:flex;flex-direction:column;justify-content:flex-start;padding-top:clamp(64px,12vh,150px)}
-.hero.short{min-height:72vh}
+.hero{min-height:78vh;min-height:78dvh;display:flex;flex-direction:column;justify-content:flex-start;padding-top:clamp(64px,12vh,150px)}
+.hero.short{min-height:72vh;min-height:72dvh}
 .hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
   color:var(--accent);margin-bottom:30px}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(40px,7.2vw,92px);line-height:.94;
@@ -109,26 +122,13 @@ h1 em{font-style:italic;color:var(--accent)}
 .hero.short h1{font-size:clamp(42px,8.2vw,98px)}
 .hero-thesis{font-size:clamp(18px,2.3vw,25px);line-height:1.62;max-width:32ch;margin:0 0 42px}
 .roles{display:flex;flex-wrap:wrap;gap:8px 10px;list-style:none;padding:0;margin:0 0 38px}
-.roles li{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+.roles li{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--muted);
   border:1px solid var(--line);border-radius:999px;padding:6px 13px}
 .wave{display:flex;align-items:flex-end;gap:3px;height:62px;opacity:.85}
 .wave span{flex:1;background:linear-gradient(180deg,var(--accent),var(--signal));border-radius:1px;
   transform-origin:bottom;animation:pulse 2.6s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:scaleY(.82)}50%{transform:scaleY(1)}}
-
-/* ---------- room cards (hub) ---------- */
-.rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px}
-.room{position:relative;display:block;text-decoration:none;border:1px solid var(--line);border-radius:4px;
-  padding:36px 32px 30px;background:var(--panel);overflow:hidden;
-  transition:border-color .3s,transform .3s,background .3s}
-.room::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--room);transition:width .3s}
-.room:hover{transform:translateY(-3px);border-color:var(--muted);background:var(--panel-2)}
-.room:hover::before{width:6px}
-.room-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
-  color:var(--room);display:block;margin-bottom:11px}
-.room h3{margin-bottom:7px}
-.room p{color:var(--muted);font-size:14.5px;margin:0 0 16px}
-.room-go{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper)}
+.wave.idle span{animation-play-state:paused}
 
 /* ---------- door arrangements (editorial, alternating) ---------- */
 .arrangements{display:flex;flex-direction:column;gap:clamp(48px,8vw,116px)}
@@ -139,7 +139,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .arr-media img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.02);transition:transform .7s ease}
 .arr:hover .arr-media img{transform:scale(1.045)}
 .arr-media.solid{display:flex;align-items:center;justify-content:center;border:0;
-  background:linear-gradient(135deg,var(--room),color-mix(in srgb,var(--room) 55%,#141228))}
+  background:linear-gradient(135deg,var(--room),color-mix(in srgb,var(--room) 74%,#1A1830))}
 .arr-media.solid span{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#F7F6F2}
 .arr-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--room);display:block;margin-bottom:16px}
 .arr-body h3{font-family:var(--display);font-weight:400;font-size:clamp(31px,4.2vw,56px);line-height:1.0;margin:0 0 16px;letter-spacing:-.01em}
@@ -167,7 +167,9 @@ h1 em{font-style:italic;color:var(--accent)}
 
 /* ---------- grids ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
-.cell{background:var(--ink);padding:36px 32px}
+.cell{background:var(--ink);padding:36px 32px;transition:background var(--dur) var(--ease-out)}
+.cell:hover{background:var(--panel)}
+@media(min-width:620px) and (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} }
 .cell p{color:var(--muted);font-size:15px;margin:0}
 .cell .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:12px}
 
@@ -205,9 +207,10 @@ h1 em{font-style:italic;color:var(--accent)}
 
 /* ---------- photos ---------- */
 .shot{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:4px;background:var(--panel-2)}
-.shot img{width:100%;height:100%;object-fit:cover;filter:saturate(.88) contrast(1.04);transition:filter .5s,transform .7s}
+.shot img{width:100%;height:100%;object-fit:cover;filter:saturate(.88) contrast(1.04);
+  transition:transform var(--dur-slow) var(--ease-out)}
 .shot::after{content:"";position:absolute;inset:0;background:var(--accent);mix-blend-mode:soft-light;opacity:.26;transition:opacity .5s;pointer-events:none}
-.shot:hover img{filter:none;transform:scale(1.02)}
+.shot:hover img{transform:scale(1.03)}
 .shot:hover::after{opacity:0}
 .shot.empty{display:flex;align-items:center;justify-content:center;border-style:dashed;min-height:170px}
 .shot.empty img{display:none}
@@ -228,6 +231,14 @@ h1 em{font-style:italic;color:var(--accent)}
 .spec{display:flex;flex-wrap:wrap;gap:7px;list-style:none;padding:0;margin:0}
 .spec li{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);background:var(--panel-2);border-radius:2px;padding:5px 10px}
 
+/* ---------- two-column split with a spec list ---------- */
+.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:start}
+.split p{max-width:58ch}
+.spec-list{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
+.spec-list li{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);
+  padding:13px 0;border-bottom:1px solid var(--line)}
+@media(max-width:760px){ .split{grid-template-columns:1fr} }
+
 /* ---------- keyboard motif (piano) ---------- */
 .keys{display:flex;height:74px;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0 0 8px}
 .keys i{flex:1;background:#F2ECDE;border-right:1px solid #cbbfae;position:relative}
@@ -246,7 +257,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .mail{font-family:var(--display);font-size:clamp(24px,3.6vw,40px);text-decoration:none;display:inline-block;
   line-height:1.2;border-bottom:1px solid var(--line);transition:border-color .25s,color .25s;word-break:break-word}
 .mail:hover{color:var(--accent);border-color:var(--accent)}
-.contact-meta{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:26px;line-height:2}
+.contact-meta{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--muted);margin-top:26px;line-height:2}
 form{display:flex;flex-direction:column;gap:16px}
 .field{display:flex;flex-direction:column;gap:7px}
 label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
@@ -262,6 +273,9 @@ button.send[disabled]{opacity:.55;cursor:default}
 .form-msg.ok{color:var(--signal)}
 .form-msg.err{color:#D98A6A}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.skip{position:absolute;left:-9999px;top:0;z-index:200;background:var(--accent);color:#fff;
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:12px 18px}
+.skip:focus{left:0}
 
 /* ---------- cross-links + footer ---------- */
 .next{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
@@ -276,8 +290,18 @@ footer{margin-left:var(--rail);padding:24px var(--gut);border-top:1px solid var(
 footer a{text-decoration:none}
 footer a:hover{color:var(--accent)}
 
-.rise{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.032;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.rise{opacity:0;transform:translateY(16px);
+  transition:opacity var(--dur-slow) var(--ease-out),transform var(--dur-slow) var(--ease-out)}
 .rise.in{opacity:1;transform:none}
+
+/* press feedback — nothing pressable should feel dead */
+.strip:active,.sitehead-name:active{background:var(--panel-2)}
+.sh-login:active,.sh-social a:active{transform:translateY(1px)}
+.arr:active .arr-media{transform:scale(.994);transition:transform var(--dur-fast) var(--ease-out)}
+.mail:active{transform:translateY(1px)}
 
 @media (max-width:900px){
   .about-grid,.contact-grid{grid-template-columns:1fr;gap:32px}
@@ -293,7 +317,7 @@ footer a:hover{color:var(--accent)}
   .strip.on{border-bottom-color:var(--accent);background:transparent}
   main,footer{margin-left:0}
   .lane{grid-template-columns:1fr;gap:9px}
-  .hero{min-height:74vh}
+  .hero{min-height:74vh;min-height:74dvh}
   .steps li{grid-template-columns:38px 1fr;gap:12px}
 }
 @media (prefers-reduced-motion:reduce){
@@ -323,7 +347,7 @@ footer a:hover{color:var(--accent)}
   border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .band img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) contrast(1.05) brightness(.86)}
 .band .cap{position:absolute;left:var(--gut);bottom:26px;font-family:var(--mono);font-size:10px;
-  letter-spacing:.16em;text-transform:uppercase;color:#F7F6F2;text-shadow:0 1px 12px rgba(0,0,0,.9)}
+  letter-spacing:.16em;text-transform:uppercase;color:#F7F6F2;text-shadow:0 1px 14px rgba(26,24,48,.92)}
 .band.empty{display:flex;align-items:center;justify-content:center;border-style:dashed}
 
 /* ---------- taller gallery, feature first tile ---------- */
@@ -334,13 +358,14 @@ footer a:hover{color:var(--accent)}
 </head>
 <body data-room="home">
 
+<a class="skip" href="#main">Skip to content</a>
+
 <nav class="rack" aria-label="Rooms">
   <a class="rack-brand" href="index.html" aria-label="Studio Amanorsac — home"><img src="images/logo.svg" alt="Studio Amanorsac"></a>
   <div class="rack-nav">
     <a class="strip on" href="index.html"><span class="strip-name">Home</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="mixing.html"><span class="strip-name">Mixing</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
-    <a class="strip" href="live.html"><span class="strip-name">Live</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
-    <a class="strip" href="piano.html"><span class="strip-name">Piano</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="piano.html"><span class="strip-name">Piano &amp; MD</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="apps.html"><span class="strip-name">Apps</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="portal/login.html"><span class="strip-name">Clients</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="#contact"><span class="strip-name">Contact</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
@@ -356,7 +381,7 @@ footer a:hover{color:var(--accent)}
   </div>
 </div>
 
-<main><div class="wrap">
+<main id="main"><div class="wrap">
 
   <header class="hero">
     <div class="hero-eyebrow">Accra &nbsp;→&nbsp; Virginia</div>
@@ -367,9 +392,9 @@ footer a:hover{color:var(--accent)}
   </header>
 
   <section id="rooms">
-    <p class="eyebrow">Four rooms</p>
+    <p class="eyebrow">Three rooms</p>
     <h2>Pick a door</h2>
-    <p class="lede">Same person, four different jobs.</p>
+    <p class="lede">Same person, three different jobs.</p>
     <div class="arrangements">
       <a class="arr rise" href="mixing.html" style="--room:#C0722B">
         <div class="arr-media"><img src="images/hero-mixing.jpg" alt="Mixing and mastering" loading="lazy"></div>
@@ -380,28 +405,19 @@ footer a:hover{color:var(--accent)}
           <span class="arr-go">Enter the room →</span>
         </div>
       </a>
-      <a class="arr rise" href="live.html" style="--room:#C24A3E">
-        <div class="arr-media"><img src="images/hero-live.jpg" alt="Live and broadcast" loading="lazy"></div>
-        <div class="arr-body">
-          <span class="arr-tag">02 — On air</span>
-          <h3>Live &amp; Broadcast</h3>
-          <p>Capture, front of house, and broadcast post on a weekly clock.</p>
-          <span class="arr-go">Enter the room →</span>
-        </div>
-      </a>
       <a class="arr rise" href="piano.html" style="--room:#9A7B3F">
         <div class="arr-media"><img src="images/hero-piano.jpg" alt="Piano" loading="lazy"></div>
         <div class="arr-body">
-          <span class="arr-tag">03 — Keys</span>
-          <h3>Piano</h3>
-          <p>Gospel highlife, sessions, and teaching worship players.</p>
+          <span class="arr-tag">02 — Keys</span>
+          <h3>Piano &amp; Music Direction</h3>
+          <p>Session piano, gospel highlife, and directing bands and choirs from the keys.</p>
           <span class="arr-go">Enter the room →</span>
         </div>
       </a>
       <a class="arr rise" href="apps.html" style="--room:#2E8B6E">
         <div class="arr-media solid"><span>HarmonieMD · EzPlay</span></div>
         <div class="arr-body">
-          <span class="arr-tag">04 — Software</span>
+          <span class="arr-tag">03 — Software</span>
           <h3>HarmonieMD &amp; EzPlay</h3>
           <p>Two applications, written for problems I hit on the job.</p>
           <span class="arr-go">Enter the room →</span>
@@ -677,6 +693,12 @@ var CONFIG = {
       if(!reduce) b.style.animationDelay=(t*2.6).toFixed(2)+'s';
       wave.appendChild(b);
     }
+    /* the pulse is decorative — do not burn frames on it off-screen */
+    if("IntersectionObserver" in window){
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){ wave.classList.toggle("idle", !e.isIntersecting); });
+      },{threshold:0}).observe(wave);
+    }
   }
 
   /* ---- photo slots ---- */
@@ -706,7 +728,11 @@ var CONFIG = {
   var gal=$('#gallery');
   if(gal){
     var key=gal.getAttribute('data-set')||'home';
-    (CONFIG.gallery[key]||[]).forEach(function(src){ gal.appendChild(shot(src,'Studio and live work')); });
+    (CONFIG.gallery[key]||[]).forEach(function(src,i){
+      var alts = { home:'Studio and live work', mixing:'Mixing session at the desk',
+                   live:'Live and broadcast production', piano:'Playing keys on a session' };
+      gal.appendChild(shot(src, (alts[key]||'Studio work') + ' \u2014 photo ' + (i+1)));
+    });
   }
 
   /* ---- works: paste any YouTube or Spotify link ---- */

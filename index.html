@@ -814,15 +814,22 @@ var CONFIG = {
     var hc = $('.hc'); if(!hc) return;
     var slides = $$('.hc-slide', hc), dots = $('#hc-dots'), playBtn = $('#hc-play');
     if(slides.length < 2) return;
+
     var i = 0, timer = null, DELAY = 6500;
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    slides.forEach(function(_,n){
+    /* One source of truth. `wants` is null until the visitor decides for
+       themselves; after that their choice wins over every other rule,
+       including reduced motion — pressing play must always start it. */
+    var wants = null, inView = true;
+    function wanted(){ return wants === null ? !reduce : wants; }
+
+    slides.forEach(function(_, n){
       var b = document.createElement('button');
       b.className = 'hc-dot' + (n === 0 ? ' on' : '');
       b.type = 'button';
-      b.setAttribute('aria-label','Go to slide ' + (n+1));
-      b.addEventListener('click', function(){ go(n); rest(); });
+      b.setAttribute('aria-label', 'Go to slide ' + (n + 1));
+      b.addEventListener('click', function(){ go(n); kick(); });
       dots.appendChild(b);
     });
     var dotEls = $$('.hc-dot', dots);
@@ -833,53 +840,51 @@ var CONFIG = {
       slides[i].classList.remove('on');
       slides[i].hidden = true;
       slides[n].hidden = false;
-      // let the browser paint the un-hidden slide before fading it in
-      requestAnimationFrame(function(){ slides[n].classList.add('on'); });
+      slides[n].classList.add('on');   // synchronously: deferring left one blank frame
       dotEls[i].classList.remove('on');
       dotEls[n].classList.add('on');
       i = n;
     }
 
-    function play(){
-      if(reduce || timer) return;
-      timer = setInterval(function(){ go(i+1); }, DELAY);
-      playBtn.setAttribute('aria-pressed','false');
-      playBtn.setAttribute('aria-label','Pause slideshow');
+    function sync(){
+      var run = wanted() && inView && !document.hidden;
+      if(run && !timer) timer = setInterval(function(){ go(i + 1); }, DELAY);
+      if(!run && timer){ clearInterval(timer); timer = null; }
+      playBtn.setAttribute('aria-pressed', String(!wanted()));
+      playBtn.setAttribute('aria-label', wanted() ? 'Pause slideshow' : 'Play slideshow');
     }
-    function stop(){
-      clearInterval(timer); timer = null;
-      playBtn.setAttribute('aria-pressed','true');
-      playBtn.setAttribute('aria-label','Play slideshow');
-    }
-    function rest(){ if(timer){ clearInterval(timer); timer = null; play(); } }
+    /* restart the countdown after a manual move, so the next auto-advance
+       isn't a leftover half-second away */
+    function kick(){ if(timer){ clearInterval(timer); timer = null; } sync(); }
 
-    playBtn.addEventListener('click', function(){ timer ? stop() : play(); });
+    playBtn.addEventListener('click', function(){ wants = !wanted(); kick(); });
     $$('.hc-arrow', hc).forEach(function(a){
-      a.addEventListener('click', function(){ go(i + Number(a.getAttribute('data-dir'))); rest(); });
+      a.addEventListener('click', function(){ go(i + Number(a.getAttribute('data-dir'))); kick(); });
     });
 
-    // keyboard
     hc.addEventListener('keydown', function(e){
-      if(e.key === 'ArrowLeft'){ go(i-1); rest(); }
-      if(e.key === 'ArrowRight'){ go(i+1); rest(); }
+      if(e.key === 'ArrowLeft'){ go(i - 1); kick(); }
+      if(e.key === 'ArrowRight'){ go(i + 1); kick(); }
     });
 
-    // don't advance under someone's cursor, or while they're tabbed into it
-    hc.addEventListener('mouseenter', function(){ if(timer) stop(); });
-    hc.addEventListener('mouseleave', function(){ if(!timer) play(); });
-    hc.addEventListener('focusin',  function(){ if(timer) stop(); });
+    /* Hovering the controls holds the slide still so it can't change out from
+       under a click. Hovering the hero at large does NOT pause — the hero
+       fills the screen, and a resting cursor should not stop the show. */
+    var ui = $('.hc-ui', hc);
+    if(ui){
+      ui.addEventListener('mouseenter', function(){ if(timer){ clearInterval(timer); timer = null; } });
+      ui.addEventListener('mouseleave', sync);
+    }
 
-    // nor when the tab is hidden or the hero is scrolled away
-    document.addEventListener('visibilitychange', function(){
-      document.hidden ? stop() : play();
-    });
+    document.addEventListener('visibilitychange', sync);
     if('IntersectionObserver' in window){
       new IntersectionObserver(function(es){
-        es.forEach(function(e){ e.isIntersecting ? play() : stop(); });
-      },{threshold:.15}).observe(hc);
+        es.forEach(function(e){ inView = e.isIntersecting; });
+        sync();
+      }, { threshold:.15 }).observe(hc);
     }
 
-    // swipe / drag: commit on distance or a flick, whichever comes first
+    // swipe / drag: commit on distance or on a flick, whichever lands first
     var x0 = null, t0 = 0;
     hc.addEventListener('pointerdown', function(e){
       if(e.target.closest('.hc-ui,a')) return;
@@ -887,14 +892,13 @@ var CONFIG = {
     });
     hc.addEventListener('pointerup', function(e){
       if(x0 === null) return;
-      var dx = e.clientX - x0, dt = Math.max(1, e.timeStamp - t0);
-      var v = dx / dt;                                  // px per ms
-      if(Math.abs(dx) > 60 || Math.abs(v) > 0.45){ go(i + (dx < 0 ? 1 : -1)); rest(); }
+      var dx = e.clientX - x0, dt = Math.max(1, e.timeStamp - t0), v = dx / dt;
+      if(Math.abs(dx) > 60 || Math.abs(v) > 0.45){ go(i + (dx < 0 ? 1 : -1)); kick(); }
       x0 = null;
     });
     hc.addEventListener('pointercancel', function(){ x0 = null; });
 
-    play();
+    sync();
   })();
 
   /* ---- full-width photo band ---- */

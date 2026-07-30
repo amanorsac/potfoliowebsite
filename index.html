@@ -138,6 +138,74 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 @keyframes pulse{0%,100%{transform:scaleY(.82)}50%{transform:scaleY(1)}}
 .wave.idle span{animation-play-state:paused}
 
+/* ---------- pill call to action ---------- */
+.cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--body);font-size:15.5px;font-weight:600;
+  text-decoration:none;background:var(--accent);color:#fff;border:0;border-radius:var(--r-pill);
+  padding:16px 28px;cursor:pointer;box-shadow:var(--shadow-1);
+  transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out),filter var(--dur) var(--ease-out)}
+.cta:hover{transform:translateY(-2px);box-shadow:var(--shadow-2);filter:saturate(1.06)}
+.cta:active{transform:scale(.97);box-shadow:var(--shadow-1)}
+.cta.ghost{background:transparent;color:var(--paper);border:1.5px solid color-mix(in srgb,var(--paper) 22%,transparent);box-shadow:none}
+.cta.ghost:hover{border-color:var(--paper);background:color-mix(in srgb,var(--panel) 60%,transparent)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 40px}
+
+/* ---------- hero carousel ---------- */
+.hc{position:relative;left:50%;margin-left:calc(-50vw + var(--rail)/2);width:calc(100vw - var(--rail));
+  height:clamp(520px,86vh,880px);height:clamp(520px,86dvh,880px);
+  overflow:hidden;background:var(--panel-2);isolation:isolate;touch-action:pan-y}
+.hc-track{position:absolute;inset:0}
+.hc-slide{position:absolute;inset:0;display:flex;align-items:center;
+  opacity:0;visibility:hidden;transition:opacity var(--dur-slow) var(--ease-out),visibility 0s linear var(--dur-slow)}
+.hc-slide.on{opacity:1;visibility:visible;transition:opacity var(--dur-slow) var(--ease-out),visibility 0s}
+.hc-media{position:absolute;inset:0;z-index:-1;overflow:hidden}
+.hc-media img{width:100%;height:100%;object-fit:cover;object-position:center 32%;
+  transform:scale(1.06);transition:transform 9s linear;filter:saturate(.72) brightness(1.04)}
+.hc-slide.on .hc-media img{transform:scale(1)}          /* slow drift while a slide is up */
+.hc-media::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--ink) 0%,color-mix(in srgb,var(--ink) 88%,transparent) 42%,
+    color-mix(in srgb,var(--ink) 42%,transparent) 74%,color-mix(in srgb,var(--ink) 62%,transparent) 100%)}
+.hc-body{position:relative;width:100%;max-width:1080px;margin:0 auto;padding:0 var(--gut);
+  transform:translateY(14px);opacity:0;transition:transform var(--dur-slow) var(--ease-out) 80ms,opacity var(--dur-slow) var(--ease-out) 80ms}
+.hc-slide.on .hc-body{transform:none;opacity:1}
+.hc-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--room,var(--accent));margin:0 0 26px}
+.hc-body h1{margin:0 0 22px}
+.hc-body h1 em{color:var(--room,var(--accent))}
+.hc-body .hero-thesis{margin-bottom:34px}
+.hc-body .cta{background:var(--room,var(--accent))}
+.hc-body .wave{margin-top:34px;max-width:560px;opacity:.7}
+
+/* controls */
+.hc-ui{position:absolute;left:0;right:0;bottom:26px;z-index:3;
+  display:flex;align-items:center;gap:12px;justify-content:flex-end;
+  padding:0 var(--gut) 0 0;max-width:1080px;margin:0 auto}
+.hc-arrow,.hc-play{width:42px;height:42px;border-radius:var(--r-pill);cursor:pointer;
+  border:1px solid color-mix(in srgb,var(--paper) 16%,transparent);
+  background:color-mix(in srgb,var(--panel) 72%,transparent);color:var(--paper);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  font-size:20px;line-height:1;display:grid;place-items:center;
+  transition:transform var(--dur-fast) var(--ease-out),background var(--dur) var(--ease-out)}
+.hc-arrow:hover,.hc-play:hover{background:var(--panel)}
+.hc-arrow:active,.hc-play:active{transform:scale(.94)}
+.hc-play{font-size:0}
+.hc-play::before{content:"";width:10px;height:12px;background:currentColor;
+  clip-path:polygon(0 0,38% 0,38% 100%,0 100%,0 0,62% 0,100% 0,100% 100%,62% 100%)}
+.hc-play[aria-pressed="true"]::before{clip-path:polygon(0 0,100% 50%,0 100%)}
+.hc-dots{display:flex;align-items:center;gap:9px;padding:0 6px}
+.hc-dot{width:9px;height:9px;padding:0;border:0;border-radius:var(--r-pill);cursor:pointer;
+  background:color-mix(in srgb,var(--paper) 45%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--panel) 45%,transparent);
+  transition:width var(--dur) var(--ease-out),background var(--dur) var(--ease-out)}
+.hc-dot.on{width:30px;background:var(--accent)}
+@media(max-width:860px){
+  .hc{left:auto;margin-left:0;width:100%;height:clamp(460px,74vh,720px);height:clamp(460px,74dvh,720px)}
+  .hc-media::after{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 55%,transparent) 0%,
+    color-mix(in srgb,var(--ink) 88%,transparent) 62%,var(--ink) 100%)}
+}
+@media (prefers-reduced-motion:reduce){
+  .hc-media img{transition:none;transform:none}
+  .hc-body{transition:opacity 200ms linear;transform:none}
+}
+
 /* ---------- door arrangements (editorial, alternating) ---------- */
 .arrangements{display:flex;flex-direction:column;gap:clamp(48px,8vw,116px)}
 .arr{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,76px);align-items:center;text-decoration:none;color:inherit}
@@ -410,13 +478,62 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
 <main id="main"><div class="wrap">
 
-  <header class="hero">
-    <div class="hero-eyebrow">Accra &nbsp;→&nbsp; Virginia</div>
-    <h1>Stephen<br>Amanor <em>Sackey</em></h1>
-    <p class="hero-thesis">A music producer, audio engineer, session pianist, and software developer dedicated to pushing the boundaries of music production, live performance, and creative technology.</p>
-    <ul class="roles"><li>Producer</li><li>Mixing &amp; Mastering</li><li>Music Director</li><li>Broadcast Post</li><li>Pianist</li><li>Founder</li></ul>
-    <div class="wave" aria-hidden="true"></div>
-  </header>
+  <section class="hc" id="hero" aria-roledescription="carousel" aria-label="Studio Amanorsac">
+    <div class="hc-track">
+
+      <article class="hc-slide on" style="--room:#EF9F27" aria-roledescription="slide" aria-label="1 of 4">
+        <div class="hc-media"><img src="images/hero-home.jpg" alt="" fetchpriority="high"></div>
+        <div class="hc-body">
+          <p class="hc-eyebrow">Accra &nbsp;→&nbsp; Virginia</p>
+          <h1>Stephen<br>Amanor <em>Sackey</em></h1>
+          <p class="hero-thesis">A music producer, audio engineer, session pianist, and software developer dedicated to pushing the boundaries of music production, live performance, and creative technology.</p>
+          <div class="hero-cta">
+            <a class="cta" href="#rooms">See the work</a>
+            <a class="cta ghost" href="#contact">Start a project</a>
+          </div>
+          <div class="wave" aria-hidden="true"></div>
+        </div>
+      </article>
+
+      <article class="hc-slide" style="--room:#C0722B" aria-roledescription="slide" aria-label="2 of 4" hidden>
+        <div class="hc-media"><img src="images/hero-mixing.jpg" alt="" loading="lazy"></div>
+        <div class="hc-body">
+          <p class="hc-eyebrow">01 — Studio</p>
+          <h1>Mixing &amp; <em>Mastering</em></h1>
+          <p class="hero-thesis">Close harmony, lead vocals, and full masters. Hear the before and after on the same eight bars.</p>
+          <div class="hero-cta"><a class="cta" href="mixing.html">Enter the room</a></div>
+        </div>
+      </article>
+
+      <article class="hc-slide" style="--room:#9A7B3F" aria-roledescription="slide" aria-label="3 of 4" hidden>
+        <div class="hc-media"><img src="images/hero-piano.jpg" alt="" loading="lazy"></div>
+        <div class="hc-body">
+          <p class="hc-eyebrow">02 — Keys</p>
+          <h1>Piano &amp; <em>Music Direction</em></h1>
+          <p class="hero-thesis">Session piano, gospel highlife, and directing bands and choirs from behind the keys.</p>
+          <div class="hero-cta"><a class="cta" href="piano.html">Enter the room</a></div>
+        </div>
+      </article>
+
+      <article class="hc-slide" style="--room:#2E8B6E" aria-roledescription="slide" aria-label="4 of 4" hidden>
+        <div class="hc-media"><img src="images/band-home.jpg" alt="" loading="lazy"></div>
+        <div class="hc-body">
+          <p class="hc-eyebrow">03 — Software</p>
+          <h1>HarmonieMD <em>&amp; EzPlay</em></h1>
+          <p class="hero-thesis">Two applications, written for problems I kept hitting on the job.</p>
+          <div class="hero-cta"><a class="cta" href="apps.html">Enter the room</a></div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="hc-ui">
+      <button class="hc-arrow" type="button" data-dir="-1" aria-label="Previous slide">&#8249;</button>
+      <div class="hc-dots" id="hc-dots"></div>
+      <button class="hc-arrow" type="button" data-dir="1" aria-label="Next slide">&#8250;</button>
+      <button class="hc-play" type="button" id="hc-play" aria-label="Pause slideshow" aria-pressed="false"></button>
+    </div>
+  </section>
 
   <section id="rooms">
     <p class="eyebrow">Three rooms</p>
@@ -691,6 +808,94 @@ var CONFIG = {
     } else { field(); }
     heroEl.insertBefore(bg, heroEl.firstChild);
   }
+
+  /* ---- hero carousel ---- */
+  (function(){
+    var hc = $('.hc'); if(!hc) return;
+    var slides = $$('.hc-slide', hc), dots = $('#hc-dots'), playBtn = $('#hc-play');
+    if(slides.length < 2) return;
+    var i = 0, timer = null, DELAY = 6500;
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    slides.forEach(function(_,n){
+      var b = document.createElement('button');
+      b.className = 'hc-dot' + (n === 0 ? ' on' : '');
+      b.type = 'button';
+      b.setAttribute('aria-label','Go to slide ' + (n+1));
+      b.addEventListener('click', function(){ go(n); rest(); });
+      dots.appendChild(b);
+    });
+    var dotEls = $$('.hc-dot', dots);
+
+    function go(n){
+      n = (n + slides.length) % slides.length;
+      if(n === i) return;
+      slides[i].classList.remove('on');
+      slides[i].hidden = true;
+      slides[n].hidden = false;
+      // let the browser paint the un-hidden slide before fading it in
+      requestAnimationFrame(function(){ slides[n].classList.add('on'); });
+      dotEls[i].classList.remove('on');
+      dotEls[n].classList.add('on');
+      i = n;
+    }
+
+    function play(){
+      if(reduce || timer) return;
+      timer = setInterval(function(){ go(i+1); }, DELAY);
+      playBtn.setAttribute('aria-pressed','false');
+      playBtn.setAttribute('aria-label','Pause slideshow');
+    }
+    function stop(){
+      clearInterval(timer); timer = null;
+      playBtn.setAttribute('aria-pressed','true');
+      playBtn.setAttribute('aria-label','Play slideshow');
+    }
+    function rest(){ if(timer){ clearInterval(timer); timer = null; play(); } }
+
+    playBtn.addEventListener('click', function(){ timer ? stop() : play(); });
+    $$('.hc-arrow', hc).forEach(function(a){
+      a.addEventListener('click', function(){ go(i + Number(a.getAttribute('data-dir'))); rest(); });
+    });
+
+    // keyboard
+    hc.addEventListener('keydown', function(e){
+      if(e.key === 'ArrowLeft'){ go(i-1); rest(); }
+      if(e.key === 'ArrowRight'){ go(i+1); rest(); }
+    });
+
+    // don't advance under someone's cursor, or while they're tabbed into it
+    hc.addEventListener('mouseenter', function(){ if(timer) stop(); });
+    hc.addEventListener('mouseleave', function(){ if(!timer) play(); });
+    hc.addEventListener('focusin',  function(){ if(timer) stop(); });
+
+    // nor when the tab is hidden or the hero is scrolled away
+    document.addEventListener('visibilitychange', function(){
+      document.hidden ? stop() : play();
+    });
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){ e.isIntersecting ? play() : stop(); });
+      },{threshold:.15}).observe(hc);
+    }
+
+    // swipe / drag: commit on distance or a flick, whichever comes first
+    var x0 = null, t0 = 0;
+    hc.addEventListener('pointerdown', function(e){
+      if(e.target.closest('.hc-ui,a')) return;
+      x0 = e.clientX; t0 = e.timeStamp;
+    });
+    hc.addEventListener('pointerup', function(e){
+      if(x0 === null) return;
+      var dx = e.clientX - x0, dt = Math.max(1, e.timeStamp - t0);
+      var v = dx / dt;                                  // px per ms
+      if(Math.abs(dx) > 60 || Math.abs(v) > 0.45){ go(i + (dx < 0 ? 1 : -1)); rest(); }
+      x0 = null;
+    });
+    hc.addEventListener('pointercancel', function(){ x0 = null; });
+
+    play();
+  })();
 
   /* ---- full-width photo band ---- */
   var bandEl = $('#band');

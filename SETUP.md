@@ -175,7 +175,20 @@ Then open the function's **Secrets** and add:
 
 ### d. Three webhooks (5 min)
 
-**Database → Webhooks → Create a new hook**, three times. Each one:
+**Fastest route — SQL Editor.** Open `supabase-webhooks.sql`, replace the
+three `PASTE_YOUR_NOTIFY_SECRET_HERE` placeholders with your `NOTIFY_SECRET`
+from step (c), paste the whole thing, Run. It ends by listing the three
+triggers back to you, so you can see they landed.
+
+If that errors with `schema "supabase_functions" does not exist`, your
+project has never had a webhook — make one through the UI first (below) to
+switch the machinery on, then re-run the SQL for the other two.
+
+**UI route.** In the current dashboard, Webhooks is **not** in the Database
+sidebar any more — it's under **Integrations → Database Webhooks**, or go
+straight to
+`https://supabase.com/dashboard/project/kdxckigyhpnwhwgjdgqq/integrations/webhooks/overview`.
+Create a new hook three times. Each one:
 
 - **Type:** HTTP Request · **Method:** POST
 - **URL:** `https://kdxckigyhpnwhwgjdgqq.supabase.co/functions/v1/notify-client`
@@ -186,6 +199,10 @@ Then open the function's **Secrets** and add:
 | 1 | `project_stages` | Update |
 | 2 | `deliverables` | Insert |
 | 3 | `messages` | Insert |
+
+A "Database Webhook" is only a trigger calling
+`supabase_functions.http_request()` — the two routes build the identical
+thing, so mixing them is fine.
 
 ### e. Test it
 

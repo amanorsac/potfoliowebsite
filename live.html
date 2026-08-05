@@ -140,6 +140,17 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 @keyframes pulse{0%,100%{transform:scaleY(.82)}50%{transform:scaleY(1)}}
 .wave.idle span{animation-play-state:paused}
 
+/* ---------- pill call to action ---------- */
+.cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--body);font-size:15.5px;font-weight:600;
+  text-decoration:none;background:var(--accent);color:#fff;border:0;border-radius:var(--r-pill);
+  padding:16px 28px;cursor:pointer;box-shadow:var(--shadow-1);
+  transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out),filter var(--dur) var(--ease-out)}
+.cta:hover{transform:translateY(-2px);box-shadow:var(--shadow-2);filter:saturate(1.06)}
+.cta:active{transform:scale(.97);box-shadow:var(--shadow-1)}
+.cta.ghost{background:transparent;color:var(--paper);border:1.5px solid color-mix(in srgb,var(--paper) 22%,transparent);box-shadow:none}
+.cta.ghost:hover{border-color:var(--paper);background:color-mix(in srgb,var(--panel) 60%,transparent)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 40px}
+
 /* ---------- credits / timeline clips ---------- */
 .ruler{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
   color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px}
@@ -438,7 +449,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <h2>Other rooms</h2>
     <div class="next">
       <a href="mixing.html"><span>01 — Studio</span><b>Mixing &amp; Mastering</b></a>
-      <a href="apps.html"><span>04 — Software</span><b>HarmonieMD &amp; EzPlay</b></a>
+      <a href="apps.html"><span>03 — Software</span><b>The App Store</b></a>
       <a href="index.html#contact"><span>Start something</span><b>Get in touch</b></a>
     </div>
   </section>

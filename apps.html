@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HarmonieMD & EzPlay — Stephen Amanor Sackey</title>
-<meta name="description" content="Two audio applications built by a working engineer: a browser rehearsal platform for worship teams and a live performance platform that puts the band ahead of the track.">
-<meta property="og:title" content="HarmonieMD & EzPlay — Stephen Amanor Sackey">
-<meta property="og:description" content="Two audio applications built by a working engineer: a browser rehearsal platform for worship teams and a live performance platform that puts the band ahead of the track.">
+<title>Apps — HarmonieMD, PerformLive, Nebula Tide &amp; PulseRoom | Studio Amanorsac</title>
+<meta name="description" content="Four audio apps built at a working desk: HarmonieMD choir rehearsal studio, PerformLive stem performance instrument, Nebula Tide endless drone pads, and PulseRoom, the producer's reference desk.">
+<meta property="og:title" content="The Studio Amanorsac App Store">
+<meta property="og:description" content="HarmonieMD · PerformLive · Nebula Tide · PulseRoom — four instruments, one desk.">
 <link rel="icon" href="images/logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="images/logo.svg">
 <meta property="og:image" content="https://potfoliowebsite.amanorsac.workers.dev/images/hero-home.jpg">
@@ -137,6 +137,17 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 @keyframes pulse{0%,100%{transform:scaleY(.82)}50%{transform:scaleY(1)}}
 .wave.idle span{animation-play-state:paused}
 
+/* ---------- pill call to action ---------- */
+.cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--body);font-size:15.5px;font-weight:600;
+  text-decoration:none;background:var(--accent);color:#fff;border:0;border-radius:var(--r-pill);
+  padding:16px 28px;cursor:pointer;box-shadow:var(--shadow-1);
+  transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out),filter var(--dur) var(--ease-out)}
+.cta:hover{transform:translateY(-2px);box-shadow:var(--shadow-2);filter:saturate(1.06)}
+.cta:active{transform:scale(.97);box-shadow:var(--shadow-1)}
+.cta.ghost{background:transparent;color:var(--paper);border:1.5px solid color-mix(in srgb,var(--paper) 22%,transparent);box-shadow:none}
+.cta.ghost:hover{border-color:var(--paper);background:color-mix(in srgb,var(--panel) 60%,transparent)}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 40px}
+
 /* ---------- credits / timeline clips ---------- */
 .ruler{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
   color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px}
@@ -206,24 +217,75 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
 .gallery .shot{aspect-ratio:4/5}
 
-/* ---------- app cards ---------- */
-.app{border:1px solid var(--line);border-radius:var(--r-lg);padding:44px 42px;margin-bottom:18px;box-shadow:var(--shadow-1);
-  background:linear-gradient(135deg,var(--panel) 0%,var(--ink) 70%)}
-.app-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;margin-bottom:12px}
-.app-head h3{font-size:31px;margin:0}
-.app-status{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);
-  border:1px solid var(--accent);border-radius:999px;padding:3px 10px}
-.app p{color:var(--muted);max-width:64ch}
-.spec{display:flex;flex-wrap:wrap;gap:7px;list-style:none;padding:0;margin:0}
-.spec li{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);background:var(--panel-2);border-radius:2px;padding:5px 10px}
-
-/* ---------- two-column split with a spec list ---------- */
-.split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:start}
-.split p{max-width:58ch}
-.spec-list{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
-.spec-list li{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);
-  padding:13px 0;border-bottom:1px solid var(--line)}
-@media(max-width:760px){ .split{grid-template-columns:1fr} }
+/* ---------- app store ---------- */
+.store-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+/* double-bezel card: outer shell holds a dark branded core */
+.sc{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
+  background:var(--panel);border:1px solid color-mix(in srgb,var(--paper) 7%,transparent);
+  border-radius:var(--r-lg);padding:8px;box-shadow:var(--shadow-1);
+  transition:transform var(--dur) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
+.sc:hover{transform:translateY(-4px);box-shadow:var(--shadow-2)}
+.sc:active{transform:scale(.985)}
+.art{position:relative;overflow:hidden;border-radius:calc(var(--r-lg) - 8px);aspect-ratio:5/4;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;isolation:isolate;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.14)}
+.art b{font-family:var(--display);font-weight:700;font-size:clamp(19px,2vw,24px);letter-spacing:-.02em;color:#fff;z-index:1}
+.art small{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.66);z-index:1}
+.art .motif{display:flex;align-items:flex-end;gap:6px;height:44px;margin-bottom:8px;z-index:1}
+/* HarmonieMD — SATB fader lanes */
+.art-hmd{background:radial-gradient(120% 120% at 20% 0%,#123B2E 0%,#0A1F19 60%,#07130F 100%)}
+.art-hmd .motif i{width:7px;border-radius:4px;background:linear-gradient(180deg,#7BE3B4,#2E8B6E)}
+.art-hmd .motif i:nth-child(1){height:64%}.art-hmd .motif i:nth-child(2){height:96%}
+.art-hmd .motif i:nth-child(3){height:44%}.art-hmd .motif i:nth-child(4){height:82%}
+.art-hmd .motif i:nth-child(5){height:58%}.art-hmd .motif i:nth-child(6){height:88%}
+/* PerformLive — pad grid, one pad live */
+.art-pl{background:radial-gradient(130% 130% at 80% 0%,#3A1512 0%,#1D0B0A 55%,#120807 100%)}
+.art-pl .motif{display:grid;grid-template-columns:repeat(4,14px);gap:5px;height:auto}
+.art-pl .motif i{width:14px;height:14px;border-radius:4px;background:rgba(255,255,255,.14)}
+.art-pl .motif i.live{background:#67E08A;box-shadow:0 0 14px rgba(103,224,138,.8)}
+.art-pl .motif i.warm{background:#C24A3E}
+/* Nebula Tide — planet ring in deep space */
+.art-nt{background:radial-gradient(130% 140% at 50% 115%,#0A3B54 0%,#04283F 45%,#020C16 100%)}
+.art-nt .motif{align-items:center;gap:9px}
+.art-nt .motif i{width:8px;height:8px;border-radius:50%;background:#16B8D8;opacity:.55}
+.art-nt .motif i:nth-child(3){width:13px;height:13px;background:#4FE3FF;opacity:1;box-shadow:0 0 16px rgba(79,227,255,.9)}
+.art-nt .motif i:nth-child(5){opacity:.35}
+/* PulseRoom — five-accent equalizer */
+.art-pr{background:radial-gradient(120% 130% at 15% 10%,#151B26 0%,#0c0e12 70%)}
+.art-pr .motif i{width:8px;border-radius:4px}
+.art-pr .motif i:nth-child(1){height:52%;background:#3fd3e4}.art-pr .motif i:nth-child(2){height:92%;background:#a48bfa}
+.art-pr .motif i:nth-child(3){height:66%;background:#f2b13c}.art-pr .motif i:nth-child(4){height:84%;background:#f25c7f}
+.art-pr .motif i:nth-child(5){height:44%;background:#4fd58f}
+/* card meta */
+.sc-meta{padding:18px 14px 12px;display:flex;flex-direction:column;gap:9px;flex:1}
+.sc-meta h3{margin:0;font-size:21px}
+.sc-meta p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.55;flex:1}
+.sc-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.status{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:999px;padding:5px 11px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.sc-go{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px;color:var(--paper)}
+.sc-go em{font-style:normal;width:28px;height:28px;border-radius:999px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--paper) 8%,transparent);
+  transition:transform var(--dur) var(--ease-out),background var(--dur) var(--ease-out)}
+.sc:hover .sc-go em{transform:translate(2px,-1px);background:var(--accent);color:#fff}
+/* per-product landing sections */
+.pl{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(30px,5vw,72px);align-items:center}
+.pl:nth-of-type(even) .pl-art{order:2}
+.pl-art{padding:9px;background:var(--panel);border:1px solid color-mix(in srgb,var(--paper) 7%,transparent);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-1)}
+.pl-art .art{aspect-ratio:4/3}
+.pl h2{margin-bottom:14px}
+.pl .tagline{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
+.pl p{color:var(--muted);max-width:56ch}
+.spec{display:flex;flex-wrap:wrap;gap:7px;list-style:none;padding:0;margin:20px 0 26px}
+.spec li{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.cta .go{width:30px;height:30px;border-radius:999px;background:rgba(255,255,255,.2);display:grid;place-items:center;
+  transition:transform var(--dur) var(--ease-out)}
+.cta:hover .go{transform:translate(2px,-1px) scale(1.05)}
+@media(max-width:820px){ .pl,.pl:nth-of-type(even){grid-template-columns:1fr} .pl:nth-of-type(even) .pl-art{order:0} }
 
 /* ---------- keyboard motif (piano) ---------- */
 .keys{display:flex;height:74px;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0 0 8px}
@@ -381,43 +443,154 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 </div>
 <main id="main"><div class="wrap">
   <header class="hero short">
-    <div class="hero-eyebrow">03 — Software</div>
-    <h1>Tools I built<br>because they <em>didn’t exist</em></h1>
-    <p class="hero-thesis">Both came out of a real Sunday going wrong. I am the user before the developer.</p>
-    <div class="wave" aria-hidden="true"></div>
+    <div class="hero-eyebrow">03 — Software · The store</div>
+    <h1>Four instruments.<br><em>One desk.</em></h1>
+    <p class="hero-thesis">Apps I built for my own Sundays and sessions — a rehearsal studio for choirs, a stem instrument for the stage, an endless pad machine, and the producer’s reference desk.</p>
+    <div class="hero-cta">
+      <a class="cta" href="#store">Browse the apps <span class="go">↓</span></a>
+      <a class="cta ghost" href="#access">Get early access</a>
+    </div>
   </header>
 
-  <section>
-    <div class="app rise">
-      <div class="app-head"><h3>HarmonieMD</h3><span class="app-status">Coming soon</span></div>
-      <p><b>The problem.</b> Three vocalists in a room, one learning an alto line while the others wait. That part could have been learned at home.</p>
-      <p><b>What it does.</b> Singers open the song in a browser, solo their own part, and turn up already knowing it. Seven buses, stem isolation, full multitrack editing.</p>
-      <p><b>Under it.</b> An AudioWorklet PCM capture engine replaced a path that introduced buffer-level artifacts, so recording is sample-accurate in the browser. Voice encoding sits at OPUS 48 kbps mono, set by testing intelligibility against storage cost.</p>
-      <ul class="spec"><li>AudioWorklet PCM capture</li><li>Sample-accurate recording</li><li>Seven track buses</li><li>Per-part stem isolation</li><li>Virtualised timeline</li><li>Clip editing, undo/redo</li><li>OPUS 48 kbps mono</li></ul>
-    </div>
+  <section id="store">
+    <p class="eyebrow">The lineup</p>
+    <h2>Pick your instrument</h2>
+    <p class="lede">Each one exists because a real Sunday or a real session needed it. I am the user before the developer.</p>
+    <div class="store-grid">
 
-    <div class="app rise">
-      <div class="app-head"><h3>EzPlay</h3><span class="app-status">Coming soon</span></div>
-      <p><b>The problem.</b> Backing tracks turn a live band into playback operators. Nobody can stretch a moment, and the show has to sound like the record whether the room wants that or not.</p>
-      <p><b>What it does.</b> Puts the band ahead of the track. Performers control loops, stems, and arrangement live, and the track follows.</p>
-      <ul class="spec"><li>Live loop control</li><li>Stem-level playback</li><li>Arrangement on the fly</li><li>Band-led timing</li></ul>
+      <a class="sc rise" href="#harmoniemd">
+        <div class="art art-hmd">
+          <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <b>HarmonieMD</b><small>Rehearse ready</small>
+        </div>
+        <div class="sc-meta">
+          <h3>HarmonieMD</h3>
+          <p>The choir rehearsal studio. Every singer walks into rehearsal already knowing their part.</p>
+          <div class="chips"><span class="chip">Windows</span><span class="chip">SATB native</span></div>
+          <div class="sc-row"><span class="status">Early access</span>
+            <span class="sc-go">Explore <em>→</em></span></div>
+        </div>
+      </a>
+
+      <a class="sc rise" href="#performlive">
+        <div class="art art-pl">
+          <span class="motif" aria-hidden="true"><i></i><i class="warm"></i><i></i><i></i><i></i><i></i><i class="live"></i><i></i><i></i><i></i><i></i><i class="warm"></i><i></i><i></i><i></i><i></i></span>
+          <b>PerformLive</b><small>Play the stems</small>
+        </div>
+        <div class="sc-meta">
+          <h3>PerformLive</h3>
+          <p>The live stem instrument. The whole arrangement in the performer’s hands — safe to touch.</p>
+          <div class="chips"><span class="chip">Windows</span><span class="chip">Touch-first</span><span class="chip">MIDI</span></div>
+          <div class="sc-row"><span class="status">In development</span>
+            <span class="sc-go">Explore <em>→</em></span></div>
+        </div>
+      </a>
+
+      <a class="sc rise" href="#nebulatide">
+        <div class="art art-nt">
+          <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <b>Nebula Tide</b><small>An ocean of sound</small>
+        </div>
+        <div class="sc-meta">
+          <h3>Nebula Tide</h3>
+          <p>Endless drone pads — real recordings in all 12 keys, never pitch-shifted, looping forever.</p>
+          <div class="chips"><span class="chip">Windows</span><span class="chip">VST3</span></div>
+          <div class="sc-row"><span class="status">Private beta</span>
+            <span class="sc-go">Explore <em>→</em></span></div>
+        </div>
+      </a>
+
+      <a class="sc rise" href="#pulseroom">
+        <div class="art art-pr">
+          <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <b>PulseRoom</b><small>Every answer, one tempo</small>
+        </div>
+        <div class="sc-meta">
+          <h3>PulseRoom</h3>
+          <p>The producer’s reference desk — delay, reverb, EQ and compression answers synced to your BPM.</p>
+          <div class="chips"><span class="chip">Windows</span><span class="chip">macOS</span><span class="chip">Offline</span></div>
+          <div class="sc-row"><span class="status">v1.0 · Free</span>
+            <span class="sc-go">Explore <em>→</em></span></div>
+        </div>
+      </a>
+
     </div>
   </section>
 
-  <section>
-    <p class="eyebrow">Why me</p>
-    <h2>Built by someone who has to use it on Sunday</h2>
+  <section id="harmoniemd" class="pl">
+    <div class="pl-art"><div class="art art-hmd">
+      <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <b>HarmonieMD</b><small>Soprano · Alto · Tenor · Song</small>
+    </div></div>
+    <div>
+      <p class="tagline">01 · Rehearsal studio</p>
+      <h2>Walk in knowing your part</h2>
+      <p>A rehearsal and multi-track recording studio built for worship teams and choirs. The Music Director records or uploads a song with every vocal harmony part; each singer opens it at home, solos their own line, slows it down, and loops the bridge until it locks.</p>
+      <p>It speaks choir natively — not tracks 1–8 but Soprano, Alto, Tenor, each with two lanes. Choir Mode is a four-fader practice tool a volunteer learns in ten seconds; MD Mode is a genuine multi-track editor with take comping underneath.</p>
+      <ul class="spec"><li>Per-part solo &amp; faders</li><li>Slow down without pitch change</li><li>Measured round-trip latency</li><li>“Mark practiced” visibility</li><li>Local-first — works offline</li><li>Explore: share arrangements</li></ul>
+      <a class="cta" data-app="harmoniemd" href="#access">Join early access <span class="go">→</span></a>
+    </div>
+  </section>
+
+  <section id="performlive" class="pl">
+    <div class="pl-art"><div class="art art-pl">
+      <span class="motif" aria-hidden="true"><i></i><i class="warm"></i><i></i><i></i><i></i><i></i><i class="live"></i><i></i><i></i><i></i><i></i><i class="warm"></i><i></i><i></i><i></i><i></i></span>
+      <b>PerformLive</b><small>4 decks · stems · scenes</small>
+    </div></div>
+    <div>
+      <p class="tagline">02 · Live performance</p>
+      <h2>Play the stems, not the bounce</h2>
+      <p>A stem player and loop performance instrument for the stage. Load your songs’ stems — drums, bass, keys, vocal, pads — onto a grid of decks, then trigger, mute, layer, and switch in real time. Drop the drums for a breakdown. Hold a pad under a prayer. Jump the set order without fumbling.</p>
+      <p>Your audio is never touched — no auto-warp, no normalising; the mix your producer built is what the room hears. And it’s built touch-first, so a volunteer can run a service after fifteen minutes.</p>
+      <ul class="spec"><li>Per-stem mute &amp; layers</li><li>Bar-quantised switching</li><li>Scene recall in one tap</li><li>MIDI Learn everywhere</li><li>Untouched-audio principle</li><li>Touch-first targets</li></ul>
+      <a class="cta" data-app="performlive" href="#access">Follow the build <span class="go">→</span></a>
+    </div>
+  </section>
+
+  <section id="nebulatide" class="pl">
+    <div class="pl-art"><div class="art art-nt">
+      <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <b>Nebula Tide</b><small>12 keys · zero pitch-shifting</small>
+    </div></div>
+    <div>
+      <p class="tagline">03 · Ambient instrument</p>
+      <h2>An ocean of sound, in every key</h2>
+      <p>Endless, seamless drone pads inside an interface that’s alive. Every preset is a real recording captured in all twelve keys — never pitch-shifted — so E♭ sounds as intentional as C. Keys orbit as floating planets; tap one and the pad crossfades into a new tonal world.</p>
+      <p>Two stars flank the stage — FX and textures like rain, wind, and swells — and Room, Plate, and Hall reverbs shape the space. Runs standalone on Windows or as a VST3 in your DAW, and the whole interface re-colors itself to match the sound.</p>
+      <ul class="spec"><li>Seamless infinite looping</li><li>12 real recordings per preset</li><li>FX &amp; texture layers</li><li>Room / Plate / Hall</li><li>Standalone + VST3</li><li>Preset packs, drop-in</li></ul>
+      <a class="cta" data-app="nebulatide" href="#access">Request the beta <span class="go">→</span></a>
+    </div>
+  </section>
+
+  <section id="pulseroom" class="pl">
+    <div class="pl-art"><div class="art art-pr">
+      <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <b>PulseRoom</b><small>Delay · Reverb · EQ · Comp</small>
+    </div></div>
+    <div>
+      <p class="tagline">04 · Producer toolkit</p>
+      <h2>Every mixing answer. One tempo.</h2>
+      <p>The reference desk beside your DAW. Tap in your song’s BPM once and everything follows: tempo-synced delay times, reverb pre-delay and decay that land on the bar grid, EQ boost-and-cut zones painted for 13 instruments, and compression you can finally see as a drawn gain-reduction envelope.</p>
+      <p>Every number ships with its why, and the app’s own footer says the rest: values are starting points — trust your ears first. Offline, no account, no ads.</p>
+      <ul class="spec"><li>Tap-tempo drives it all</li><li>Click-to-copy every value</li><li>Visual EQ &amp; compression</li><li>Mix chains with reasons</li><li>LUFS &amp; reference tables</li><li>Free · Windows &amp; macOS</li></ul>
+      <a class="cta" data-app="pulseroom" href="#access">Get the download <span class="go">→</span></a>
+    </div>
+  </section>
+
+  <section id="why">
+    <p class="eyebrow">Why these exist</p>
+    <h2>Built by someone who has to use them on Sunday</h2>
     <div class="grid">
-      <div class="cell rise"><span class="tag">Tested live</span><h3>In a real room</h3><p>Used by a working team on an actual service, not in a demo.</p></div>
-      <div class="cell rise"><span class="tag">Audio first</span><h3>Signal, then UI</h3><p>The capture engine came before the interface.</p></div>
-      <div class="cell rise"><span class="tag">Volunteers</span><h3>Non-technical users</h3><p>For people who have never opened a session window.</p></div>
+      <div class="cell rise"><span class="tag">Tested live</span><h3>In a real room</h3><p>Used on actual services and sessions, not in a demo.</p></div>
+      <div class="cell rise"><span class="tag">Audio first</span><h3>Signal, then UI</h3><p>The engines came before the interfaces — untouched audio, measured latency, honest loops.</p></div>
+      <div class="cell rise"><span class="tag">Volunteers</span><h3>Non-technical users</h3><p>Built so the person operating it can be anyone on the team.</p></div>
     </div>
   </section>
 
-  <section>
+  <section id="access">
     <p class="eyebrow">Early access</p>
-    <h2>Want in when it opens?</h2>
-    <p class="lede">Both are in private testing. Tell me which one and what your team looks like.</p>
+    <h2>Want in?</h2>
+    <p class="lede">HarmonieMD and Nebula Tide are in private testing, PerformLive is deep in development, and PulseRoom’s free download is rolling out. Tell me which one and what your team looks like — you’ll hear back within two working days.</p>
     <div class="next">
       <a href="index.html#contact"><span>Join the list</span><b>Get in touch →</b></a>
       <a href="mixing.html"><span>01 — Studio</span><b>Mixing &amp; Mastering</b></a>
@@ -442,6 +615,17 @@ var CONFIG = {
      Sign up free at formspree.io, create a form, paste the URL.
      Leave empty and the form falls back to opening an email app. */
   formEndpoint: "https://formspree.io/f/xkodkloa",
+
+  /* 1b. APP DOWNLOAD LINKS ----------------------------------
+     Paste a real URL and that app’s button becomes a direct
+     download. Empty = the button keeps pointing at early access. */
+  appLinks: {
+    harmoniemd:  "",
+    performlive: "",
+    nebulatide:  "",
+    pulseroom:   ""
+  },
+
 
   /* 2. SOCIAL LINKS -----------------------------------------
      Leave any empty and it won't render. */
@@ -796,6 +980,19 @@ var CONFIG = {
   }
 })();
 
+</script>
+<script>
+/* store buttons: real download links take over when CONFIG has them */
+(function(){
+  var links = (CONFIG && CONFIG.appLinks) || {};
+  document.querySelectorAll('[data-app]').forEach(function(a){
+    var url = links[a.getAttribute('data-app')];
+    if(url){
+      a.href = url;
+      a.firstChild.textContent = 'Download ';
+    }
+  });
+})();
 </script>
 </body>
 </html>

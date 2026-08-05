@@ -229,6 +229,7 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .art{position:relative;overflow:hidden;border-radius:calc(var(--r-lg) - 8px);aspect-ratio:5/4;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;isolation:isolate;
   box-shadow:inset 0 1px 1px rgba(255,255,255,.14)}
+.art>img.real{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top left;z-index:2}
 .art b{font-family:var(--display);font-weight:700;font-size:clamp(19px,2vw,24px);letter-spacing:-.02em;color:#fff;z-index:1}
 .art small{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.66);z-index:1}
 .art .motif{display:flex;align-items:flex-end;gap:6px;height:44px;margin-bottom:8px;z-index:1}
@@ -253,9 +254,9 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 /* PulseRoom — five-accent equalizer */
 .art-pr{background:radial-gradient(120% 130% at 15% 10%,#151B26 0%,#0c0e12 70%)}
 .art-pr .motif i{width:8px;border-radius:4px}
-.art-pr .motif i:nth-child(1){height:52%;background:#3fd3e4}.art-pr .motif i:nth-child(2){height:92%;background:#a48bfa}
-.art-pr .motif i:nth-child(3){height:66%;background:#f2b13c}.art-pr .motif i:nth-child(4){height:84%;background:#f25c7f}
-.art-pr .motif i:nth-child(5){height:44%;background:#4fd58f}
+.art-pr .motif i:nth-child(1){height:36%;background:#3fd3e4}.art-pr .motif i:nth-child(2){height:74%;background:#a48bfa}
+.art-pr .motif i:nth-child(3){height:100%;background:#f2b13c}.art-pr .motif i:nth-child(4){height:58%;background:#f25c7f}
+.art-pr .motif i:nth-child(5){height:30%;background:#4fd58f}
 /* card meta */
 .sc-meta{padding:18px 14px 12px;display:flex;flex-direction:column;gap:9px;flex:1}
 .sc-meta h3{margin:0;font-size:21px}
@@ -519,6 +520,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
   <section id="harmoniemd" class="pl">
     <div class="pl-art"><div class="art art-hmd">
+      <img class="real" src="images/apps/harmoniemd.png" alt="harmoniemd application interface" loading="lazy" onerror="this.remove()">
       <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
       <b>HarmonieMD</b><small>Soprano · Alto · Tenor · Song</small>
     </div></div>
@@ -534,6 +536,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
   <section id="performlive" class="pl">
     <div class="pl-art"><div class="art art-pl">
+      <img class="real" src="images/apps/performlive.png" alt="performlive application interface" loading="lazy" onerror="this.remove()">
       <span class="motif" aria-hidden="true"><i></i><i class="warm"></i><i></i><i></i><i></i><i></i><i class="live"></i><i></i><i></i><i></i><i></i><i class="warm"></i><i></i><i></i><i></i><i></i></span>
       <b>PerformLive</b><small>4 decks · stems · scenes</small>
     </div></div>
@@ -549,6 +552,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
   <section id="nebulatide" class="pl">
     <div class="pl-art"><div class="art art-nt">
+      <img class="real" src="images/apps/nebulatide.png" alt="nebulatide application interface" loading="lazy" onerror="this.remove()">
       <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
       <b>Nebula Tide</b><small>12 keys · zero pitch-shifting</small>
     </div></div>
@@ -564,6 +568,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
   <section id="pulseroom" class="pl">
     <div class="pl-art"><div class="art art-pr">
+      <img class="real" src="images/apps/pulseroom.png" alt="pulseroom application interface" loading="lazy" onerror="this.remove()">
       <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
       <b>PulseRoom</b><small>Delay · Reverb · EQ · Comp</small>
     </div></div>

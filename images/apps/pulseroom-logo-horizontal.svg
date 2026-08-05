@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 248 48" width="496" height="96">
+  <title>PulseRoom — horizontal logo</title>
+  <!-- mark (scaled 1.25x, vertically centered) -->
+  <g transform="translate(4 4) scale(1.25)">
+    <rect x="3"  y="12" width="3.5" height="8"  rx="1.75" fill="#3fd3e4"/>
+    <rect x="9"  y="7"  width="3.5" height="18" rx="1.75" fill="#a48bfa"/>
+    <rect x="15" y="3"  width="3.5" height="26" rx="1.75" fill="#f2b13c"/>
+    <rect x="21" y="9"  width="3.5" height="14" rx="1.75" fill="#f25c7f"/>
+    <rect x="27" y="13" width="2.5" height="6"  rx="1.25" fill="#4fd58f"/>
+  </g>
+  <!-- wordmark: system-font text; convert to outlines for print use -->
+  <text x="56" y="27.5" font-family="Segoe UI Variable Display, Segoe UI, SF Pro Display, Inter, system-ui, sans-serif"
+        font-size="22" font-weight="700" letter-spacing="-0.3" fill="#e9ebf1">PulseRoom</text>
+  <text x="57" y="41" font-family="Segoe UI Variable Text, Segoe UI, SF Pro Text, Inter, system-ui, sans-serif"
+        font-size="9.5" font-weight="500" letter-spacing="0.4" fill="#6d7488">PRODUCER TOOLKIT</text>
+</svg>

@@ -148,7 +148,8 @@ Table Editor.
 
 Paste the contents of **`supabase-notifications.sql`** → Run. It adds `phone`
 and per-client on/off switches to `profiles`, a `notifications` log, and a
-small helper that stops four stage changes in a row from sending four emails.
+small helper that stops four stage changes on one project from sending four
+emails.
 
 ### b. Email provider (10 min)
 
@@ -201,7 +202,8 @@ got anything.
 - **File sent** → only files going *to* the client, never their own uploads
 - **Message** → only messages from you; a client's own message never bounces
   back at them
-- **Same event twice in 3 minutes** → the second is skipped
+- **Same event twice in 3 minutes, on the same project** → the second is
+  skipped. Two of a client's songs moving the same evening still send twice
 
 Clients can be switched off individually with `notify_email` /
 `notify_whatsapp` on their profile row.

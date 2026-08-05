@@ -200,9 +200,11 @@ Deno.serve(async (req) => {
   const client = (project as any)?.profiles;
   if (!client) return json({ skipped: "no client on that project" });
 
-  // Don't stack up messages when several things change at once.
+  // Don't stack up messages when several things change at once — but only
+  // within one project. Two of a client's songs moving on the same evening
+  // are two pieces of news, not a repeat.
   const { data: recent } = await db.rpc("notified_recently", {
-    p_client: project!.client_id, p_event: plan.event,
+    p_client: project!.client_id, p_event: plan.event, p_project: plan.project_id,
   });
   if (recent) return json({ skipped: "already notified recently" });
 

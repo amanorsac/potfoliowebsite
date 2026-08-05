@@ -44,11 +44,17 @@ create policy "admin reads notifications" on public.notifications for select to 
   using ( (select public.is_admin()) );
 
 -- ------------------------------------------- 3. QUIET-PERIOD HELPER
--- Moving four stages in a row should not send four emails. The function
--- calls this to check whether the same client was already told about the
--- same kind of event in the last few minutes.
+-- Moving four stages of one project in a row should not send four emails.
+-- The function calls this to check whether the same client was already
+-- told about the same kind of event, ON THE SAME PROJECT, in the last few
+-- minutes.
+--
+-- Scoping to the project matters: a client with three songs has three
+-- projects, and news about one is not a duplicate of news about another.
+drop function if exists public.notified_recently(uuid, text, interval);
 create or replace function public.notified_recently(
-  p_client uuid, p_event text, p_window interval default interval '3 minutes'
+  p_client uuid, p_event text, p_project uuid default null,
+  p_window interval default interval '3 minutes'
 ) returns boolean language sql security definer stable
 set search_path = '' as $$
   select exists (
@@ -57,6 +63,7 @@ set search_path = '' as $$
        and event     = p_event
        and status    = 'sent'
        and created_at > now() - p_window
+       and (p_project is null or project_id = p_project)
   );
 $$;
 

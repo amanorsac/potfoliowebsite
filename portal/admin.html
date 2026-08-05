@@ -47,6 +47,8 @@
           <input id="c-email" type="email" autocomplete="off" required></div>
         <div class="field"><label for="c-company">Company <span class="hint">optional</span></label>
           <input id="c-company" type="text" autocomplete="off"></div>
+        <div class="field"><label for="c-phone">Phone <span class="hint">optional — for WhatsApp/SMS updates, e.g. +233…</span></label>
+          <input id="c-phone" type="tel" autocomplete="off" placeholder="+1 415 555 2671"></div>
         <button class="btn" id="c-go" type="submit">Create login</button>
         <p class="msg" id="c-msg" role="status" aria-live="polite"></p>
         <div id="c-pw"></div>
@@ -115,8 +117,11 @@
     $('#clientcount').textContent = clients.length + (clients.length===1?' client':' clients');
     $('#clients').innerHTML = clients.length ? clients.map(c =>
       '<div class="row"><div><h3>'+esc(c.full_name || c.email)+'</h3>'+
-      '<p class="meta">'+esc(c.email||'')+(c.company?' · '+esc(c.company):'')+'</p></div>'+
-      '<span class="meta">joined '+when(c.created_at)+'</span></div>').join('')
+      '<p class="meta">'+esc(c.email||'')+(c.company?' · '+esc(c.company):'')+
+        (c.phone?' · '+esc(c.phone):'')+'</p></div>'+
+      '<span class="meta">'+
+        (c.notify_email===false?'':'✉ ')+(c.notify_whatsapp?'✆ ':'')+
+        'joined '+when(c.created_at)+'</span></div>').join('')
       : '<p class="empty">No clients yet. Add one above.</p>';
 
     clientSel.innerHTML = clients.length
@@ -175,7 +180,8 @@
         body: JSON.stringify({
           full_name: $('#c-name').value.trim(),
           email:     $('#c-email').value.trim(),
-          company:   $('#c-company').value.trim()
+          company:   $('#c-company').value.trim(),
+          phone:     $('#c-phone').value.trim()
         })
       });
       const body = await res.json();

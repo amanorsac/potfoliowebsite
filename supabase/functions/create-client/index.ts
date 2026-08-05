@@ -51,12 +51,13 @@ Deno.serve(async (req) => {
   if (!me?.is_admin) return json({ error: "Admins only." }, 403);
 
   // ---- 3. validate input ----
-  let body: { email?: string; full_name?: string; company?: string; password?: string };
+  let body: { email?: string; full_name?: string; company?: string; password?: string; phone?: string };
   try { body = await req.json(); } catch { return json({ error: "Bad JSON." }, 400); }
 
   const email = String(body.email ?? "").trim().toLowerCase();
   const full_name = String(body.full_name ?? "").trim();
   const company = String(body.company ?? "").trim();
+  const phone = String(body.phone ?? "").replace(/[^\d+]/g, "");   // keep digits and a leading +
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return json({ error: "That email address doesn't look right." }, 400);
@@ -93,7 +94,14 @@ Deno.serve(async (req) => {
 
   // The on_auth_user_created trigger makes the profile row; fill in the rest.
   const { error: profErr } = await admin.from("profiles")
-    .update({ full_name: full_name || email, company: company || null, email })
+    .update({
+      full_name: full_name || email,
+      company: company || null,
+      email,
+      // phone only sticks if the notifications migration has been run;
+      // ignored harmlessly otherwise
+      ...(phone ? { phone } : {}),
+    })
     .eq("id", created.user!.id);
 
   if (profErr) return json({ error: profErr.message }, 400);

@@ -134,6 +134,97 @@ under **Authentication → Add user** by hand, as before.
 
 ---
 
+## 8 · Telling clients when something changes (optional)
+
+Out of the box the portal is a place clients *check*. This makes it a thing
+that *tells them* — an email (and optionally WhatsApp/SMS) whenever a stage
+moves, a file lands, or you send a message.
+
+It runs off **Database Webhooks**, not the dashboard's buttons, so it fires
+whether you moved the stage in the admin UI or edited the row by hand in the
+Table Editor.
+
+### a. Database (2 min) — SQL Editor
+
+Paste the contents of **`supabase-notifications.sql`** → Run. It adds `phone`
+and per-client on/off switches to `profiles`, a `notifications` log, and a
+small helper that stops four stage changes in a row from sending four emails.
+
+### b. Email provider (10 min)
+
+1. Sign up at **resend.com** (free tier covers a working studio comfortably)
+2. Add and verify your sending domain — or skip that and use their
+   `onboarding@resend.dev` address while testing
+3. Create an API key and keep it handy
+
+### c. Deploy the function
+
+**Edge Functions → Deploy a new function → Via Editor**, named exactly
+**`notify-client`**, pasting `supabase/functions/notify-client/index.ts`.
+Turn **Verify JWT off** — webhooks don't carry a user token.
+
+Then open the function's **Secrets** and add:
+
+| Secret | Value |
+|---|---|
+| `NOTIFY_SECRET` | any long random string you invent — you'll paste it into each webhook |
+| `SITE_URL` | `https://potfoliowebsite.amanorsac.workers.dev` (no trailing slash) |
+| `RESEND_API_KEY` | from step (b) |
+| `NOTIFY_FROM` | `Studio Amanorsac <studio@yourdomain.com>` |
+
+### d. Three webhooks (5 min)
+
+**Database → Webhooks → Create a new hook**, three times. Each one:
+
+- **Type:** HTTP Request · **Method:** POST
+- **URL:** `https://kdxckigyhpnwhwgjdgqq.supabase.co/functions/v1/notify-client`
+- **HTTP Header:** `x-notify-secret` = the same `NOTIFY_SECRET` from step (c)
+
+| # | Table | Events |
+|---|---|---|
+| 1 | `project_stages` | Update |
+| 2 | `deliverables` | Insert |
+| 3 | `messages` | Insert |
+
+### e. Test it
+
+Set a client's own email on their profile temporarily, move one of their
+stages, and watch your inbox. Then check **Table Editor → notifications** —
+every attempt is logged there with `sent`, `failed`, or `skipped` and the
+reason. That table is the first place to look if a client says they never
+got anything.
+
+### What it does and doesn't send
+
+- **Stage moved** → only when the state actually changes; editing a note
+  silently is not news
+- **File sent** → only files going *to* the client, never their own uploads
+- **Message** → only messages from you; a client's own message never bounces
+  back at them
+- **Same event twice in 3 minutes** → the second is skipped
+
+Clients can be switched off individually with `notify_email` /
+`notify_whatsapp` on their profile row.
+
+### WhatsApp — read this before you promise it to anyone
+
+WhatsApp is supported in the function (via Twilio: set `TWILIO_SID`,
+`TWILIO_TOKEN`, `TWILIO_FROM`, and turn on `notify_whatsapp` for the client),
+but the hard part isn't code. Meta requires business-initiated messages to
+use **pre-approved templates**, which means a Meta Business account,
+verification, and a template review that takes days. Twilio's sandbox lets
+you test immediately, but only to numbers that have opted in by messaging
+the sandbox first.
+
+Plain **SMS** through the same Twilio settings has no template approval —
+set `TWILIO_FROM` to a normal `+1…` number instead of a `whatsapp:` one. It
+costs per message but works the day you set it up.
+
+Sensible order: **email first** (works today), SMS if clients want their
+phone buzzing, WhatsApp only once it's worth the paperwork.
+
+---
+
 ## Running it day to day
 
 Everything below can also be done in **Supabase → Table Editor** if you prefer

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="PulseRoom">
+  <!-- Five-bar waveform mark, rebuilt as vector from the PulseRoom brand logo -->
+  <rect x="50"  y="192" width="56" height="128" rx="28" fill="#3fd3e4"/>
+  <rect x="146" y="112" width="60" height="284" rx="30" fill="#a48bfa"/>
+  <rect x="240" y="46"  width="60" height="414" rx="30" fill="#f2b13c"/>
+  <rect x="338" y="146" width="54" height="224" rx="27" fill="#f25c7f"/>
+  <rect x="432" y="206" width="46" height="96"  rx="23" fill="#4fd58f"/>
+</svg>

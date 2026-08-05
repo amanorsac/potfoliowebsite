@@ -233,6 +233,8 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .art b{font-family:var(--display);font-weight:700;font-size:clamp(19px,2vw,24px);letter-spacing:-.02em;color:#fff;z-index:1}
 .art small{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.66);z-index:1}
 .art .motif{display:flex;align-items:flex-end;gap:6px;height:44px;margin-bottom:8px;z-index:1}
+.art .logo{width:54px;height:54px;margin-bottom:8px;z-index:1}
+.pl-art .art .logo{width:74px;height:74px}
 /* HarmonieMD — SATB fader lanes */
 .art-hmd{background:radial-gradient(120% 120% at 20% 0%,#123B2E 0%,#0A1F19 60%,#07130F 100%)}
 .art-hmd .motif i{width:7px;border-radius:4px;background:linear-gradient(180deg,#7BE3B4,#2E8B6E)}
@@ -503,7 +505,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
       <a class="sc rise" href="#pulseroom">
         <div class="art art-pr">
-          <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <img class="logo" src="images/apps/pulseroom-logo.svg" alt="">
           <b>PulseRoom</b><small>Every answer, one tempo</small>
         </div>
         <div class="sc-meta">
@@ -569,7 +571,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   <section id="pulseroom" class="pl">
     <div class="pl-art"><div class="art art-pr">
       <img class="real" src="images/apps/pulseroom.png" alt="pulseroom application interface" loading="lazy" onerror="this.remove()">
-      <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <img class="logo" src="images/apps/pulseroom-logo.svg" alt="">
       <b>PulseRoom</b><small>Delay · Reverb · EQ · Comp</small>
     </div></div>
     <div>

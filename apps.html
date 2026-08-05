@@ -279,7 +279,7 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .pl:nth-of-type(even) .pl-art{order:2}
 .pl-art{padding:9px;background:var(--panel);border:1px solid color-mix(in srgb,var(--paper) 7%,transparent);
   border-radius:var(--r-lg);box-shadow:var(--shadow-1)}
-.pl-art .art{aspect-ratio:4/3}
+.pl-art .art{aspect-ratio:32/21}
 .pl h2{margin-bottom:14px}
 .pl .tagline{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
 .pl p{color:var(--muted);max-width:56ch}
@@ -288,7 +288,14 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .cta .go{width:30px;height:30px;border-radius:999px;background:rgba(255,255,255,.2);display:grid;place-items:center;
   transition:transform var(--dur) var(--ease-out)}
 .cta:hover .go{transform:translate(2px,-1px) scale(1.05)}
-@media(max-width:820px){ .pl,.pl:nth-of-type(even){grid-template-columns:1fr} .pl:nth-of-type(even) .pl-art{order:0} }
+/* screenshot strip under a product section */
+.shotrow{grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+.shotrow figure{margin:0;padding:6px;background:var(--panel);border:1px solid color-mix(in srgb,var(--paper) 7%,transparent);
+  border-radius:var(--r);box-shadow:var(--shadow-1)}
+.shotrow img{width:100%;aspect-ratio:32/21;object-fit:cover;border-radius:calc(var(--r) - 6px);display:block}
+.shotrow figcaption{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:9px 6px 3px;text-align:center}
+@media(max-width:820px){ .pl,.pl:nth-of-type(even){grid-template-columns:1fr} .pl:nth-of-type(even) .pl-art{order:0} .shotrow{grid-template-columns:1fr} }
 
 /* ---------- keyboard motif (piano) ---------- */
 .keys{display:flex;height:74px;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0 0 8px}
@@ -570,7 +577,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
   <section id="pulseroom" class="pl">
     <div class="pl-art"><div class="art art-pr">
-      <img class="real" src="images/apps/pulseroom.png" alt="pulseroom application interface" loading="lazy" onerror="this.remove()">
+      <img class="real" src="images/apps/S1-hero-delay-essentials.png" alt="PulseRoom Delay Calculator at 140 BPM — the eight essential note values" loading="lazy" onerror="this.remove()">
       <img class="logo" src="images/apps/pulseroom-logo.svg" alt="">
       <b>PulseRoom</b><small>Delay · Reverb · EQ · Comp</small>
     </div></div>
@@ -581,6 +588,11 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <p>Every number ships with its why, and the app’s own footer says the rest: values are starting points — trust your ears first. Offline, no account, no ads.</p>
       <ul class="spec"><li>Tap-tempo drives it all</li><li>Click-to-copy every value</li><li>Visual EQ &amp; compression</li><li>Mix chains with reasons</li><li>LUFS &amp; reference tables</li><li>Free · Windows &amp; macOS</li></ul>
       <a class="cta" data-app="pulseroom" href="#access">Get the download <span class="go">→</span></a>
+    </div>
+    <div class="shotrow rise">
+      <figure><img src="images/apps/S4-reverb-designer.png" alt="PulseRoom Reverb Designer — pre-delay and decay sized to the bar grid" loading="lazy"><figcaption>Reverb Designer</figcaption></figure>
+      <figure><img src="images/apps/S6-eq-cheat-sheet.png" alt="PulseRoom EQ Cheat Sheet — boost and cut zones for lead vocal" loading="lazy"><figcaption>EQ Cheat Sheet</figcaption></figure>
+      <figure><img src="images/apps/S7-compression-envelope.png" alt="PulseRoom Compression — the gain-reduction envelope, drawn" loading="lazy"><figcaption>Compression</figcaption></figure>
     </div>
   </section>
 

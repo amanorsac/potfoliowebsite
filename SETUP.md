@@ -175,10 +175,15 @@ Then open the function's **Secrets** and add:
 
 ### d. Three webhooks (5 min)
 
-**Fastest route — SQL Editor.** Open `supabase-webhooks.sql`, replace the
-three `PASTE_YOUR_NOTIFY_SECRET_HERE` placeholders with your `NOTIFY_SECRET`
-from step (c), paste the whole thing, Run. It ends by listing the three
-triggers back to you, so you can see they landed.
+**Fastest route — SQL Editor.** Open `supabase-webhooks.sql` **in a text
+editor**, replace the three `PASTE_YOUR_NOTIFY_SECRET_HERE` placeholders with
+your `NOTIFY_SECRET` from step (c), then paste the finished file into the SQL
+Editor and Run. It ends by listing the three triggers back to you, so you can
+see they landed.
+
+Do the replacing before you paste, not after. Pasting the secret into the SQL
+Editor on its own gets you `syntax error at or near "..."` — a bare secret is
+not a SQL statement.
 
 If that errors with `schema "supabase_functions" does not exist`, your
 project has never had a webhook — make one through the UI first (below) to

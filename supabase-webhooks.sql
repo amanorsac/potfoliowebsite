@@ -7,10 +7,15 @@
 --  only has to be typed once.
 --
 --  BEFORE YOU RUN THIS
---    1. The notify-client function must already be deployed
---    2. Replace PASTE_YOUR_NOTIFY_SECRET_HERE below — twice per trigger is
---       handled for you; it appears once per block, three times total.
---       It must match the NOTIFY_SECRET secret on the function EXACTLY.
+--    1. The notify-client function must already be deployed, with its
+--       NOTIFY_SECRET set.
+--    2. Replace PASTE_YOUR_NOTIFY_SECRET_HERE with that same secret. It
+--       appears three times, once per trigger.
+--
+--       Do the replacing in a TEXT EDITOR, then paste the finished result
+--       into the SQL Editor. Do not paste the secret into the SQL Editor
+--       on its own and run it — a bare secret is not SQL, and Postgres
+--       answers with  syntax error at or near "d9a2..."
 --
 --  IF IT ERRORS with  schema "supabase_functions" does not exist
 --    Your project has never had a webhook. Go to the dashboard, create

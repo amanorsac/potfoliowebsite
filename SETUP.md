@@ -314,6 +314,16 @@ webhook endpoint the same way.
 For a 50/50 split, send two invoices: "Deposit (50%)" and "Balance on
 delivery."
 
+### d. Paid another way — receipts
+
+Clients who pay by bank transfer, mobile money or cash can attach a
+receipt instead: run **`supabase-receipts.sql`** in the SQL Editor once.
+Their billing page then grows an "Attach your receipt" option on unpaid
+invoices. The invoice goes to **receipt in review**, lands in your bell,
+and you confirm it with one click (which also sends their receipt email).
+"I sent it" and "it arrived" are different events — nothing is marked
+paid until you say so.
+
 ## Costs
 
 Supabase free, Cloudflare Pages free, GitHub free. Stripe takes 2.9% + 30¢ per payment.

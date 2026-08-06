@@ -62,19 +62,33 @@
       '<div class="stat"><b>'+money(paidSum)+'</b><span>Collected</span></div>'+
       '<div class="stat"><b>'+owed.length+'</b><span>Unpaid invoices</span></div>';
 
+    // Receipts live in a private bucket — sign the links up front so the
+    // rows can render in one synchronous pass.
+    const signed = {};
+    await Promise.all(all.filter(i => i.receipt_path).map(async i => {
+      const { data } = await sb.storage.from('receipts').createSignedUrl(i.receipt_path, 3600);
+      if(data) signed[i.id] = data.signedUrl;
+    }));
+
     const row = i => {
       const who  = i.profiles ? (i.profiles.full_name || i.profiles.email) : '';
       const isPaid = i.status === 'paid';
+      const inReview = i.status === 'review';
       return '<div class="row"><div>'+
-        '<h3>'+esc(i.label)+'</h3>'+
+        '<h3>'+esc(i.label)+
+          (inReview ? ' <span class="pill accent">receipt in review</span>' : '')+'</h3>'+
         '<p class="meta">'+esc(who)+' · '+
           '<a href="admin-project.html?id='+esc(i.project_id)+'">'+esc((i.projects&&i.projects.title)||'project')+'</a> · '+
           (isPaid ? 'paid '+when(i.paid_at || i.created_at) : 'sent '+when(i.created_at))+
-          (i.pay_url ? ' · '+linkHtml(i.pay_url,'payment link') : '')+'</p></div>'+
+          (i.pay_url ? ' · '+linkHtml(i.pay_url,'payment link') : '')+
+          (signed[i.id] ? ' · <a href="'+esc(signed[i.id])+'" target="_blank" rel="noopener">view receipt</a>' : '')+
+        '</p>'+
+        (i.receipt_note ? '<p class="meta" style="text-transform:none;letter-spacing:0">“'+esc(i.receipt_note)+'”</p>' : '')+
+        '</div>'+
         '<span style="display:flex;align-items:center;gap:12px">'+
           '<strong>'+money(i.amount_cents)+'</strong>'+
           '<button class="linkbtn i-flip" type="button" data-id="'+esc(i.id)+'" data-paid="'+isPaid+'">'+
-            (isPaid ? 'Reopen' : 'Mark paid')+'</button>'+
+            (isPaid ? 'Reopen' : (inReview ? 'Confirm paid' : 'Mark paid'))+'</button>'+
         '</span></div>';
     };
 

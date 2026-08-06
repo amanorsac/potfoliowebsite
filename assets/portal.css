@@ -254,3 +254,9 @@ a.stat:hover{transform:translateY(-2px);border-color:var(--accent)}
 .notif-item .k{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 .notif-item .t{font-size:13.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .notif-item .d{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+
+/* ---------- paid-another-way receipts ---------- */
+.invoice{border-bottom:1px solid var(--line)}
+.invoice:last-child{border-bottom:0}
+.invoice .row{border-bottom:0}
+.rc-form{padding:2px 0 18px}

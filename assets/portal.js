@@ -162,6 +162,15 @@ async function mountNotifications(p){
       at: r.created_at, kind: 'Mix review', href: projHref(r.project_id),
       text: 'Round '+r.round_no+' \u2014 open',
     }));
+    // A receipt waiting on your say-so is money sitting in limbo \u2014
+    // it belongs at the top of the bell, not buried in a page.
+    const { data: rcpts } = await sb.from('invoices')
+      .select('label,amount_cents,receipt_at').eq('status','review')
+      .order('receipt_at',{ascending:false}).limit(10);
+    (rcpts||[]).forEach(i => items.push({
+      at: i.receipt_at, kind: 'Receipt', href: 'admin-billing.html',
+      text: (i.label||'Invoice')+' \u2014 '+money(i.amount_cents)+' to confirm',
+    }));
   } else {
     const { data } = await sb.from('invoices')
       .select('label,amount_cents,created_at,status').neq('status','void')

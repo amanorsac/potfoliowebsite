@@ -32,24 +32,83 @@
 (async () => {
   const s = await requireSession(); if(!s) return;
   await mountChrome('billing');
-  const { data: rows, error } = await sb.from('invoices')
-    .select('*, projects(title)').order('created_at',{ascending:false});
   const box = $('#inv');
-  if(error){ box.innerHTML = '<p class="msg err">'+esc(error.message)+'</p>'; return; }
-  if(!rows || !rows.length){ box.innerHTML = '<p class="empty">Nothing outstanding.</p>'; return; }
-  box.innerHTML = rows.map(r => {
-    const paid = r.status === 'paid';
-    const pay  = safeUrl(r.pay_url);
-    return '<div class="row"><div>'+
-      '<h3>'+esc(r.label)+'</h3>'+
-      '<p class="meta">'+esc((r.projects&&r.projects.title)||'')+' \u00b7 '+when(r.created_at)+'</p></div>'+
-      '<div style="display:flex;align-items:center;gap:14px">'+
-        '<strong>'+money(r.amount_cents)+'</strong>'+
-        (paid ? '<span class="pill ok">Paid</span>'
-              : (pay ? '<a class="btn" style="align-self:auto;text-decoration:none" href="'+esc(pay)+'" target="_blank" rel="noopener">Pay now</a>'
-                     : '<span class="pill warn">Awaiting link</span>')) +
-      '</div></div>';
-  }).join('');
+
+  async function load(){
+    const { data: rows, error } = await sb.from('invoices')
+      .select('*, projects(title)').order('created_at',{ascending:false});
+    if(error){ box.innerHTML = '<p class="msg err">'+esc(error.message)+'</p>'; return; }
+    if(!rows || !rows.length){ box.innerHTML = '<p class="empty">Nothing outstanding.</p>'; return; }
+
+    box.innerHTML = rows.map(r => {
+      const paid   = r.status === 'paid';
+      const review = r.status === 'review';
+      const pay    = safeUrl(r.pay_url);
+      return '<div class="invoice" data-id="'+esc(r.id)+'">'+
+        '<div class="row"><div>'+
+          '<h3>'+esc(r.label)+'</h3>'+
+          '<p class="meta">'+esc((r.projects&&r.projects.title)||'')+' \u00b7 '+when(r.created_at)+'</p></div>'+
+          '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'+
+            '<strong>'+money(r.amount_cents)+'</strong>'+
+            (paid   ? '<span class="pill ok">Paid</span>'
+            : review ? '<span class="pill accent">Receipt being checked</span>'
+            : (pay ? '<a class="btn" style="align-self:auto;text-decoration:none" href="'+esc(pay)+'" target="_blank" rel="noopener">Pay now</a>'
+                   : '<span class="pill warn">Awaiting link</span>')) +
+          '</div></div>'+
+        // Paying by card is one road, not the only road. Bank transfer,
+        // mobile money, cash \u2014 attach the proof and the studio confirms.
+        (!paid && !review
+          ? '<p class="meta" style="margin:-6px 0 10px">Paid by bank transfer or mobile money instead? '+
+            '<button class="linkbtn rc-open" type="button">Attach your receipt</button></p>'+
+            '<div class="rc-form" hidden>'+
+              '<div class="field"><label>Receipt \u2014 a photo or PDF</label>'+
+                '<input class="rc-file" type="file" accept="image/*,.pdf"></div>'+
+              '<div class="field"><label>Anything to add (optional)</label>'+
+                '<input class="rc-note" type="text" placeholder="Sent from my MoMo, ref 12345"></div>'+
+              '<button class="btn rc-send" type="button">Send receipt</button>'+
+              '<p class="msg rc-msg" role="status" aria-live="polite"></p>'+
+            '</div>'
+          : review
+          ? '<p class="meta" style="margin:-6px 0 10px">Your receipt is with the studio \u2014 this flips to Paid once it\u2019s confirmed.</p>'
+          : '')+
+      '</div>';
+    }).join('');
+
+    $$('.invoice').forEach(card => {
+      const id = card.getAttribute('data-id');
+      const opener = $('.rc-open', card);
+      if(!opener) return;
+      const frm = $('.rc-form', card);
+      opener.addEventListener('click', () => { frm.hidden = !frm.hidden; });
+
+      $('.rc-send', card).addEventListener('click', async () => {
+        const m = $('.rc-msg', card), btn = $('.rc-send', card);
+        const file = $('.rc-file', card).files[0];
+        if(!file) return say(m, 'Choose the receipt file first.', 'err');
+        if(file.size > 10*1024*1024) return say(m, 'Keep it under 10 MB.', 'err');
+
+        btn.disabled = true;
+        say(m, 'Sending\u2026');
+        // Foldered by user id \u2014 the first segment is what the storage
+        // policy and attach_receipt() both verify.
+        const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+        const path = s.user.id + '/' + id + '.' + ext;
+
+        const { error: upErr } = await sb.storage.from('receipts')
+          .upload(path, file, { upsert: true, contentType: file.type });
+        if(upErr){ btn.disabled = false; return say(m, upErr.message, 'err'); }
+
+        const { error } = await sb.rpc('attach_receipt', {
+          p_invoice: id, p_path: path, p_note: $('.rc-note', card).value,
+        });
+        btn.disabled = false;
+        if(error) return say(m, error.message, 'err');
+        load();
+      });
+    });
+  }
+
+  await load();
 })();
 
 </script>

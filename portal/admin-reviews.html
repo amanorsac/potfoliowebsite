@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Mix reviews · Studio admin</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="../images/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/portal.css">
+<style>
+  .note{background:var(--surface-2);border-radius:8px;padding:12px 14px;margin:8px 0;font-size:14px}
+  .note p{margin:0 0 4px}
+  .note .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .rev{border-bottom:1px solid var(--line);padding:18px 0}
+  .rev:last-child{border-bottom:0}
+</style>
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Studio admin</p>
+    <h1>Mix reviews</h1>
+    <p class="sub">What clients are asking for, newest first. Open rounds sit on top; change the status here as you work through them.</p>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>All rounds</h2><span class="hint" id="count"></span></div>
+    <div id="revs"><div class="skeleton" style="width:50%"></div></div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+(async () => {
+  const me = await requireAdmin(); if(!me) return;
+  await mountChrome('admin-reviews');
+
+  async function load(){
+    const { data: revs, error } = await sb.from('revision_requests')
+      .select('*, revision_notes(*), projects(title, profiles!projects_client_id_fkey(full_name,email))')
+      .order('created_at', {ascending:false});
+
+    if(error){
+      $('#revs').innerHTML = '<p class="empty">Could not load reviews: '+esc(error.message)+'</p>';
+      return;
+    }
+
+    // Open work first; within each group, newest first (already sorted).
+    const rank = { open:0, in_progress:1, done:2 };
+    const list = (revs||[]).slice().sort((a,b) =>
+      (rank[a.status] ?? 9) - (rank[b.status] ?? 9));
+
+    const openCount = list.filter(r => r.status !== 'done').length;
+    $('#count').textContent = openCount + ' open · ' + list.length + ' total';
+
+    $('#revs').innerHTML = list.length ? list.map(r => {
+      const proj = r.projects || {};
+      const who  = proj.profiles ? (proj.profiles.full_name || proj.profiles.email) : '';
+      const notes = (r.revision_notes||[]).map(n =>
+        '<div class="note">'+
+          (n.timecode ? '<p class="lbl">'+esc(n.timecode)+(n.element?' · '+esc(n.element):'')+'</p>'
+                      : (n.element?'<p class="lbl">'+esc(n.element)+'</p>':''))+
+          (n.hearing ? '<p><b>Hearing:</b> '+esc(n.hearing)+'</p>' : '')+
+          (n.wanted  ? '<p><b>Wants:</b> '+esc(n.wanted)+'</p>' : '')+
+          (n.reference_url ? '<p>'+linkHtml(n.reference_url,'Reference')+'</p>' : '')+
+          (n.priority ? '<p class="lbl">'+esc(n.priority)+'</p>' : '')+
+        '</div>').join('') || '<p class="empty">No notes on this round.</p>';
+
+      return '<div class="rev" data-rev="'+esc(r.id)+'">'+
+        '<div class="card-head" style="margin-bottom:6px">'+
+          '<h3><a href="admin-project.html?id='+esc(r.project_id)+'">'+esc(proj.title||'Project')+'</a>'+
+            ' — round '+r.round_no+(who?' · '+esc(who):'')+'</h3>'+
+          '<span class="pill '+(r.status==='done'?'ok':(r.status==='in_progress'?'accent':'warn'))+'">'+
+            esc(String(r.status).replace('_',' '))+'</span>'+
+        '</div>'+
+        '<p class="meta">Submitted '+when(r.created_at)+'</p>'+
+        notes+
+        '<div class="fieldrow" style="margin-top:10px">'+
+          '<div class="field half"><label>Status</label>'+
+          '<select class="r-status">'+['open','in_progress','done'].map(v =>
+            '<option value="'+v+'"'+(v===r.status?' selected':'')+'>'+v.replace('_',' ')+'</option>').join('')+
+          '</select></div>'+
+        '</div>'+
+      '</div>';
+    }).join('') : '<p class="empty">No reviews yet. When a client submits one it lands here.</p>';
+
+    $$('.rev').forEach(box => {
+      $('.r-status', box).addEventListener('change', async e => {
+        const { error } = await sb.from('revision_requests')
+          .update({ status: e.target.value }).eq('id', box.getAttribute('data-rev'));
+        if(error) alert(error.message); else load();
+      });
+    });
+  }
+
+  await load();
+})();
+</script>
+</body>
+</html>

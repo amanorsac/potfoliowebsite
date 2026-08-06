@@ -231,3 +231,26 @@ textarea{resize:vertical;min-height:88px}
   background:var(--accent-soft);border:1px solid var(--line);
   font-size:14px;color:var(--ink)}
 .adminbar a{color:var(--accent);font-weight:600}
+
+/* ---------- stat tiles (shared by the admin pages) ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:26px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px 20px;text-decoration:none;color:inherit;display:block;
+  transition:transform .22s cubic-bezier(.2,.8,.3,1),border-color .22s}
+a.stat:hover{transform:translateY(-2px);border-color:var(--accent)}
+.stat b{display:block;font-family:var(--display,inherit);font-size:30px;line-height:1.1;font-weight:400}
+.stat span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- notification bell ---------- */
+.notif-wrap{position:relative;display:inline-flex}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;
+  background:var(--warn);border:2px solid var(--surface)}
+.notif-panel{position:absolute;top:calc(100% + 10px);right:0;width:min(340px,calc(100vw - 32px));
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  box-shadow:var(--shadow);padding:6px;z-index:60}
+.notif-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;
+  padding:10px 12px;border-radius:8px;text-decoration:none}
+.notif-item:hover{background:var(--surface-2)}
+.notif-item .k{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.notif-item .t{font-size:13.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notif-item .d{font-family:var(--mono);font-size:9.5px;color:var(--muted)}

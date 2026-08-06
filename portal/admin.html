@@ -16,10 +16,7 @@
 <link rel="icon" href="../images/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/portal.css">
 <style>
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:26px}
-  .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
-  .stat b{display:block;font-family:var(--display,inherit);font-size:30px;line-height:1.1;font-weight:400}
-  .stat span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  /* .stats/.stat live in portal.css now — the other admin pages use them too */
   .pw{font-family:var(--mono);font-size:13px;background:var(--surface-2);border:1px dashed var(--line);
       border-radius:8px;padding:12px 14px;margin-top:12px;word-break:break-all}
 </style>
@@ -86,14 +83,8 @@
     </div>
   </div>
 
-  <!-- ---------------- projects ---------------- -->
-  <div class="card" style="margin-top:16px">
-    <div class="card-head"><h2>All projects</h2><span class="hint" id="projcount"></span></div>
-    <div id="projects"><div class="skeleton" style="width:55%"></div></div>
-  </div>
-
   <!-- ---------------- clients ---------------- -->
-  <div class="card" style="margin-top:16px">
+  <div class="card" id="clients-card" style="margin-top:16px">
     <div class="card-head"><h2>Clients</h2><span class="hint" id="clientcount"></span></div>
     <div id="clients"><div class="skeleton" style="width:40%"></div></div>
   </div>
@@ -190,39 +181,19 @@
       ? clients.map(c => '<option value="'+esc(c.id)+'">'+esc(c.full_name || c.email)+'</option>').join('')
       : '<option value="">— add a client first —</option>';
 
-    // ---- projects
-    const { data: projects } = await sb.from('projects')
-      .select('*, profiles!projects_client_id_fkey(full_name,email), project_stages(sort_order,name,state)')
-      .order('created_at',{ascending:false});
-
-    $('#projcount').textContent = (projects||[]).length + ' total';
-    $('#projects').innerHTML = (projects && projects.length) ? projects.map(pr => {
-      const st = (pr.project_stages||[]).sort((a,b)=>a.sort_order-b.sort_order);
-      const done = st.filter(x=>x.state==='done').length;
-      const cur  = st.find(x=>x.state==='active') || st.find(x=>x.state==='blocked');
-      const pct  = st.length ? Math.round(done/st.length*100) : 0;
-      const blocked = st.some(x=>x.state==='blocked');
-      const who = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Unknown client';
-      return '<div class="row"><div>'+
-        '<h3><a href="admin-project.html?id='+esc(pr.id)+'">'+esc(pr.title)+'</a></h3>'+
-        '<p class="meta">'+esc(who)+' · '+esc(pr.artist || pr.service || '')+
-        ' · '+(cur?esc(cur.name):'Complete')+' ('+pct+'%)</p></div>'+
-        '<span class="pill '+(blocked?'warn':(pr.status==='delivered'?'ok':'accent'))+'">'+
-          (blocked?'Blocked':esc(String(pr.status).replace('_',' ')))+'</span></div>';
-    }).join('') : '<p class="empty">No projects yet.</p>';
-
-    // ---- headline numbers
-    const open = (projects||[]).filter(p => p.status === 'active').length;
+    // ---- headline numbers, each one a door to its page
+    const { count: open } = await sb.from('projects')
+      .select('id',{count:'exact',head:true}).eq('status','active');
     const { count: reviews } = await sb.from('revision_requests')
       .select('id',{count:'exact',head:true}).neq('status','done');
     const { data: allInv } = await sb.from('invoices').select('amount_cents,status');
     const owed = (allInv||[]).filter(i => i.status !== 'paid' && i.status !== 'void')
                              .reduce((t,i) => t + i.amount_cents, 0);
     $('#stats').innerHTML =
-      '<div class="stat"><b>'+clients.length+'</b><span>Clients</span></div>'+
-      '<div class="stat"><b>'+open+'</b><span>Active projects</span></div>'+
-      '<div class="stat"><b>'+(reviews||0)+'</b><span>Open mix reviews</span></div>'+
-      '<div class="stat"><b>'+money(owed)+'</b><span>Awaiting payment</span></div>';
+      '<a class="stat" href="#clients-card"><b>'+clients.length+'</b><span>Clients</span></a>'+
+      '<a class="stat" href="admin-projects.html"><b>'+(open||0)+'</b><span>Active projects</span></a>'+
+      '<a class="stat" href="admin-reviews.html"><b>'+(reviews||0)+'</b><span>Open mix reviews</span></a>'+
+      '<a class="stat" href="admin-billing.html"><b>'+money(owed)+'</b><span>Awaiting payment</span></a>';
   }
 
   await load();

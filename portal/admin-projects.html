@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Projects · Studio admin</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="../images/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Studio admin</p>
+    <h1>Projects</h1>
+    <p class="sub">Every song on the desk. Open one to move stages, send files, read reviews, and bill.</p>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <h2>All projects</h2>
+      <span class="hint" id="projcount"></span>
+    </div>
+    <div class="field" style="margin-bottom:8px">
+      <input id="q" type="search" placeholder="Filter by song, artist or client…" autocomplete="off">
+    </div>
+    <div id="projects"><div class="skeleton" style="width:55%"></div></div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+(async () => {
+  const me = await requireAdmin(); if(!me) return;
+  await mountChrome('admin-projects');
+
+  const { data: projects, error } = await sb.from('projects')
+    .select('*, profiles!projects_client_id_fkey(full_name,email), project_stages(sort_order,name,state)')
+    .order('created_at',{ascending:false});
+
+  if(error){
+    $('#projects').innerHTML = '<p class="empty">Could not load projects: '+esc(error.message)+'</p>';
+    return;
+  }
+
+  const rows = (projects||[]).map(pr => {
+    const st = (pr.project_stages||[]).sort((a,b)=>a.sort_order-b.sort_order);
+    const done = st.filter(x=>x.state==='done').length;
+    const cur  = st.find(x=>x.state==='active') || st.find(x=>x.state==='blocked');
+    const pct  = st.length ? Math.round(done/st.length*100) : 0;
+    const blocked = st.some(x=>x.state==='blocked');
+    const who = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Unknown client';
+    return {
+      // one lowercase haystack per row, so filtering is a substring test
+      hay: (pr.title+' '+(pr.artist||'')+' '+who+' '+(pr.service||'')).toLowerCase(),
+      html: '<div class="row"><div>'+
+        '<h3><a href="admin-project.html?id='+esc(pr.id)+'">'+esc(pr.title)+'</a></h3>'+
+        '<p class="meta">'+esc(who)+' · '+esc(pr.artist || pr.service || '')+
+        ' · '+(cur?esc(cur.name):'Complete')+' ('+pct+'%)</p></div>'+
+        '<span class="pill '+(blocked?'warn':(pr.status==='delivered'?'ok':'accent'))+'">'+
+          (blocked?'Blocked':esc(String(pr.status).replace('_',' ')))+'</span></div>',
+    };
+  });
+
+  function paint(){
+    const q = $('#q').value.trim().toLowerCase();
+    const hit = q ? rows.filter(r => r.hay.includes(q)) : rows;
+    $('#projcount').textContent = q ? hit.length+' of '+rows.length : rows.length+' total';
+    $('#projects').innerHTML = hit.length ? hit.map(r=>r.html).join('')
+      : '<p class="empty">'+(rows.length?'Nothing matches that.':'No projects yet — start one from the dashboard.')+'</p>';
+  }
+  $('#q').addEventListener('input', paint);
+  paint();
+})();
+</script>
+</body>
+</html>

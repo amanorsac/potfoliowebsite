@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Billing · Studio admin</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="../images/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Studio admin</p>
+    <h1>Billing</h1>
+    <p class="sub">Who owes what. Invoices are created on each project's page; this is where you watch the money.</p>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="card">
+    <div class="card-head"><h2>Owed</h2><span class="hint" id="owedcount"></span></div>
+    <div id="owed"><div class="skeleton" style="width:50%"></div></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-head"><h2>Settled</h2><span class="hint" id="paidcount"></span></div>
+    <div id="paid"><p class="empty">Nothing yet.</p></div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+(async () => {
+  const me = await requireAdmin(); if(!me) return;
+  await mountChrome('admin-billing');
+
+  async function load(){
+    const { data: invs, error } = await sb.from('invoices')
+      .select('*, projects(title), profiles!invoices_client_id_fkey(full_name,email)')
+      .order('created_at', {ascending:false});
+
+    if(error){
+      $('#owed').innerHTML = '<p class="empty">Could not load invoices: '+esc(error.message)+'</p>';
+      return;
+    }
+
+    const all  = (invs||[]).filter(i => i.status !== 'void');
+    const owed = all.filter(i => i.status !== 'paid');
+    const paid = all.filter(i => i.status === 'paid');
+    const owedSum = owed.reduce((t,i) => t + i.amount_cents, 0);
+    const paidSum = paid.reduce((t,i) => t + i.amount_cents, 0);
+
+    $('#stats').innerHTML =
+      '<div class="stat"><b>'+money(owedSum)+'</b><span>Outstanding</span></div>'+
+      '<div class="stat"><b>'+money(paidSum)+'</b><span>Collected</span></div>'+
+      '<div class="stat"><b>'+owed.length+'</b><span>Unpaid invoices</span></div>';
+
+    const row = i => {
+      const who  = i.profiles ? (i.profiles.full_name || i.profiles.email) : '';
+      const isPaid = i.status === 'paid';
+      return '<div class="row"><div>'+
+        '<h3>'+esc(i.label)+'</h3>'+
+        '<p class="meta">'+esc(who)+' · '+
+          '<a href="admin-project.html?id='+esc(i.project_id)+'">'+esc((i.projects&&i.projects.title)||'project')+'</a> · '+
+          (isPaid ? 'paid '+when(i.paid_at || i.created_at) : 'sent '+when(i.created_at))+
+          (i.pay_url ? ' · '+linkHtml(i.pay_url,'payment link') : '')+'</p></div>'+
+        '<span style="display:flex;align-items:center;gap:12px">'+
+          '<strong>'+money(i.amount_cents)+'</strong>'+
+          '<button class="linkbtn i-flip" type="button" data-id="'+esc(i.id)+'" data-paid="'+isPaid+'">'+
+            (isPaid ? 'Reopen' : 'Mark paid')+'</button>'+
+        '</span></div>';
+    };
+
+    $('#owedcount').textContent = owed.length ? money(owedSum)+' across '+owed.length : '';
+    $('#owed').innerHTML = owed.length ? owed.map(row).join('')
+      : '<p class="empty">Nobody owes you anything. Enjoy it.</p>';
+    $('#paidcount').textContent = paid.length ? paid.length+' paid' : '';
+    $('#paid').innerHTML = paid.length ? paid.map(row).join('')
+      : '<p class="empty">Nothing yet.</p>';
+
+    $$('.i-flip').forEach(btn => btn.addEventListener('click', async () => {
+      const isPaid = btn.getAttribute('data-paid') === 'true';
+      btn.disabled = true;
+      const { error } = await sb.from('invoices').update(
+        isPaid ? { status:'pending', paid_at:null }
+               : { status:'paid', paid_at:new Date().toISOString() }
+      ).eq('id', btn.getAttribute('data-id'));
+      if(error){ alert(error.message); btn.disabled = false; }
+      else load();
+    }));
+  }
+
+  await load();
+})();
+</script>
+</body>
+</html>

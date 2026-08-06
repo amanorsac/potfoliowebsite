@@ -176,9 +176,9 @@ Then open the function's **Secrets** and add:
 | Secret | Value |
 |---|---|
 | `NOTIFY_SECRET` | any long random string you invent — you'll paste it into each webhook |
-| `SITE_URL` | `https://potfoliowebsite.amanorsac.workers.dev` (no trailing slash) |
+| `SITE_URL` | `https://amanorsac.studio` (no trailing slash) |
 | `RESEND_API_KEY` | from step (b) |
-| `NOTIFY_FROM` | `Studio Amanorsac <studio@yourdomain.com>` |
+| `NOTIFY_FROM` | `Studio Amanorsac <hello@amanorsac.studio>` |
 
 ### d. Three webhooks (5 min)
 

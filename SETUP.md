@@ -175,9 +175,9 @@ Then open the function's **Secrets** and add:
 
 ### d. Three webhooks (5 min)
 
-**Fastest route — SQL Editor.** Open `supabase-webhooks.sql` **in a text
-editor**, replace the three `PASTE_YOUR_NOTIFY_SECRET_HERE` placeholders with
-your `NOTIFY_SECRET` from step (c), then paste the finished file into the SQL
+**Recommended — SQL Editor.** Open `supabase-webhooks.sql` **in a text
+editor**, replace the single `PASTE_YOUR_NOTIFY_SECRET_HERE` with your
+`NOTIFY_SECRET` from step (c), then paste the finished file into the SQL
 Editor and Run. It ends by listing the three triggers back to you, so you can
 see they landed.
 
@@ -185,13 +185,14 @@ Do the replacing before you paste, not after. Pasting the secret into the SQL
 Editor on its own gets you `syntax error at or near "..."` — a bare secret is
 not a SQL statement.
 
-If that errors with `schema "supabase_functions" does not exist`, your
-project has never had a webhook — make one through the UI first (below) to
-switch the machinery on, then re-run the SQL for the other two.
+That script builds the triggers with `pg_net` directly rather than through the
+dashboard's webhook machinery, which sidesteps two snags: the Webhooks page is
+no longer in the Database sidebar, and the `supabase_functions` schema it
+relies on does not exist until you have created a hook by hand at least once
+(`ERROR: schema "supabase_functions" does not exist`).
 
-**UI route.** In the current dashboard, Webhooks is **not** in the Database
-sidebar any more — it's under **Integrations → Database Webhooks**, or go
-straight to
+**UI route**, if you would rather click. Webhooks now lives under
+**Integrations → Database Webhooks**, or go straight to
 `https://supabase.com/dashboard/project/kdxckigyhpnwhwgjdgqq/integrations/webhooks/overview`.
 Create a new hook three times. Each one:
 
@@ -205,9 +206,9 @@ Create a new hook three times. Each one:
 | 2 | `deliverables` | Insert |
 | 3 | `messages` | Insert |
 
-A "Database Webhook" is only a trigger calling
-`supabase_functions.http_request()` — the two routes build the identical
-thing, so mixing them is fine.
+A "Database Webhook" is only a trigger that POSTs a row to a URL — the two
+routes build the same thing by different names, so mixing them is fine. Don't
+run both for the same table, though, or the function gets told twice.
 
 ### e. Test it
 

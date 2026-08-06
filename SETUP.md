@@ -267,13 +267,52 @@ the raw rows — the dashboard just does the same writes with fewer clicks.
 
 **Bill them:** create a Stripe Payment Link, then insert into `invoices` with `pay_url` set to it. Mark `status` = `paid` when it clears.
 
-## Stripe
+## 9 · Stripe — automatic invoicing (optional)
 
-Start with **Payment Links** — no code at all. Create one in Stripe, paste the URL into the invoice row, and the client gets a Pay now button.
+With this connected, sending an invoice from a project page creates the
+Stripe Payment Link by itself, and a client paying marks the invoice paid
+by itself (which also sends them their receipt email). Without it,
+everything still works — you paste Payment Links by hand and click Mark
+paid yourself.
 
-For a 50/50 split, make two: "Deposit (50%)" and "Balance on delivery."
+### a. The link maker
 
-Automatic paid-marking needs a webhook Edge Function. Worth adding once invoices become frequent enough that updating a row by hand is annoying. Not before.
+**Edge Functions → Deploy a new function → Via Editor**, named exactly
+**`create-payment-link`**, pasting
+`supabase/functions/create-payment-link/index.ts`. Verify JWT can stay ON.
+
+Add one secret to it:
+
+| Secret | Where it comes from |
+|---|---|
+| `STRIPE_SECRET_KEY` | Stripe → **Developers → API keys** → *Secret key* (`sk_live_…`, or `sk_test_…` to try it safely) |
+
+### b. The payment listener
+
+Same again: a function named exactly **`stripe-webhook`**, pasting
+`supabase/functions/stripe-webhook/index.ts`. **Verify JWT OFF** — Stripe
+is not a signed-in user; the function checks Stripe's own signature
+instead.
+
+Then tell Stripe to call it: Stripe → **Developers → Webhooks → Add
+endpoint**:
+
+- **URL:** `https://kdxckigyhpnwhwgjdgqq.supabase.co/functions/v1/stripe-webhook`
+- **Events:** just `checkout.session.completed`
+
+Stripe shows a **Signing secret** (`whsec_…`) — add it to the
+`stripe-webhook` function's secrets as `STRIPE_WEBHOOK_SECRET`.
+
+### c. Test with nobody's money
+
+Use your `sk_test_…` key first. Send yourself an invoice, open the Pay
+now link, and pay with Stripe's test card `4242 4242 4242 4242` (any
+future date, any CVC). The invoice should flip to paid on its own within
+a few seconds. Then swap the secret to `sk_live_…` and add a live-mode
+webhook endpoint the same way.
+
+For a 50/50 split, send two invoices: "Deposit (50%)" and "Balance on
+delivery."
 
 ## Costs
 

@@ -115,14 +115,76 @@
     const clients = (people||[]).filter(p => !p.is_admin);
 
     $('#clientcount').textContent = clients.length + (clients.length===1?' client':' clients');
-    $('#clients').innerHTML = clients.length ? clients.map(c =>
-      '<div class="row"><div><h3>'+esc(c.full_name || c.email)+'</h3>'+
-      '<p class="meta">'+esc(c.email||'')+(c.company?' · '+esc(c.company):'')+
-        (c.phone?' · '+esc(c.phone):'')+'</p></div>'+
-      '<span class="meta">'+
-        (c.notify_email===false?'':'✉ ')+(c.notify_whatsapp?'✆ ':'')+
-        'joined '+when(c.created_at)+'</span></div>').join('')
+    // Signed avatar links are fetched up front, so the map below can stay
+    // synchronous and the list paints in one go rather than popping in.
+    const faces = await Promise.all(clients.map(c => avatarUrl(c.avatar_path)));
+    $('#clients').innerHTML = clients.length ? clients.map((c, i) =>
+      '<div class="client" data-id="'+esc(c.id)+'">'+
+        '<div class="row">'+
+          '<div class="avatar">'+(faces[i]
+            ? '<img src="'+esc(faces[i])+'" alt="">'
+            : initialsOf(c.full_name || c.email))+'</div>'+
+          '<div><h3>'+esc(c.full_name || c.email)+'</h3>'+
+          '<p class="meta">'+esc(c.email||'')+(c.company?' · '+esc(c.company):'')+
+            (c.phone?' · '+esc(c.phone):'')+'</p></div>'+
+          '<span class="meta">'+
+            (c.notify_email===false?'':'✉ ')+(c.notify_whatsapp?'✆ ':'')+
+            'joined '+when(c.created_at)+
+            ' <button class="linkbtn cl-edit" type="button">Edit</button></span>'+
+        '</div>'+
+        // Hidden until asked for. A list of clients should read as a list,
+        // not as a wall of form fields.
+        '<div class="cl-form" hidden>'+
+          '<div class="fieldrow">'+
+            '<div class="field half"><label>Name</label>'+
+              '<input class="cl-name" type="text" value="'+esc(c.full_name||'')+'"></div>'+
+            '<div class="field half"><label>Company</label>'+
+              '<input class="cl-company" type="text" value="'+esc(c.company||'')+'"></div>'+
+          '</div>'+
+          '<div class="fieldrow">'+
+            '<div class="field half"><label>Email</label>'+
+              '<input class="cl-email" type="email" value="'+esc(c.email||'')+'"></div>'+
+            '<div class="field half"><label>Phone</label>'+
+              '<input class="cl-phone" type="tel" placeholder="+1 415 555 2671" '+
+                'value="'+esc(c.phone||'')+'"></div>'+
+          '</div>'+
+          '<label class="check"><input class="cl-nemail" type="checkbox"'+
+            (c.notify_email===false?'':' checked')+'> Email them about updates</label>'+
+          '<label class="check"><input class="cl-nwa" type="checkbox"'+
+            (c.notify_whatsapp?' checked':'')+'> WhatsApp / SMS them too</label>'+
+          '<button class="btn cl-save" type="button">Save changes</button>'+
+          '<p class="msg cl-msg" role="status" aria-live="polite"></p>'+
+        '</div>'+
+      '</div>').join('')
       : '<p class="empty">No clients yet. Add one above.</p>';
+
+    // Editing the profile row changes their contact details and who gets
+    // notified. It does NOT change their login — that lives in auth, and
+    // changing the email here only changes where notifications go.
+    $$('.client').forEach(box => {
+      const id  = box.getAttribute('data-id');
+      const frm = $('.cl-form', box);
+      $('.cl-edit', box).addEventListener('click', () => {
+        frm.hidden = !frm.hidden;
+        $('.cl-edit', box).textContent = frm.hidden ? 'Edit' : 'Close';
+      });
+      $('.cl-save', box).addEventListener('click', async () => {
+        const btn = $('.cl-save', box), m = $('.cl-msg', box);
+        btn.disabled = true;
+        const { error } = await sb.from('profiles').update({
+          full_name:       $('.cl-name', box).value.trim() || null,
+          company:         $('.cl-company', box).value.trim() || null,
+          email:           $('.cl-email', box).value.trim() || null,
+          phone:           $('.cl-phone', box).value.replace(/[^\d+]/g,'') || null,
+          notify_email:    $('.cl-nemail', box).checked,
+          notify_whatsapp: $('.cl-nwa', box).checked,
+        }).eq('id', id);
+        btn.disabled = false;
+        if(error) return say(m, error.message, 'err');
+        say(m, 'Saved.', 'ok');
+        load();
+      });
+    });
 
     clientSel.innerHTML = clients.length
       ? clients.map(c => '<option value="'+esc(c.id)+'">'+esc(c.full_name || c.email)+'</option>').join('')

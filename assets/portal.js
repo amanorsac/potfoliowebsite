@@ -127,6 +127,28 @@ async function fileHref(f){
   return null;
 }
 
+/* ---------- avatars ----------
+   The bucket is private, so a stored path is turned into a signed link
+   on demand. Signed links are cached for the life of the page: a thread
+   of twenty messages should not mean twenty round trips for one face. */
+const _avCache = new Map();
+async function avatarUrl(path){
+  if(!path) return null;
+  if(_avCache.has(path)) return _avCache.get(path);
+  const { data } = await sb.storage.from('avatars').createSignedUrl(path, 60 * 60);
+  const url = data ? data.signedUrl : null;
+  _avCache.set(path, url);
+  return url;
+}
+
+/* Initials are the fallback, not a grey silhouette — a name says who it
+   is, and everyone in this portal has one. */
+function initialsOf(name){
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return '?';
+  return esc((parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase());
+}
+
 /* ---------- progress tracker ---------- */
 const CHECK = '<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
 

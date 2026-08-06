@@ -26,6 +26,15 @@
   <div class="grid2">
     <div class="card">
       <h2>Profile</h2>
+      <div class="avatar-edit">
+        <div class="avatar lg" id="av-shot"></div>
+        <div>
+          <label class="btn ghost" for="av-file">Choose a picture</label>
+          <input id="av-file" type="file" accept="image/*" hidden>
+          <button class="linkbtn" id="av-clear" type="button" hidden>Remove</button>
+          <p class="hint" id="av-msg">JPG or PNG, under 3 MB.</p>
+        </div>
+      </div>
       <form id="pf">
         <div class="field"><label for="name">Name</label><input id="name"></div>
         <div class="field"><label for="co">Company or artist name</label><input id="co"></div>
@@ -56,6 +65,54 @@
   const s = await requireSession(); if(!s) return;
   const me = await mountChrome('account');
   $('#name').value = me.full_name || ''; $('#co').value = me.company || ''; $('#em').value = me.email || '';
+
+  /* ---------- profile picture ----------
+     The bucket is private, so the page holds a path and asks for a
+     signed link when it needs to show one. Nothing is reachable by
+     guessing a URL. */
+  async function paintAvatar(path){
+    const el = $('#av-shot');
+    const url = await avatarUrl(path);
+    el.innerHTML = url
+      ? '<img src="'+esc(url)+'" alt="">'
+      : initialsOf(me.full_name || me.email);
+    $('#av-clear').hidden = !path;
+  }
+  await paintAvatar(me.avatar_path);
+
+  $('#av-file').addEventListener('change', async e => {
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const m = $('#av-msg');
+    if(file.size > 3 * 1024 * 1024) return say(m, 'That one is over 3 MB.', 'err');
+
+    say(m, 'Uploading…');
+    // Foldered by user id — that first segment is what the storage policy
+    // checks, so a path outside your own folder is refused by the database
+    // rather than trusted from the browser.
+    const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const path = me.id + '/avatar.' + ext;
+
+    const { error: upErr } = await sb.storage.from('avatars')
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if(upErr) return say(m, upErr.message, 'err');
+
+    const { error } = await sb.from('profiles').update({ avatar_path: path }).eq('id', me.id);
+    if(error) return say(m, error.message, 'err');
+
+    me.avatar_path = path;
+    await paintAvatar(path);
+    say(m, 'Saved.', 'ok');
+  });
+
+  $('#av-clear').addEventListener('click', async () => {
+    const m = $('#av-msg');
+    const { error } = await sb.from('profiles').update({ avatar_path: null }).eq('id', me.id);
+    if(error) return say(m, error.message, 'err');
+    me.avatar_path = null;
+    await paintAvatar(null);
+    say(m, 'Removed.', 'ok');
+  });
 
   $('#pf').addEventListener('submit', async e => {
     e.preventDefault();

@@ -44,6 +44,7 @@
     <!-- ---------------- stages ---------------- -->
     <div class="card">
       <div class="card-head"><h2>Progress</h2><span class="hint">The client sees this live</span></div>
+      <div id="advance"></div>
       <div id="stages"><div class="skeleton" style="width:60%"></div></div>
       <p class="msg" id="s-msg" role="status" aria-live="polite"></p>
     </div>
@@ -144,6 +145,45 @@
       $('.s-note', row).addEventListener('change', save);
     });
 
+    /* ---- one-click advance ----
+       Moving a song along used to mean two dropdown changes in the right
+       order, which is easy to half-do: mark one done, forget to start the
+       next, and the client's tracker shows nothing happening. One button
+       does both, or starts the first stage if none is running yet. */
+    const list    = stages || [];
+    const current = list.find(s => s.state === 'active' || s.state === 'blocked');
+    const next    = list.find(s => s.state === 'pending' &&
+                       (!current || s.sort_order > current.sort_order));
+
+    $('#advance').innerHTML =
+      (!current && !next) ? '<p class="meta" style="margin:0 0 12px">Every stage is done.</p>'
+      : '<button class="btn" id="adv-go" type="button" style="margin-bottom:14px">'+
+          (current
+            ? 'Finish “'+esc(current.name)+'”'+(next?' → start “'+esc(next.name)+'”':'')
+            : 'Start “'+esc(next.name)+'”')+
+        '</button>';
+
+    const advBtn = $('#adv-go');
+    if(advBtn) advBtn.addEventListener('click', async () => {
+      advBtn.disabled = true;
+      const stamp = new Date().toISOString();
+      // Finish first, then start. If the second write fails the client
+      // sees a finished stage and no active one — visibly odd, which is
+      // better than a stage silently running twice.
+      if(current){
+        const { error } = await sb.from('project_stages')
+          .update({ state:'done', updated_at: stamp }).eq('id', current.id);
+        if(error){ say($('#s-msg'), error.message, 'err'); advBtn.disabled = false; return; }
+      }
+      if(next){
+        const { error } = await sb.from('project_stages')
+          .update({ state:'active', updated_at: stamp }).eq('id', next.id);
+        if(error){ say($('#s-msg'), error.message, 'err'); advBtn.disabled = false; return; }
+      }
+      say($('#s-msg'), 'Moved on. The client has been told.', 'ok');
+      load();
+    });
+
     /* ---- deliverables ---- */
     const { data: files } = await sb.from('deliverables')
       .select('*').eq('project_id', PID).order('created_at',{ascending:false});
@@ -160,9 +200,15 @@
     $('#files').innerHTML = rows.length ? rows.join('') : '<p class="empty">Nothing sent yet.</p>';
 
     /* ---- mix reviews ---- */
-    const { data: revs } = await sb.from('revision_requests')
+    // The error used to be discarded, so a failed read and an empty inbox
+    // looked identical — "No revision requests yet" either way. Say which.
+    const { data: revs, error: revErr } = await sb.from('revision_requests')
       .select('*, revision_notes(*)').eq('project_id', PID).order('round_no');
 
+    if(revErr){
+      $('#revcount').textContent = '';
+      $('#revs').innerHTML = '<p class="empty">Could not load reviews: '+esc(revErr.message)+'</p>';
+    } else {
     $('#revcount').textContent = (revs||[]).length + ' rounds';
     $('#revs').innerHTML = (revs && revs.length) ? revs.map(r => {
       const notes = (r.revision_notes||[]).map(n =>
@@ -191,6 +237,7 @@
         '</div>'+
       '</div>';
     }).join('') : '<p class="empty">No revision requests yet.</p>';
+    }
 
     $$('.rev').forEach(box => {
       const id = box.getAttribute('data-rev');
@@ -202,13 +249,20 @@
     });
 
     /* ---- messages ---- */
-    const { data: msgs } = await sb.from('messages')
+    // "Client" told you nothing when three tabs are open. Name them.
+    const them = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Client';
+    const { data: msgs, error: msgErr } = await sb.from('messages')
       .select('*').eq('project_id', PID).order('created_at');
-    $('#msgs').innerHTML = (msgs && msgs.length) ? msgs.map(m =>
-      '<div class="row" style="align-items:flex-start"><div>'+
-        '<p style="margin:0 0 4px">'+esc(m.body)+'</p>'+
-        '<p class="meta">'+(m.sender_id===me.id?'You':'Client')+' · '+when(m.created_at)+'</p>'+
-      '</div></div>').join('') : '<p class="empty">No messages yet.</p>';
+    $('#msgs').innerHTML = msgErr
+      ? '<p class="empty">Could not load messages: '+esc(msgErr.message)+'</p>'
+      : (msgs && msgs.length) ? msgs.map(m => {
+          const mine = m.sender_id === me.id;
+          return '<div class="msg'+(mine?' mine':'')+'">'+
+            '<p class="who">'+(mine?'You':esc(them))+'</p>'+
+            '<p class="said">'+esc(m.body)+'</p>'+
+            '<p class="meta">'+when(m.created_at)+'</p></div>';
+        }).join('')
+      : '<p class="empty">No messages yet.</p>';
   }
 
   await load();
@@ -271,6 +325,17 @@
     $('#m-body').value = '';
     await load();
   });
+
+  /* ---------- live refresh ----------
+     The admin side had none, so a client's message or new review round
+     only showed up if you happened to reload. Same channel shape as the
+     client page. */
+  sb.channel('admin-proj-'+PID)
+    .on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:'project_id=eq.'+PID}, load)
+    .on('postgres_changes',{event:'*',schema:'public',table:'deliverables',filter:'project_id=eq.'+PID}, load)
+    .on('postgres_changes',{event:'*',schema:'public',table:'revision_requests',filter:'project_id=eq.'+PID}, load)
+    .on('postgres_changes',{event:'*',schema:'public',table:'project_stages',filter:'project_id=eq.'+PID}, load)
+    .subscribe();
 })();
 </script>
 </body>

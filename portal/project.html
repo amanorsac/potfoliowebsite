@@ -156,19 +156,34 @@ function noteRow(i){
     $('#files').innerHTML = fileRows.length ? fileRows.join('') : '<p class="empty">Nothing here yet.</p>';
 
     // ---- messages
-    const { data: msgs } = await sb.from('messages')
+    // Who sent it is worked out from me.id, not from a join. A client may
+    // only read their own profile row, so joining to profiles would give
+    // back null for every message the studio sent — and a thread where
+    // half the names are missing is worse than no names at all.
+    // A project has exactly two sides, so "not me" is unambiguous.
+    const { data: msgs, error: msgErr } = await sb.from('messages')
       .select('*').eq('project_id', PID).order('created_at');
-    $('#msgs').innerHTML = (msgs && msgs.length) ? msgs.map(m =>
-      '<div class="row" style="align-items:flex-start"><div>'+
-      '<p style="margin:0 0 4px">'+esc(m.body)+'</p>'+
-      '<p class="meta">'+when(m.created_at)+'</p></div></div>').join('')
+    $('#msgs').innerHTML = msgErr
+      ? '<p class="empty">Could not load messages: '+esc(msgErr.message)+'</p>'
+      : (msgs && msgs.length) ? msgs.map(m => {
+          const mine = m.sender_id === me.id;
+          return '<div class="msg'+(mine?' mine':'')+'">'+
+            '<p class="who">'+(mine?'You':'Studio Amanorsac')+'</p>'+
+            '<p class="said">'+esc(m.body)+'</p>'+
+            '<p class="meta">'+when(m.created_at)+'</p></div>';
+        }).join('')
       : '<p class="empty">No messages yet.</p>';
   }
 
   await load();
 
-  // live progress
+  // Live refresh. Stages were the only thing that updated by itself; a
+  // reply from the studio sat there unseen until you reloaded the page.
+  // Realtime still respects RLS, so this only ever pushes your own rows.
   sb.channel('proj-'+PID)
+    .on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:'project_id=eq.'+PID}, load)
+    .on('postgres_changes',{event:'*',schema:'public',table:'deliverables',filter:'project_id=eq.'+PID}, load)
+    .on('postgres_changes',{event:'*',schema:'public',table:'revision_requests',filter:'project_id=eq.'+PID}, load)
     .on('postgres_changes',{event:'*',schema:'public',table:'project_stages',filter:'project_id=eq.'+PID}, load)
     .on('postgres_changes',{event:'*',schema:'public',table:'projects',filter:'id=eq.'+PID}, load)
     .subscribe();

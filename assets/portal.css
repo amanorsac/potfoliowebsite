@@ -188,3 +188,40 @@ textarea{resize:vertical;min-height:88px}
   *,*::before,*::after{animation:none!important;transition:none!important}
   .rise{opacity:1;transform:none}
 }
+
+/* ---------- message thread ----------
+   A thread needs to answer "who said this" before it is read, not after.
+   Yours sit right and tinted; theirs sit left on the plain surface. */
+.msg{max-width:min(78%,540px);margin:0 0 14px;padding:12px 15px;
+  border:1px solid var(--line);border-radius:14px 14px 14px 4px;background:var(--surface)}
+.msg.mine{margin-left:auto;background:var(--accent-soft);border-color:transparent;
+  border-radius:14px 14px 4px 14px}
+.msg .who{margin:0 0 5px;color:var(--accent)}
+.msg.mine .who{color:var(--accent);opacity:.85}
+.msg .said{margin:0 0 6px;font-size:15px;line-height:1.55;white-space:pre-wrap;
+  overflow-wrap:anywhere}
+.msg .meta{margin:0;font-size:11.5px}
+
+/* ---------- avatars ---------- */
+.avatar{width:38px;height:38px;flex:0 0 auto;border-radius:50%;overflow:hidden;
+  background:var(--surface-2);border:1px solid var(--line);
+  display:grid;place-items:center;
+  font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted)}
+.avatar.lg{width:76px;height:76px;font-size:22px}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar-edit{display:flex;align-items:center;gap:18px;margin-bottom:22px;flex-wrap:wrap}
+.avatar-edit .hint{margin:7px 0 0}
+/* The file input is hidden, so its label is the button. */
+.avatar-edit label.btn{display:inline-block;cursor:pointer}
+
+/* ---------- inline editors ---------- */
+.linkbtn{background:none;border:0;padding:0 0 0 8px;cursor:pointer;
+  font:inherit;font-size:inherit;color:var(--accent);text-decoration:underline}
+/* .row is space-between, so with an avatar added the name block has to
+   claim the slack — otherwise the face and the name drift apart. */
+.row .avatar + div{flex:1 1 auto;min-width:0}
+/* .row already draws the divider; .client must not add a second one. */
+.client:last-child .row{border-bottom:0}
+.cl-form{padding:4px 0 20px}
+.check{display:flex;align-items:center;gap:9px;margin:0 0 9px;font-size:14px;color:var(--muted)}
+.check input{width:auto;margin:0}

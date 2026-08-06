@@ -86,6 +86,13 @@ create trigger notify_on_message
   after insert on public.messages
   for each row execute function public.notify_client_hook();
 
+-- Invoices: one email when it lands, a receipt when it flips to paid.
+-- The function ignores every other kind of edit.
+drop trigger if exists notify_on_invoice on public.invoices;
+create trigger notify_on_invoice
+  after insert or update on public.invoices
+  for each row execute function public.notify_client_hook();
+
 -- =====================================================================
 --  CHECK YOUR WORK — should return three rows
 -- =====================================================================

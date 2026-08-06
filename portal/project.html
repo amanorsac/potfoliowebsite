@@ -108,6 +108,18 @@ function noteRow(i){
   const me = await mountChrome('projects');
   if(!PID){ location.replace('dashboard.html'); return; }
 
+  // An admin who follows a client-side link ends up here, on the
+  // read-only view, wondering where the controls went. Say so, loudly,
+  // with the way out — rather than redirecting, because seeing exactly
+  // what the client sees is sometimes the point.
+  if(me && me.is_admin){
+    const bar = document.createElement('div');
+    bar.className = 'adminbar';
+    bar.innerHTML = 'You are looking at the <b>client’s view</b> of this project. '+
+      '<a href="admin-project.html?id='+esc(PID)+'">Open the studio controls</a>';
+    document.querySelector('main').prepend(bar);
+  }
+
   async function load(){
     const { data: pr, error } = await sb.from('projects').select('*').eq('id', PID).single();
     if(error || !pr){ $('#title').textContent = 'Project not found'; return; }

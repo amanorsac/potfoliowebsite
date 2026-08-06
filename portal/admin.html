@@ -215,10 +215,14 @@
     const open = (projects||[]).filter(p => p.status === 'active').length;
     const { count: reviews } = await sb.from('revision_requests')
       .select('id',{count:'exact',head:true}).neq('status','done');
+    const { data: allInv } = await sb.from('invoices').select('amount_cents,status');
+    const owed = (allInv||[]).filter(i => i.status !== 'paid' && i.status !== 'void')
+                             .reduce((t,i) => t + i.amount_cents, 0);
     $('#stats').innerHTML =
       '<div class="stat"><b>'+clients.length+'</b><span>Clients</span></div>'+
       '<div class="stat"><b>'+open+'</b><span>Active projects</span></div>'+
-      '<div class="stat"><b>'+(reviews||0)+'</b><span>Open mix reviews</span></div>';
+      '<div class="stat"><b>'+(reviews||0)+'</b><span>Open mix reviews</span></div>'+
+      '<div class="stat"><b>'+money(owed)+'</b><span>Awaiting payment</span></div>';
   }
 
   await load();

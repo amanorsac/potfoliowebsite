@@ -35,6 +35,13 @@
 (async () => {
   const s = await requireSession(); if(!s) return;
   const p = await mountChrome('projects');
+
+  // The studio's home is the admin dashboard, not the client list. Login
+  // lands everyone here, and an admin left on the client pages ends up
+  // running the studio through the client's read-only window — able to
+  // see everything, able to change nothing.
+  if(p && p.is_admin){ location.replace('admin.html'); return; }
+
   if(p && (p.full_name)) $('#hello').textContent = 'Hello, ' + p.full_name.split(' ')[0];
 
   const { data: projects, error } = await sb.from('projects')

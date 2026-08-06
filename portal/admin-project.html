@@ -38,6 +38,7 @@
     <p class="eyebrow" id="client">…</p>
     <h1 id="title">Project</h1>
     <p class="sub" id="sub"></p>
+    <p class="sub" style="margin-top:6px"><a id="as-client" href="#">See what the client sees →</a></p>
   </div>
 
   <div class="grid2">
@@ -73,6 +74,24 @@
     <div id="revs"><div class="skeleton" style="width:50%"></div></div>
   </div>
 
+  <!-- ---------------- billing ---------------- -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-head"><h2>Billing</h2><span class="hint" id="invsum"></span></div>
+    <div id="invoices"><p class="empty">No invoices yet.</p></div>
+    <form id="invform" style="margin-top:14px">
+      <div class="fieldrow">
+        <div class="field half"><label for="i-label">For</label>
+          <input id="i-label" type="text" placeholder="Deposit (50%)" required></div>
+        <div class="field half"><label for="i-amount">Amount (USD)</label>
+          <input id="i-amount" type="number" min="0.5" step="0.01" placeholder="250.00" required></div>
+      </div>
+      <div class="field"><label for="i-url">Stripe Payment Link — optional, paste it and they get a Pay now button</label>
+        <input id="i-url" type="url" placeholder="https://buy.stripe.com/…"></div>
+      <button class="btn" id="i-go" type="submit">Send invoice</button>
+      <p class="msg" id="i-msg" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+
   <!-- ---------------- messages ---------------- -->
   <div class="card" style="margin-top:16px">
     <div class="card-head"><h2>Messages</h2></div>
@@ -95,8 +114,10 @@
 
   const PID = new URLSearchParams(location.search).get('id');
   if(!PID){ location.replace('admin.html'); return; }
+  $('#as-client').setAttribute('href', 'project.html?id=' + PID);
 
   const STATES = ['pending','active','done','blocked'];
+  let CLIENT_ID = null;   // set once the project loads; invoices need it
 
   async function load(){
     /* ---- project + client ---- */
@@ -111,6 +132,7 @@
     }
 
     $('#title').textContent = pr.title;
+    CLIENT_ID = pr.client_id;
     $('#client').textContent = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Unknown client';
     $('#sub').textContent = [pr.artist, pr.service,
       'Revisions ' + pr.revisions_used + '/' + pr.revisions_allowed,
@@ -248,6 +270,45 @@
       });
     });
 
+    /* ---- billing ---- */
+    const { data: invs, error: invErr } = await sb.from('invoices')
+      .select('*').eq('project_id', PID).order('created_at', {ascending:false});
+
+    if(invErr){
+      $('#invoices').innerHTML = '<p class="empty">Could not load invoices: '+esc(invErr.message)+'</p>';
+      $('#invsum').textContent = '';
+    } else {
+      const owed = (invs||[]).filter(i => i.status !== 'paid' && i.status !== 'void')
+                             .reduce((t,i) => t + i.amount_cents, 0);
+      $('#invsum').textContent = owed ? money(owed) + ' outstanding' : 'Nothing outstanding';
+      $('#invoices').innerHTML = (invs && invs.length) ? invs.map(i => {
+        const paid = i.status === 'paid';
+        return '<div class="row"><div>'+
+          '<h3>'+esc(i.label)+'</h3>'+
+          '<p class="meta">'+money(i.amount_cents)+' · '+
+            (paid ? 'paid '+when(i.paid_at || i.created_at) : 'sent '+when(i.created_at))+
+            (i.pay_url ? ' · '+linkHtml(i.pay_url,'payment link') : '')+'</p></div>'+
+          '<span style="display:flex;align-items:center;gap:10px">'+
+            '<span class="pill '+(paid?'ok':'warn')+'">'+esc(i.status)+'</span>'+
+            '<button class="linkbtn i-flip" type="button" data-id="'+esc(i.id)+'" data-paid="'+paid+'">'+
+              (paid ? 'Reopen' : 'Mark paid')+'</button>'+
+          '</span></div>';
+      }).join('') : '<p class="empty">No invoices yet.</p>';
+
+      $$('.i-flip').forEach(btn => btn.addEventListener('click', async () => {
+        const paid = btn.getAttribute('data-paid') === 'true';
+        btn.disabled = true;
+        // Marking paid stamps the date; reopening clears it, so "paid"
+        // and "when" can never disagree.
+        const { error } = await sb.from('invoices').update(
+          paid ? { status:'pending', paid_at:null }
+               : { status:'paid', paid_at:new Date().toISOString() }
+        ).eq('id', btn.getAttribute('data-id'));
+        if(error){ say($('#i-msg'), error.message, 'err'); btn.disabled = false; }
+        else load();
+      }));
+    }
+
     /* ---- messages ---- */
     // "Client" told you nothing when three tabs are open. Name them.
     const them = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Client';
@@ -324,6 +385,27 @@
     say(m, 'Sent.', 'ok');
     $('#m-body').value = '';
     await load();
+  });
+
+  /* ---------- send an invoice ---------- */
+  $('#invform').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('#i-msg'), go = $('#i-go');
+    const label  = $('#i-label').value.trim();
+    const amount = Math.round(parseFloat($('#i-amount').value) * 100);
+    const url    = $('#i-url').value.trim();
+    if(!label || !isFinite(amount) || amount <= 0) return say(m, 'A label and an amount.', 'err');
+
+    go.disabled = true;
+    const { error } = await sb.from('invoices').insert({
+      project_id: PID, client_id: CLIENT_ID, label,
+      amount_cents: amount, pay_url: url || null,
+    });
+    go.disabled = false;
+    if(error) return say(m, error.message, 'err');
+    say(m, 'Invoice sent. It is on their billing page now.', 'ok');
+    $('#i-label').value = ''; $('#i-amount').value = ''; $('#i-url').value = '';
+    load();
   });
 
   /* ---------- live refresh ----------

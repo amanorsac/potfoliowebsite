@@ -84,6 +84,32 @@ async function planFor(hook: Hook): Promise<Plan | null> {
     };
   }
 
+  if (hook.table === "invoices") {
+    const dollars = "$" + (Number(r.amount_cents ?? 0) / 100).toFixed(2);
+    if (hook.type === "INSERT") {
+      return {
+        event: "invoice",
+        project_id: String(r.project_id),
+        subject: "Invoice from the studio",
+        line: `${r.label ?? "An invoice"} — ${dollars}.`,
+        detail: r.pay_url
+          ? "You can pay online from your billing page."
+          : "Payment details are on your billing page.",
+      };
+    }
+    // A receipt when it flips to paid — and only on that flip, so
+    // re-saving a paid invoice stays silent.
+    if (hook.type === "UPDATE" && r.status === "paid" && o.status !== "paid") {
+      return {
+        event: "receipt",
+        project_id: String(r.project_id),
+        subject: "Payment received — thank you",
+        line: `${r.label ?? "Your invoice"} (${dollars}) is settled.`,
+      };
+    }
+    return null;
+  }
+
   if (hook.table === "messages" && hook.type === "INSERT") {
     // Only messages from the studio. A client's own message must not
     // bounce back at them.

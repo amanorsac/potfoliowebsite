@@ -27,7 +27,10 @@
   <div class="card">
     <div class="card-head">
       <h2>All projects</h2>
-      <span class="hint" id="projcount"></span>
+      <span class="hint" id="projcount">
+        <button class="linkbtn" id="arch-toggle" type="button" hidden></button>
+        <span id="counttext"></span>
+      </span>
     </div>
     <div class="field" style="margin-bottom:8px">
       <input id="q" type="search" placeholder="Filter by song, artist or client…" autocomplete="off">
@@ -55,6 +58,7 @@
   // group the newest stays on top (the fetch is already newest-first,
   // and this sort is stable).
   const SINK = { active:0, on_hold:1, delivered:2, archived:3 };
+  let showArchived = false;   // archived is the shelf — out of sight until asked for
   const rows = (projects||[]).slice()
     .sort((a,b) => (SINK[a.status] ?? 9) - (SINK[b.status] ?? 9))
     .map(pr => {
@@ -66,6 +70,7 @@
     const who = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Unknown client';
     return {
       // one lowercase haystack per row, so filtering is a substring test
+      status: pr.status,
       hay: (pr.title+' '+(pr.artist||'')+' '+who+' '+(pr.service||'')).toLowerCase(),
       html: '<div class="row"><div>'+
         '<h3><a href="admin-project.html?id='+esc(pr.id)+'">'+esc(pr.title)+'</a></h3>'+
@@ -78,12 +83,22 @@
 
   function paint(){
     const q = $('#q').value.trim().toLowerCase();
-    const hit = q ? rows.filter(r => r.hay.includes(q)) : rows;
-    $('#projcount').textContent = q ? hit.length+' of '+rows.length : rows.length+' total';
+    const arch = rows.filter(r => r.status === 'archived').length;
+    // A search looks everywhere, shelf included — hiding results that
+    // match what was typed would read as the song being gone.
+    const base = (showArchived || q) ? rows : rows.filter(r => r.status !== 'archived');
+    const hit = q ? base.filter(r => r.hay.includes(q)) : base;
+
+    $('#counttext').textContent = q ? hit.length+' of '+rows.length : base.length+' total';
+    const t = $('#arch-toggle');
+    t.hidden = !arch || !!q;
+    t.textContent = showArchived ? 'Hide archived' : 'Show '+arch+' archived';
+
     $('#projects').innerHTML = hit.length ? hit.map(r=>r.html).join('')
       : '<p class="empty">'+(rows.length?'Nothing matches that.':'No projects yet — start one from the dashboard.')+'</p>';
   }
   $('#q').addEventListener('input', paint);
+  $('#arch-toggle').addEventListener('click', () => { showArchived = !showArchived; paint(); });
   paint();
 })();
 </script>

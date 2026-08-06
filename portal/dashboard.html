@@ -44,12 +44,17 @@
 
   if(p && (p.full_name)) $('#hello').textContent = 'Hello, ' + p.full_name.split(' ')[0];
 
-  const { data: projects, error } = await sb.from('projects')
+  let { data: projects, error } = await sb.from('projects')
     .select('*, project_stages(sort_order,name,state)')
     .order('created_at', { ascending:false });
 
   const list = $('#list');
   if(error){ list.innerHTML = '<div class="card"><p class="msg err">'+esc(error.message)+'</p></div>'; return; }
+
+  // Archived is the studio's shelf, not the client's. They see their
+  // work moving or delivered — never a row that says "filed away".
+  if(projects) projects = projects.filter(p => p.status !== 'archived');
+
   if(!projects || !projects.length){
     list.innerHTML = '<div class="card"><p class="empty">No projects yet. Once the studio sets one up it appears here.</p></div>';
     return;

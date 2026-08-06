@@ -89,6 +89,7 @@
           '<strong>'+money(i.amount_cents)+'</strong>'+
           '<button class="linkbtn i-flip" type="button" data-id="'+esc(i.id)+'" data-paid="'+isPaid+'">'+
             (isPaid ? 'Reopen' : (inReview ? 'Confirm paid' : 'Mark paid'))+'</button>'+
+          '<button class="linkbtn i-del" type="button" data-id="'+esc(i.id)+'" data-label="'+esc(i.label)+'">Delete</button>'+
         '</span></div>';
     };
 
@@ -98,6 +99,12 @@
     $('#paidcount').textContent = paid.length ? paid.length+' paid' : '';
     $('#paid').innerHTML = paid.length ? paid.map(row).join('')
       : '<p class="empty">Nothing yet.</p>';
+
+    $$('.i-del').forEach(btn => btn.addEventListener('click', async () => {
+      if(!confirm('Delete the invoice “'+btn.getAttribute('data-label')+'”? This cannot be undone.')) return;
+      const { error } = await sb.from('invoices').delete().eq('id', btn.getAttribute('data-id'));
+      if(error) alert(error.message); else load();
+    }));
 
     $$('.i-flip').forEach(btn => btn.addEventListener('click', async () => {
       const isPaid = btn.getAttribute('data-paid') === 'true';

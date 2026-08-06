@@ -51,7 +51,13 @@
     return;
   }
 
-  const rows = (projects||[]).map(pr => {
+  // Work on the desk first; finished and shelved work sinks. Within each
+  // group the newest stays on top (the fetch is already newest-first,
+  // and this sort is stable).
+  const SINK = { active:0, on_hold:1, delivered:2, archived:3 };
+  const rows = (projects||[]).slice()
+    .sort((a,b) => (SINK[a.status] ?? 9) - (SINK[b.status] ?? 9))
+    .map(pr => {
     const st = (pr.project_stages||[]).sort((a,b)=>a.sort_order-b.sort_order);
     const done = st.filter(x=>x.state==='done').length;
     const cur  = st.find(x=>x.state==='active') || st.find(x=>x.state==='blocked');

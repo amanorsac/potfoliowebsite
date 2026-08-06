@@ -119,6 +119,13 @@ not paste any into the code.
 Skip this step and everything else still works — you would just add the login
 under **Authentication → Add user** by hand, as before.
 
+**Deleting clients** works the same way: deploy a function named exactly
+**`delete-client`** from `supabase/functions/delete-client/index.ts` (same
+route, no extra secrets). The "Delete this client…" button in each client's
+Edit panel calls it after you type their email back to confirm. It removes
+the login, and the cascade takes their projects, files, reviews, messages
+and invoices with it. It refuses to delete you or any other admin.
+
 ### What the dashboard does
 
 - **Add a client** — creates the login and shows a temporary password **once**.

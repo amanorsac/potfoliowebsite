@@ -144,6 +144,8 @@
           '<label class="check"><input class="cl-nwa" type="checkbox"'+
             (c.notify_whatsapp?' checked':'')+'> WhatsApp / SMS them too</label>'+
           '<button class="btn cl-save" type="button">Save changes</button>'+
+          '<button class="linkbtn cl-del" type="button" style="color:var(--warn);margin-left:12px">'+
+            'Delete this client…</button>'+
           '<p class="msg cl-msg" role="status" aria-live="polite"></p>'+
         '</div>'+
       '</div>').join('')
@@ -174,6 +176,38 @@
         if(error) return say(m, error.message, 'err');
         say(m, 'Saved.', 'ok');
         load();
+      });
+
+      // Full removal: login, projects, files, invoices — the lot.
+      // Typing the email back is the safety catch; a confirm() box gets
+      // clicked through on reflex.
+      $('.cl-del', box).addEventListener('click', async () => {
+        const m = $('.cl-msg', box);
+        const email = $('.cl-email', box).value.trim();
+        const typed = prompt('This deletes the client, their login, and EVERY project, file, '+
+          'message and invoice they have. There is no undo.\n\nType their email to confirm:');
+        if(typed === null) return;
+        if(typed.trim().toLowerCase() !== email.toLowerCase()){
+          return say(m, 'That did not match — nothing was deleted.', 'err');
+        }
+        say(m, 'Deleting…');
+        const { data:{ session } } = await sb.auth.getSession();
+        try {
+          const res = await fetch(SUPABASE_URL + '/functions/v1/delete-client', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + (session ? session.access_token : ''),
+              'apikey': SUPABASE_KEY,
+            },
+            body: JSON.stringify({ client_id: id }),
+          });
+          const out = await res.json();
+          if(!res.ok) throw new Error(out.error || 'The delete-client function refused.');
+          load();
+        } catch(err){
+          say(m, err.message + ' — is delete-client deployed?', 'err');
+        }
       });
     });
 

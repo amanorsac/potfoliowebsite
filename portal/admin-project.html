@@ -39,6 +39,16 @@
     <h1 id="title">Project</h1>
     <p class="sub" id="sub"></p>
     <p class="sub" style="margin-top:6px"><a id="as-client" href="#">See what the client sees →</a></p>
+    <div class="fieldrow" style="margin-top:16px;align-items:center;gap:10px">
+      <label for="p-status" class="hint" style="margin:0">Song status</label>
+      <select id="p-status" style="width:auto">
+        <option value="active">active — on the desk</option>
+        <option value="on_hold">on hold</option>
+        <option value="delivered">delivered — completed</option>
+        <option value="archived">archived</option>
+      </select>
+      <span class="msg" id="ps-msg" role="status" aria-live="polite"></span>
+    </div>
   </div>
 
   <div class="grid2">
@@ -103,6 +113,16 @@
       <p class="msg" id="m-msg" role="status" aria-live="polite"></p>
     </form>
   </div>
+
+  <!-- ---------------- danger zone ---------------- -->
+  <div class="card" style="margin-top:16px;border-color:var(--warn)">
+    <div class="card-head"><h2>Danger zone</h2></div>
+    <p class="hint" style="margin:0 0 12px">Deleting a song removes its stages, files, reviews,
+      messages and invoices with it. There is no undo.</p>
+    <button class="btn ghost" id="del-project" type="button" style="border-color:var(--warn);color:var(--warn)">
+      Delete this song</button>
+    <p class="msg" id="del-msg" role="status" aria-live="polite"></p>
+  </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -117,7 +137,32 @@
   $('#as-client').setAttribute('href', 'project.html?id=' + PID);
 
   const STATES = ['pending','active','done','blocked'];
-  let CLIENT_ID = null;   // set once the project loads; invoices need it
+  let CLIENT_ID = null;      // set once the project loads; invoices need it
+  let PROJECT_TITLE = '';    // the delete confirmation asks for it back
+
+  /* ---------- song status ---------- */
+  $('#p-status').addEventListener('change', async e => {
+    const { error } = await sb.from('projects')
+      .update({ status: e.target.value, updated_at: new Date().toISOString() })
+      .eq('id', PID);
+    say($('#ps-msg'), error ? error.message
+      : (e.target.value === 'delivered' ? 'Marked completed. It sinks to the bottom of the lists now.' : 'Saved.'),
+      error ? 'err' : 'ok');
+  });
+
+  /* ---------- delete the song ----------
+     Typing the title back is deliberate friction: a confirm() box gets
+     clicked through on reflex, and this button removes real work. */
+  $('#del-project').addEventListener('click', async () => {
+    const typed = prompt('This deletes “'+PROJECT_TITLE+'” and everything in it.\n\nType the song title to confirm:');
+    if(typed === null) return;
+    if(typed.trim() !== PROJECT_TITLE){
+      return say($('#del-msg'), 'That did not match — nothing was deleted.', 'err');
+    }
+    const { error } = await sb.from('projects').delete().eq('id', PID);
+    if(error) return say($('#del-msg'), error.message, 'err');
+    location.replace('admin-projects.html');
+  });
 
   async function load(){
     /* ---- project + client ---- */
@@ -133,6 +178,8 @@
 
     $('#title').textContent = pr.title;
     CLIENT_ID = pr.client_id;
+    PROJECT_TITLE = pr.title;
+    $('#p-status').value = pr.status;
     $('#client').textContent = pr.profiles ? (pr.profiles.full_name || pr.profiles.email) : 'Unknown client';
     $('#sub').textContent = [pr.artist, pr.service,
       'Revisions ' + pr.revisions_used + '/' + pr.revisions_allowed,
@@ -306,8 +353,15 @@
               esc(inReview ? 'receipt in review' : i.status)+'</span>'+
             '<button class="linkbtn i-flip" type="button" data-id="'+esc(i.id)+'" data-paid="'+paid+'">'+
               (paid ? 'Reopen' : (inReview ? 'Confirm paid' : 'Mark paid'))+'</button>'+
+            '<button class="linkbtn i-del" type="button" data-id="'+esc(i.id)+'" data-label="'+esc(i.label)+'">Delete</button>'+
           '</span></div>';
       }).join('') : '<p class="empty">No invoices yet.</p>';
+
+      $$('.i-del').forEach(btn => btn.addEventListener('click', async () => {
+        if(!confirm('Delete the invoice “'+btn.getAttribute('data-label')+'”? This cannot be undone.')) return;
+        const { error } = await sb.from('invoices').delete().eq('id', btn.getAttribute('data-id'));
+        if(error) say($('#i-msg'), error.message, 'err'); else load();
+      }));
 
       $$('.i-flip').forEach(btn => btn.addEventListener('click', async () => {
         const paid = btn.getAttribute('data-paid') === 'true';

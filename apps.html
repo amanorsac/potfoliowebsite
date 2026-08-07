@@ -222,6 +222,29 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .gallery .shot{aspect-ratio:4/5}
 
 /* ---------- app store ---------- */
+/* ---------- hero banner: the lineup at a glance ----------
+   Four brand panels that double as navigation. When a real image named
+   banner-<app>.jpg exists it covers the panel; the scrim keeps the
+   name readable either way. */
+.applift{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:44px 0 0}
+.al{position:relative;overflow:hidden;border-radius:var(--r);min-height:clamp(150px,24vh,220px);
+  display:flex;align-items:flex-end;padding:18px;text-decoration:none;isolation:isolate;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.12);
+  transition:transform var(--dur) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
+.al:hover{transform:translateY(-4px);box-shadow:var(--shadow-2,0 18px 44px rgba(0,0,0,.25))}
+.al img.real{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.al::after{content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.55) 100%)}
+.al span{position:relative;z-index:2;display:flex;flex-direction:column;gap:3px}
+.al b{font-family:var(--display);font-weight:700;color:#fff;
+  font-size:clamp(17px,1.6vw,22px);letter-spacing:-.02em}
+.al small{font-family:var(--mono);font-size:9px;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(255,255,255,.7)}
+@media (max-width:760px){
+  .applift{grid-template-columns:1fr 1fr;gap:10px}
+  .al{min-height:122px;padding:14px}
+}
+
 .store-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
 /* double-bezel card: outer shell holds a dark branded core */
 .sc{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
@@ -464,6 +487,24 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <a class="cta" href="#store">Browse the apps <span class="go">↓</span></a>
       <a class="cta ghost" href="#access">Get early access</a>
     </div>
+
+    <!-- The lineup at a glance. Each panel paints its brand until a real
+         image named images/apps/banner-<app>.jpg lands in the repo, then
+         shows that instead. -->
+    <nav class="applift" aria-label="The apps">
+      <a class="al art-pl" href="#performlive">
+        <img class="real" src="images/apps/banner-performlive.jpg" alt="" loading="lazy" onerror="this.remove()">
+        <span><b>PerformLive</b><small>Stems on stage</small></span></a>
+      <a class="al art-hmd" href="#harmoniemd">
+        <img class="real" src="images/apps/banner-harmoniemd.jpg" alt="" loading="lazy" onerror="this.remove()">
+        <span><b>HarmonieMD</b><small>Rehearse ready</small></span></a>
+      <a class="al art-nt" href="#nebulatide">
+        <img class="real" src="images/apps/banner-nebulatide.jpg" alt="" loading="lazy" onerror="this.remove()">
+        <span><b>Nebula Tide</b><small>Endless pads</small></span></a>
+      <a class="al art-pr" href="#pulseroom">
+        <img class="real" src="images/apps/banner-pulseroom.jpg" alt="" loading="lazy" onerror="this.remove()">
+        <span><b>PulseRoom</b><small>The reference desk</small></span></a>
+    </nav>
   </header>
 
   <section id="store">

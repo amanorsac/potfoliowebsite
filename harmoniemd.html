@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HarmonieMD: the rehearsal studio built for choirs | Amanorsac App Store</title>
+<meta name="description" content="Give every singer their own harmony part. Solo it, slow it down, loop it. Multi-track recording with automatic sync calibration, non-destructive takes, and offline playback. Free for teams up to 5.">
+<meta property="og:title" content="Walk into rehearsal already knowing your part.">
+<meta property="og:description" content="The rehearsal studio built for church choirs. Every harmony part on its own track: soloed, slowed, loopable. Free for teams up to 5.">
+<meta property="og:image" content="https://amanorsac.studio/images/HD-05-choir-mode.png">
+<meta property="og:url" content="https://amanorsac.studio/harmoniemd.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="images/logo.svg" type="image/svg+xml">
+<style>
+/* =====================================================================
+   HarmonieMD product page. Same skeleton as the other product pages,
+   wearing this app's colour: the deep green of the store tile with the
+   green the app itself uses for Play and Open. Dark, because the
+   product is dark and the captures are dark frames.
+   ===================================================================== */
+:root{
+  --bg:#0B120E; --panel:#111A15; --panel-2:#16221B; --line:#24332B;
+  --text:#ECF4EE; --muted:#94A89B; --accent:#3ED598; --accent-soft:#12291E;
+  --go:#3ED598;
+  --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r:14px; --r-lg:22px;
+  --ease:cubic-bezier(.23,1,.32,1); --dur:240ms;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+section{padding:clamp(64px,10vh,120px) 0}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+  padding:14px clamp(18px,4vw,40px);background:color-mix(in srgb,var(--bg) 86%,transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .back{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none}
+.top .back:hover{color:var(--text)}
+.top .name{margin-left:auto;font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em}
+.top .name b{color:var(--accent);font-weight:700}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(56px,9vh,100px) 0 0}
+.hero .status{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+  border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);
+  border-radius:999px;padding:6px 14px;margin:0 0 26px}
+h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05;
+  font-size:clamp(34px,5.6vw,64px);margin:0 0 22px;max-width:18ch}
+.hero .sub{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:52ch;margin:0 0 30px}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.cta{display:inline-block;font-family:var(--display);font-weight:600;font-size:15px;
+  text-decoration:none;border-radius:999px;padding:14px 28px;
+  background:var(--accent);color:#07130D;transition:transform var(--dur) var(--ease)}
+.cta:hover{transform:translateY(-2px)}
+.cta:active{transform:translateY(0) scale(.98)}
+.cta.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.hero .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin:0}
+.hero-shot{margin-top:clamp(36px,6vh,64px);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,.5)}
+
+/* ---------- section headings ---------- */
+h2{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.12;
+  font-size:clamp(25px,3.2vw,38px);margin:0 0 14px}
+.lede{color:var(--muted);max-width:58ch;margin:0 0 40px;font-size:17px}
+
+/* ---------- feature rows ---------- */
+.feat{display:grid;grid-template-columns:1fr 1.15fr;gap:clamp(24px,4vw,56px);
+  align-items:center;margin-bottom:clamp(48px,8vh,84px)}
+.feat:nth-child(even){grid-template-columns:1.15fr 1fr}
+.feat:nth-child(even) .feat-copy{order:2}
+.feat h3{font-family:var(--display);font-weight:700;font-size:clamp(20px,2.2vw,26px);
+  letter-spacing:-.015em;margin:0 0 12px}
+.feat p{color:var(--muted);margin:0;max-width:44ch}
+.feat .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  box-shadow:0 14px 48px rgba(0,0,0,.4)}
+.feat-wide{margin-bottom:clamp(48px,8vh,84px)}
+.feat-wide h3{font-family:var(--display);font-weight:700;font-size:clamp(20px,2.2vw,26px);margin:0 0 12px}
+.feat-wide p{color:var(--muted);max-width:56ch;margin:0 0 26px}
+.feat-wide .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+
+/* the quiet ones */
+.trio{border-top:1px solid var(--line)}
+.trio > div{display:grid;grid-template-columns:minmax(180px,260px) 1fr;gap:18px;
+  padding:26px 0;border-bottom:1px solid var(--line)}
+.trio h3{font-family:var(--display);font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
+.trio p{margin:0;color:var(--muted);max-width:60ch}
+@media (max-width:640px){ .trio > div{grid-template-columns:1fr;gap:6px} }
+
+/* ---------- workflow ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:step}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:22px 20px;counter-increment:step}
+.step::before{content:counter(step,decimal-leading-zero);display:block;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--accent);margin-bottom:12px}
+.step b{display:block;font-family:var(--display);font-weight:600;font-size:16px;margin-bottom:6px}
+.step p{margin:0;font-size:14px;color:var(--muted)}
+@media (max-width:860px){ .steps{grid-template-columns:1fr 1fr} }
+@media (max-width:480px){ .steps{grid-template-columns:1fr} }
+
+/* ---------- gallery ---------- */
+.shotrow{display:grid;grid-auto-flow:column;grid-auto-columns:min(560px,86vw);gap:16px;
+  overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+  padding-bottom:14px}
+.shotrow figure{margin:0;scroll-snap-align:start}
+.shotrow .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.shotrow figcaption{font-size:13.5px;color:var(--muted);padding:10px 4px 0}
+
+/* ---------- comparison ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;min-width:640px;background:var(--panel)}
+th,td{text-align:left;padding:14px 18px;font-size:14.5px;border-bottom:1px solid var(--line)}
+th{font-family:var(--display);font-weight:600;font-size:14px}
+thead th{background:var(--panel-2)}
+tbody th{font-weight:500;color:var(--muted)}
+td b{color:var(--go);font-weight:600}
+td i{color:var(--muted);font-style:normal}
+tr:last-child th,tr:last-child td{border-bottom:0}
+
+/* ---------- pricing ---------- */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:stretch}
+.plan{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:28px 24px;display:flex;flex-direction:column}
+.plan.hot{border-color:color-mix(in srgb,var(--accent) 55%,transparent);
+  background:linear-gradient(180deg,var(--accent-soft),var(--panel) 55%)}
+.plan .tier{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+.plan .price{font-family:var(--display);font-weight:800;font-size:38px;
+  letter-spacing:-.02em;margin:0}
+.plan .price small{font-family:var(--body);font-weight:500;font-size:14px;color:var(--muted)}
+.plan .seats{color:var(--muted);font-size:14.5px;margin:4px 0 18px}
+.plan ul{list-style:none;margin:0 0 22px;padding:0;font-size:14px;color:var(--muted)}
+.plan li{padding:7px 0;border-bottom:1px solid var(--line)}
+.plan li:last-child{border-bottom:0}
+.plan .cta{margin-top:auto;text-align:center}
+.plan .cta.ghost{border-color:var(--line)}
+.plannote{font-size:13px;color:var(--muted);margin-top:16px;max-width:58ch}
+@media (max-width:820px){ .plans{grid-template-columns:1fr} }
+
+/* ---------- faq ---------- */
+details{border-bottom:1px solid var(--line)}
+details summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;
+  align-items:center;gap:16px;padding:20px 0;font-family:var(--display);font-weight:600;font-size:16.5px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font-family:var(--mono);color:var(--muted);
+  font-size:18px;transition:transform var(--dur) var(--ease)}
+details[open] summary::after{transform:rotate(45deg)}
+details div{padding:0 0 20px;color:var(--muted);max-width:64ch}
+
+.finale{border-top:1px solid var(--line)}
+.finale h2{max-width:22ch}
+
+footer{border-top:1px solid var(--line);padding:26px clamp(18px,4vw,40px);
+  display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+footer a{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- motion ---------- */
+.rise{opacity:0;transform:translateY(18px);
+  transition:opacity 640ms var(--ease),transform 640ms var(--ease)}
+.rise.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .rise{opacity:1;transform:none}
+}
+@media (max-width:820px){
+  .feat,.feat:nth-child(even){grid-template-columns:1fr}
+  .feat:nth-child(even) .feat-copy{order:0}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a class="back" href="apps.html">← App Store</a>
+  <span class="name">Harmonie<b>MD</b></span>
+</div>
+
+<header class="hero wrap">
+  <span class="status">Early access</span>
+  <h1>Walk into rehearsal already knowing your part.</h1>
+  <p class="sub">Every singer gets their own harmony track: soloed, slowed down, loopable. The rehearsal hour goes to worship instead of teaching notes.</p>
+  <div class="cta-row">
+    <a class="cta" href="apps.html#access">Get early access</a>
+    <a class="cta ghost" href="#pricing">See pricing</a>
+  </div>
+  <p class="fine">Windows. Works offline. Free for teams up to 5.</p>
+  <div class="hero-shot rise">
+    <img src="images/HD-05-choir-mode.png" alt="Choir Mode: a singer's personal mixer with Song, Soprano, Alto and Tenor faders, speed control and loop" fetchpriority="high">
+  </div>
+</header>
+
+<section id="features" class="wrap">
+  <h2>Sunday comes whether or not the altos learned their part.</h2>
+  <p class="lede">A voice note has no isolation. A YouTube link has no parts. A Drive folder has no structure. And nobody's installing a DAW. HarmonieMD is built for exactly this gap.</p>
+
+  <div class="feat rise">
+    <div class="feat-copy">
+      <h3>A mixer any singer can use.</h3>
+      <p>Solo your part. Lower the rest. Slow it to 85% without changing pitch. Loop the bar you keep missing. Add a little reverb so it feels like the room. No manual required.</p>
+    </div>
+    <div class="shot"><img src="images/HD-05-choir-mode.png" alt="Choir Mode personal mixer" loading="lazy"></div>
+  </div>
+
+  <div class="feat rise">
+    <div class="feat-copy">
+      <h3>A real studio for the director.</h3>
+      <p>Same song, different surface: MD Mode is a genuine multi-track editor. Soprano 1 and 2, Alto 1 and 2, Tenor 1 and 2, plus the song, with sample-accurate overdubs and non-destructive takes.</p>
+    </div>
+    <div class="shot"><img src="images/HD-04-md-editor.png" alt="MD Mode: the multi-track editor with six vocal lanes and the song" loading="lazy"></div>
+  </div>
+
+  <div class="feat-wide rise">
+    <h3>See who's ready before you walk in.</h3>
+    <p>Setlists publish to the whole team, every song carries its key and tempo, and one tap marks a song practised. The guessing ends.</p>
+    <div class="shot"><img src="images/HD-03-setlist-detail.png" alt="A published setlist with practice progress per song and a service roster" loading="lazy"></div>
+  </div>
+
+  <div class="trio">
+    <div><h3>Takes that land in time</h3>
+      <p>Most apps estimate your computer's audio delay. HarmonieMD measures it, playing test tones and listening back through the mic, the way professional studios calibrate.</p></div>
+    <div><h3>Never lose a take</h3>
+      <p>Re-record a phrase as many times as you like. Every take is kept; switch back to take two with one click.</p></div>
+    <div><h3>Works when the WiFi doesn't</h3>
+      <p>Songs download to the device once. After that, rehearsal doesn't depend on the church network, or any network.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>How a week with it looks.</h2>
+  <div class="steps">
+    <div class="step rise"><b>Build the setlist</b><p>Add songs, assign leaders, publish to your team.</p></div>
+    <div class="step rise"><b>Add the parts</b><p>Upload each harmony, or record them in the built-in studio.</p></div>
+    <div class="step rise"><b>Everyone practises</b><p>Each singer solos their part, slows it down, loops it.</p></div>
+    <div class="step rise"><b>Show up ready</b><p>You can see who practised before rehearsal starts.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Around the studio.</h2>
+  <div class="shotrow">
+    <figure><div class="shot"><img src="images/HD-02-setlists.png" alt="" loading="lazy"></div>
+      <figcaption>Setlists: every service, with dates, songs, and publish state.</figcaption></figure>
+    <figure><div class="shot"><img src="images/HD-06-library.png" alt="" loading="lazy"></div>
+      <figcaption>The library: one source of truth for every arrangement.</figcaption></figure>
+    <figure><div class="shot"><img src="images/HD-09-explore-player.png" alt="" loading="lazy"></div>
+      <figcaption>Explore: public arrangements from teams everywhere, playable without an account.</figcaption></figure>
+    <figure><div class="shot"><img src="images/HD-10-notices.png" alt="" loading="lazy"></div>
+      <figcaption>Notices: the team hears about the new setlist inside the app.</figcaption></figure>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>What you're using today, honestly compared.</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th>Voice notes</th><th>Shared Drive</th><th>A real DAW</th><th>HarmonieMD</th></tr></thead>
+      <tbody>
+        <tr><th>Isolate one part</th><td><i>No</i></td><td><i>No</i></td><td><i>Yes</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Built around SATB</th><td><i>No</i></td><td><i>No</i></td><td><i>No</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Usable by a volunteer</th><td><i>Yes</i></td><td><i>Yes</i></td><td><i>No</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Slow down and loop</th><td><i>No</i></td><td><i>No</i></td><td><i>Yes</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Record in sync</th><td><i>No</i></td><td><i>No</i></td><td><i>Yes</i></td><td><b>Yes</b></td></tr>
+        <tr><th>See who practised</th><td><i>No</i></td><td><i>No</i></td><td><i>No</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Works offline</th><td><i>Yes</i></td><td><i>No</i></td><td><i>Yes</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Shared arrangement library</th><td><i>No</i></td><td><i>No</i></td><td><i>No</i></td><td><b>Yes</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="pricing" class="wrap">
+  <h2>Pricing that grows with your team.</h2>
+  <p class="lede">Every plan includes the full studio. You're only paying for seats. Members join free with your team code.</p>
+  <div class="plans">
+    <div class="plan rise">
+      <p class="tier">Free</p>
+      <p class="price">$0</p>
+      <p class="seats">Up to 5 members</p>
+      <ul><li>Full multi-track studio</li><li>Recording and takes</li><li>Offline playback</li><li>Explore publishing</li></ul>
+      <a class="cta ghost" href="apps.html#access">Get early access</a>
+    </div>
+    <div class="plan hot rise">
+      <p class="tier">Pro</p>
+      <p class="price">$29<small> /month</small></p>
+      <p class="seats">Up to 15 members</p>
+      <ul><li>Everything in Free</li><li>Growing worship teams</li><li>Same full studio</li><li>Cancel any time</li></ul>
+      <a class="cta" href="apps.html#access">Get early access</a>
+    </div>
+    <div class="plan rise">
+      <p class="tier">Team</p>
+      <p class="price">$49<small> /month</small></p>
+      <p class="seats">Up to 30 members</p>
+      <ul><li>Everything in Pro</li><li>Full choirs and ministries</li><li>Same full studio</li><li>Cancel any time</li></ul>
+      <a class="cta ghost" href="apps.html#access">Get early access</a>
+    </div>
+  </div>
+  <p class="plannote">Cancel any time. Existing members are never removed if you downgrade.</p>
+</section>
+
+<section class="wrap">
+  <h2>Questions, answered.</h2>
+  <details><summary>Do I need musical training to use it?</summary>
+    <div>No. If you can move a volume slider, you can use Choir Mode.</div></details>
+  <details><summary>Does my whole team need to pay?</summary>
+    <div>No. One subscription covers your whole team. Members join free with your code.</div></details>
+  <details><summary>Does it work offline?</summary>
+    <div>Yes. Songs download to the device once and play without a connection. You only need internet to get new songs or share recordings.</div></details>
+  <details><summary>What do I need to record?</summary>
+    <div>A laptop and any microphone, including the built-in one. Run the one-time sync calibration first and takes will land in time. For best results use wired headphones; Bluetooth adds large and variable delay.</div></details>
+  <details><summary>Can I use my audio interface?</summary>
+    <div>Yes. Input and output devices are selectable in the app.</div></details>
+  <details><summary>What if I re-record and the first take was better?</summary>
+    <div>Every take is kept. Switch back whenever you like.</div></details>
+  <details><summary>Is my music private?</summary>
+    <div>Yes. Songs are private to your team by default. Only songs you explicitly publish appear on Explore.</div></details>
+  <details><summary>Which platforms?</summary>
+    <div>Windows desktop today.</div></details>
+</section>
+
+<section class="wrap finale">
+  <h2>Your next rehearsal could sound different.</h2>
+  <p class="lede">Free for teams up to five. Nothing to lose but the first forty minutes of rehearsal.</p>
+  <div class="cta-row">
+    <a class="cta" href="apps.html#access">Get early access</a>
+    <a class="cta ghost" href="apps.html">Back to the App Store</a>
+  </div>
+</section>
+
+<footer>
+  <a href="apps.html">App Store</a>
+  <a href="performlive.html">PerformLive</a>
+  <a href="index.html">Studio</a>
+  <a href="index.html#contact">Contact</a>
+  <span class="who">Amanorsac Studio</span>
+</footer>
+
+<script>
+/* reveal on scroll; falls back to visible when unsupported or reduced */
+if('IntersectionObserver' in window &&
+   !matchMedia('(prefers-reduced-motion: reduce)').matches){
+  var ro = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); ro.unobserve(e.target); } });
+  }, { threshold:.15 });
+  document.querySelectorAll('.rise').forEach(function(el){ ro.observe(el); });
+}else{
+  document.querySelectorAll('.rise').forEach(function(el){ el.classList.add('in'); });
+}
+</script>
+</body>
+</html>

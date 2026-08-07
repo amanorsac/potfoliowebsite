@@ -310,3 +310,14 @@ a.stat:hover{transform:translateY(-2px);border-color:var(--accent)}
   /* taps, not clicks */
   .btn,.linkbtn,.tabbar a,.icon-btn{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 }
+
+/* ---------- the wordmark in the top bar ----------
+   The logo's navy text is invisible on the dark surface, so two copies
+   ship and the theme decides which one shows. */
+.brand{display:flex;align-items:center}
+.brand img{height:34px;width:auto;display:block}
+/* .brand img would out-rank a bare .logo-d — keep both selectors at
+   class+class+element strength so the theme rules actually win */
+.brand img.logo-d{display:none}
+[data-theme="dark"] .brand img.logo-l{display:none}
+[data-theme="dark"] .brand img.logo-d{display:block}

@@ -98,7 +98,12 @@ async function mountChrome(active){
       '<a href="../index.html">Studio site</a>';
 
   bar.innerHTML =
-    '<a class="brand" href="'+(p && p.is_admin ? 'admin.html' : 'dashboard.html')+'">S\u00b7A\u00b7S Studio</a>'+
+    // The wordmark, not initials. Two copies because the logo's navy
+    // text vanishes on the dark theme; CSS shows whichever one reads.
+    '<a class="brand" href="'+(p && p.is_admin ? 'admin.html' : 'dashboard.html')+'" aria-label="Amanorsac Studio">'+
+      '<img class="logo-l" src="../images/logo.svg" alt="">'+
+      '<img class="logo-d" src="../images/logo-dark.svg" alt="">'+
+    '</a>'+
     '<nav>'+nav+'</nav>'+
     '<span class="who">'+esc(name)+'</span>'+
     '<span class="notif-wrap"><button class="icon-btn" id="notif-btn" title="Notifications" aria-haspopup="true" aria-expanded="false">'+

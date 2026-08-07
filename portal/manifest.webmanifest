@@ -1,6 +1,6 @@
 {
-  "name": "S·A·S Studio",
-  "short_name": "S·A·S Studio",
+  "name": "Amanorsac Studio",
+  "short_name": "AMANORSAC",
   "description": "Studio Amanorsac — track your project, mixes, files and billing.",
   "start_url": "dashboard.html",
   "scope": "./",
@@ -8,8 +8,23 @@
   "background_color": "#1C1916",
   "theme_color": "#F7F5F1",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

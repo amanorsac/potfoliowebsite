@@ -50,6 +50,10 @@ body[data-room="piano"] { --accent:#9A7B3F; --ink:#F0E7D2; --panel:#FAF4E5; --pa
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+/* Full-bleed strips are sized with 100vw, which includes the scrollbar
+   on Windows; the few px of overflow made the whole site shift sideways
+   over blank white. clip removes the overflow without breaking sticky. */
+html,body{overflow-x:clip}
 body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);
   font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
 a{color:inherit}

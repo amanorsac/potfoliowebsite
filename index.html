@@ -48,6 +48,10 @@ body[data-room="piano"] { --accent:#9A7B3F; --ink:#F0E7D2; --panel:#FAF4E5; --pa
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+/* Full-bleed strips are sized with 100vw, which includes the scrollbar
+   on Windows; the few px of overflow made the whole site shift sideways
+   over blank white. clip removes the overflow without breaking sticky. */
+html,body{overflow-x:clip}
 body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);
   font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
 a{color:inherit}
@@ -529,7 +533,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       </article>
 
       <article class="hc-slide" style="--room:#2E8B6E" aria-roledescription="slide" aria-label="4 of 4" hidden>
-        <div class="hc-media"><img src="images/band-home.jpg" alt="" loading="lazy"></div>
+        <div class="hc-media"><img src="images/desk-01.jpg" alt="" loading="lazy"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">03 — Software</p>
           <h1>The App <em>Store</em></h1>
@@ -581,8 +585,6 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       </a>
     </div>
   </section>
-
-  <div class="band" id="band" aria-hidden="true"></div>
 
   <section id="work-media">
     <h2>Listen</h2>

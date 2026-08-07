@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- S·A·S Studio app icon: console faders in studio gold on ink.
+       Mark stays inside the centre 60% so one file works maskable. -->
+  <rect width="512" height="512" fill="#1C1916"/>
+  <g stroke-linecap="round">
+    <rect x="150" y="196" width="34" height="150" rx="17" fill="#8A6A3C"/>
+    <rect x="215" y="146" width="34" height="220" rx="17" fill="#D0A24C"/>
+    <rect x="280" y="176" width="34" height="176" rx="17" fill="#B98A44"/>
+    <rect x="345" y="226" width="34" height="96"  rx="17" fill="#8A6A3C"/>
+  </g>
+  <circle cx="167" cy="238" r="10" fill="#F7F5F1"/>
+  <circle cx="232" cy="316" r="10" fill="#F7F5F1"/>
+  <circle cx="297" cy="212" r="10" fill="#F7F5F1"/>
+  <circle cx="362" cy="286" r="10" fill="#F7F5F1"/>
+</svg>

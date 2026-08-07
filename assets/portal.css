@@ -260,3 +260,17 @@ a.stat:hover{transform:translateY(-2px);border-color:var(--accent)}
 .invoice:last-child{border-bottom:0}
 .invoice .row{border-bottom:0}
 .rc-form{padding:2px 0 18px}
+
+/* ---------- top bar on small screens ----------
+   Six nav links + a name + three buttons never fit one phone-width row;
+   the links clipped silently. Two rows instead: brand and buttons up
+   top, the nav on its own full-width line you can swipe. The name is
+   the one thing dropped — you know who you are. */
+@media (max-width:760px){
+  .top{flex-wrap:wrap;height:auto;padding-top:10px;padding-bottom:10px;row-gap:8px;gap:10px}
+  .who{display:none}
+  .notif-wrap{margin-left:auto}
+  .top nav{order:9;flex:1 1 100%;margin-left:0;padding-bottom:2px;
+    -webkit-overflow-scrolling:touch}
+  .top nav a{padding:8px 10px}
+}

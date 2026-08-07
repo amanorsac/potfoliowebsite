@@ -272,6 +272,9 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .embed-label b{color:var(--accent);font-weight:400}
 .embed iframe{display:block;width:100%;border:0}
 .embed.video iframe{aspect-ratio:16/9;height:auto}
+/* Featured player: full row, so a playlist embed reads like a playlist,
+   with its tray and controls at a size worth using. */
+.media-grid .embed.feature{grid-column:1/-1}
 .embed.audio iframe{height:152px}
 .embed.audio.tall iframe{height:352px}
 
@@ -579,35 +582,10 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     </div>
   </section>
 
-  <section id="work">
-    <p class="eyebrow">Selected credits</p>
-    <h2>Records I put my hands on</h2>
-    <p class="lede">Voice-forward, and a good share of it close harmony.</p>
-    <div class="ruler"><span>Artist</span><span>Work</span></div>
-
-    <div class="lane rise"><div class="lane-label">Kingsley Anyenor</div><div class="clip">
-      <p class="clip-title"><span>Unveiled</span></p><p class="clip-role">Mix &amp; Master — Album</p>
-      <p class="clip-note">Part of a long run together, alongside "Pentecost" (ft. Siisi Baidoo), "We Will Not Bow," and the live albums Deeper Worship Vol. 1 &amp; 2 and Maranatha.</p></div></div>
-
-    <div class="lane rise"><div class="lane-label">Viv Adjei</div><div class="clip">
-      <p class="clip-title"><span>Home</span></p><p class="clip-role">Mix &amp; Master</p></div></div>
-
-    <div class="lane rise"><div class="lane-label">Blossom 3io</div><div class="clip">
-      <p class="clip-title">Full catalogue &amp; <span>Nyame Nti</span></p><p class="clip-role">Music Director · Production · Mix</p>
-      <p class="clip-note">An Afrocentric trio singing in close three-part harmony. Timbre matching across three closely related voices, phase alignment on doubled passes, noise floor held steady across rooms. Broadcast on TV3 Ghana's <em>Today's Woman</em>; brand work with Nestlé Ghana.</p></div></div>
-
-    <div class="lane rise"><div class="lane-label">Diana Hamilton</div><div class="clip">
-      <p class="clip-title"><span>Perfect God</span></p><p class="clip-role">Arrangement · Piano</p></div></div>
-
-    <div class="lane rise"><div class="lane-label">Classic Groove Band</div><div class="clip">
-      <p class="clip-title">Live ensemble, Accra</p><p class="clip-role">Founder · Music Director</p>
-      <p class="clip-note">Jazz, highlife, and contemporary gospel. Citi TV, MX24, Alliance Française, and a weekly residency held for three years.</p></div></div>
-  </section>
-
   <div class="band" id="band" aria-hidden="true"></div>
 
   <section id="work-media">
-    <h2>Hear the work</h2>
+    <h2>Listen</h2>
     <p class="lede">Records I mixed, mastered, produced, or played on.</p>
     <div class="media-grid two" data-works=""></div>
   </section>
@@ -620,12 +598,11 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   </section>
 
   <section id="about" class="about">
-    <h2>About</h2>
     <div class="about-grid">
       <div>
-        <p class="first">I started in Accra, running a studio and directing music for churches and a live band. Somewhere in there I became the person artists called when a vocal was almost right and nobody could say why. That turned into a catalogue: gospel highlife, worship records, close-harmony trios, live albums cut in one take with no second chance.</p>
-        <p>I now direct music at a multicultural congregation in Virginia, where I own the broadcast chain end to end, and I'm finishing a master's in Commercial Music Performance at Liberty University.</p>
-        <p>The software came out of frustration. Rehearsals were being spent teaching parts that people could have learned at home, so I wrote HarmonieMD. Backing tracks were flattening live bands into playback operators, so I built PerformLive. I'm comfortable thinking about a voice at the fader and at the buffer, which is a stranger combination than it should be.</p>
+        <p class="first">I started in Accra, running a studio and directing music for churches and a live band. Somewhere in there I became the person artists called when a vocal was almost right and nobody could say why. The work grew from there into gospel highlife, worship records, close-harmony trios, and live albums cut in one take with no second chance.</p>
+        <p>These days I direct music at a multicultural congregation in Virginia and run its broadcast mix myself, while finishing a master's in Commercial Music Performance at Liberty University.</p>
+        <p>The software came out of frustration. Rehearsals kept going to parts people could have learned at home, and backing tracks were turning live bands into playback operators. So I wrote HarmonieMD for the first problem and PerformLive for the second. I like thinking about a voice at the fader and at the buffer, even if that's an odd pair of places to live.</p>
       </div>
       <div class="shot portrait" id="portrait-slot"></div>
     </div>
@@ -683,7 +660,7 @@ var CONFIG = {
     instagram: "https://instagram.com/amanorsac",
     facebook:  "https://www.facebook.com/profile.php?id=100087595158451",
     tiktok:    "https://www.tiktok.com/@amanorsac1",
-    youtube:   "https://www.youtube.com/@NeneCoaches",
+    youtube:   "https://www.youtube.com/@amanorsac",
     spotify:   "",
     x:         ""
   },
@@ -780,7 +757,7 @@ var CONFIG = {
   gallery: {
     home:   ["images/studio-01.jpg","images/live-01.jpg","images/session-01.jpg","images/live-02.jpg"],
     mixing: ["images/desk-01.jpg","images/desk-02.jpg","images/session-02.jpg"],
-    live:   ["images/foh-01.jpg","images/stream-01.jpg","images/stage-01.jpg"],
+    live:   ["images/stream-01.jpg","images/stage-01.jpg"],
     piano:  ["images/piano-01.jpg","images/piano-02.jpg","images/piano-03.jpg"]
   },
 
@@ -1016,6 +993,9 @@ var CONFIG = {
                  (w.artist ? ' \u00b7 ' + w.artist : '') + '</span>' +
                  (w.role ? '<b>' + w.role + '</b>' : '') + '</div>';
       if(link){
+        // The first playable work leads the section at full width, like
+        // a channel's featured video; the rest fall into the grid below.
+        if(shown === 0) box.className += ' feature';
         box.innerHTML = head + '<iframe src="'+link.src+'" title="'+(w.title||'')+'" loading="lazy" '+
           'frameborder="0" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
         shown++;

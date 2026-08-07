@@ -130,7 +130,9 @@
 <script>
 (async () => {
   const me = await requireAdmin(); if(!me) return;
-  await mountChrome('admin');
+  // 'admin-projects' so the tab bar highlights Projects — a project
+  // detail page is inside that tab, not the dashboard.
+  await mountChrome('admin-projects');
 
   const PID = new URLSearchParams(location.search).get('id');
   if(!PID){ location.replace('admin.html'); return; }

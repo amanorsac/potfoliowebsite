@@ -274,3 +274,39 @@ a.stat:hover{transform:translateY(-2px);border-color:var(--accent)}
     -webkit-overflow-scrolling:touch}
   .top nav a{padding:8px 10px}
 }
+
+/* ---------- app mode: bottom tab bar on phones ----------
+   Most visits are from a phone, so the portal behaves like an app
+   there: navigation lives in a fixed bottom bar where thumbs are, the
+   top bar shrinks to identity and actions, and content sits closer to
+   the edges. Wide screens never see any of this. */
+.tabbar{display:none}
+@media (max-width:760px){
+  /* the nav lives in the tab bar now; the wrapped second row goes */
+  .top nav{display:none}
+  .top{height:56px;padding-top:0;padding-bottom:0;flex-wrap:nowrap}
+
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+    background:var(--surface);border-top:1px solid var(--line);
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:6px 2px 4px;text-decoration:none;color:var(--muted);border-radius:10px;
+    font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;
+    transition:color .2s}
+  .tabbar a.on{color:var(--accent)}
+  .tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;
+    stroke-linecap:round;stroke-linejoin:round}
+
+  /* content clears the tab bar instead of trailing 90px of nothing */
+  main{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px));
+    padding-top:20px}
+  .head{margin-bottom:20px}
+
+  /* app-density cards: tighter padding, softer radius on small glass */
+  .card{padding:18px 16px;margin-bottom:12px}
+  .grid2{gap:12px}
+  .proj{padding:18px 16px}
+
+  /* taps, not clicks */
+  .btn,.linkbtn,.tabbar a,.icon-btn{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+}

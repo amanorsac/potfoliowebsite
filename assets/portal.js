@@ -111,6 +111,34 @@ async function mountChrome(active){
     '</button>';
   Theme.icon();
 
+  // ---- bottom tab bar (phones only; CSS hides it on wide screens) ----
+  // On a phone the portal should feel like an app, and apps navigate
+  // from the bottom, where thumbs live. The top bar keeps identity and
+  // actions; movement between pages happens here.
+  const TAB_ICONS = {
+    home:    '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+    disc:    '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg>',
+    talk:    '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    money:   '<svg viewBox="0 0 24 24"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+    person:  '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>',
+  };
+  const tabs = (p && p.is_admin)
+    ? [['admin.html','admin','home','Home'],
+       ['admin-projects.html','admin-projects','disc','Projects'],
+       ['admin-reviews.html','admin-reviews','talk','Reviews'],
+       ['admin-billing.html','admin-billing','money','Billing'],
+       ['account.html','account','person','Account']]
+    : [['dashboard.html','projects','disc','Projects'],
+       ['billing.html','billing','money','Billing'],
+       ['account.html','account','person','Account']];
+
+  let tb = document.querySelector('.tabbar');
+  if(!tb){ tb = document.createElement('nav'); tb.className = 'tabbar';
+    tb.setAttribute('aria-label','Portal'); document.body.appendChild(tb); }
+  tb.innerHTML = tabs.map(t =>
+    '<a href="'+t[0]+'" class="'+(active===t[1]?'on':'')+'">'+TAB_ICONS[t[2]]+
+    '<span>'+t[3]+'</span></a>').join('');
+
   // The bell must never break a page \u2014 it is decoration on top of the
   // portal, not part of it.
   try { mountNotifications(p); } catch(e){}

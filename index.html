@@ -163,11 +163,13 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .hc-slide.on{opacity:1;visibility:visible;transition:opacity var(--dur-slow) var(--ease-out),visibility 0s}
 .hc-media{position:absolute;inset:0;z-index:-1;overflow:hidden}
 .hc-media img{width:100%;height:100%;object-fit:cover;object-position:center 32%;
-  transform:scale(1.06);transition:transform 9s linear;filter:saturate(.72) brightness(1.04)}
+  transform:scale(1.06);transition:transform 9s linear;filter:saturate(.92)}
 .hc-slide.on .hc-media img{transform:scale(1)}          /* slow drift while a slide is up */
+/* The wash exists for the text, not the mood: solid only where the words
+   sit, gone by mid-frame so the photograph actually reads as one. */
 .hc-media::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,var(--ink) 0%,color-mix(in srgb,var(--ink) 88%,transparent) 42%,
-    color-mix(in srgb,var(--ink) 42%,transparent) 74%,color-mix(in srgb,var(--ink) 62%,transparent) 100%)}
+  background:linear-gradient(90deg,var(--ink) 0%,color-mix(in srgb,var(--ink) 78%,transparent) 34%,
+    color-mix(in srgb,var(--ink) 28%,transparent) 60%,color-mix(in srgb,var(--ink) 8%,transparent) 100%)}
 .hc-body{position:relative;width:100%;max-width:1080px;margin:0 auto;padding:0 var(--gut);
   transform:translateY(14px);opacity:0;transition:transform var(--dur-slow) var(--ease-out) 80ms,opacity var(--dur-slow) var(--ease-out) 80ms}
 .hc-slide.on .hc-body{transform:none;opacity:1}

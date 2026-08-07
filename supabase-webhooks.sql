@@ -93,6 +93,12 @@ create trigger notify_on_invoice
   after insert or update on public.invoices
   for each row execute function public.notify_client_hook();
 
+-- New project: the welcome email. Fires once, on creation.
+drop trigger if exists notify_on_project on public.projects;
+create trigger notify_on_project
+  after insert on public.projects
+  for each row execute function public.notify_client_hook();
+
 -- =====================================================================
 --  CHECK YOUR WORK — should return three rows
 -- =====================================================================

@@ -84,6 +84,17 @@ async function planFor(hook: Hook): Promise<Plan | null> {
     };
   }
 
+  if (hook.table === "projects" && hook.type === "INSERT") {
+    // The welcome: a new song just went on the desk with their name on it.
+    return {
+      event: "project",
+      project_id: String(r.id),
+      subject: "Your project is set up",
+      line: `“${r.title ?? "Your project"}” is on the studio's desk.`,
+      detail: "Follow every stage, send reference notes, and pick up files in your portal.",
+    };
+  }
+
   if (hook.table === "invoices") {
     const dollars = "$" + (Number(r.amount_cents ?? 0) / 100).toFixed(2);
     if (hook.type === "INSERT") {

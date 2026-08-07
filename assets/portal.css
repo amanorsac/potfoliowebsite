@@ -286,19 +286,28 @@ a.stat:hover{transform:translateY(-2px);border-color:var(--accent)}
   .top nav{display:none}
   .top{height:56px;padding-top:0;padding-bottom:0;flex-wrap:nowrap}
 
-  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
-    background:var(--surface);border-top:1px solid var(--line);
-    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
-  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:6px 2px 4px;text-decoration:none;color:var(--muted);border-radius:10px;
-    font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;
+  /* Floating pill, Instagram-style: detached from the edges, hovering
+     above the content on a translucent blur, big enough that nobody
+     hunts for it. */
+  .tabbar{position:fixed;left:14px;right:14px;z-index:40;display:flex;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px));
+    background:color-mix(in srgb, var(--surface) 88%, transparent);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    border:1px solid var(--line);border-radius:999px;
+    box-shadow:0 6px 16px rgba(28,25,22,.14), 0 20px 48px rgba(28,25,22,.18);
+    padding:9px 12px}
+  [data-theme="dark"] .tabbar{
+    box-shadow:0 6px 16px rgba(0,0,0,.4), 0 20px 48px rgba(0,0,0,.45)}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:7px 2px 5px;text-decoration:none;color:var(--muted);border-radius:999px;
+    font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
     transition:color .2s}
   .tabbar a.on{color:var(--accent)}
-  .tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;
+  .tabbar svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;
     stroke-linecap:round;stroke-linejoin:round}
 
-  /* content clears the tab bar instead of trailing 90px of nothing */
-  main{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px));
+  /* content clears the floating bar instead of trailing 90px of nothing */
+  main{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));
     padding-top:20px}
   .head{margin-bottom:20px}
 

@@ -449,6 +449,16 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 .gallery .shot:first-child{grid-column:span 2}
 @media (max-width:640px){ .gallery .shot:first-child{grid-column:span 1} }
 
+/* ---------- reels shelf ----------
+   A sideways-scrolling rack, like the reels tray in the app it came
+   from. Snap points so a flick lands on a card, not between two. */
+.reelrow{display:grid;grid-auto-flow:column;grid-auto-columns:min(330px,84vw);gap:16px;
+  overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+  padding:6px 2px 16px}
+.reelrow>*{scroll-snap-align:start}
+.reelrow .instagram-media{margin:0!important;min-width:0!important;max-width:100%!important;
+  border-radius:14px!important}
+
 </style>
 </head>
 <body data-room="home">
@@ -604,6 +614,14 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <div class="media-grid two" data-works=""></div>
   </section>
 
+  <!-- Fills itself from CONFIG.reels; stays hidden while that list is empty -->
+  <section id="reels-sec" hidden>
+    <p class="eyebrow">From the feed</p>
+    <h2>Reels</h2>
+    <p class="lede">Sessions and moments, straight off Instagram.</p>
+    <div class="reelrow" id="reelrow"></div>
+  </section>
+
   <section id="about" class="about">
     <p class="eyebrow">About</p>
     <h2>Short version</h2>
@@ -679,6 +697,13 @@ var CONFIG = {
     spotify:   "",
     x:         ""
   },
+
+  /* 2b. INSTAGRAM REELS -------------------------------------
+     Paste full reel links, newest first, e.g.
+       "https://www.instagram.com/reel/AbC123xyz/",
+     Leave the list empty and the Reels section hides itself. */
+  reels: [
+  ],
 
   /* 3. SONGS AND VIDEOS -------------------------------------
      THIS IS THE LIST YOU GROW. To add a song you worked on,
@@ -1105,6 +1130,26 @@ var CONFIG = {
         .then(function(){ send.disabled=false; send.textContent='Send message'; });
     });
   }
+
+  /* ---- Instagram reels ----
+     Only instagram.com links are accepted — these land in the DOM as
+     embed placeholders, and the allowlist means a typo'd config line
+     can't point the official embed script at somewhere else. */
+  (function(){
+    var ok = function(u){ return /^https:\/\/(www\.)?instagram\.com\//.test(u); };
+    var list = (CONFIG.reels||[]).filter(ok);
+    if(!list.length) return;
+    var sec = document.getElementById('reels-sec'), row = document.getElementById('reelrow');
+    if(!sec || !row) return;
+    row.innerHTML = list.map(function(u){
+      return '<blockquote class="instagram-media" data-instgrm-permalink="'+u.replace(/"/g,'')+
+        '" data-instgrm-version="14"></blockquote>';
+    }).join('');
+    sec.hidden = false;
+    var s = document.createElement('script');
+    s.async = true; s.src = 'https://www.instagram.com/embed.js';
+    document.body.appendChild(s);
+  })();
 
   /* ---- reveal ---- */
   if('IntersectionObserver' in window){

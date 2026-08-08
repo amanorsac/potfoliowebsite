@@ -41,6 +41,12 @@ Admin is what lets you see every client's projects instead of just your own.
   - `https://your-site.pages.dev/portal/reset.html`
   - `https://your-site.pages.dev/portal/**`
 
+The sign-in page is served at `/client` (the file is `client.html` at the
+top level) but everything behind it still lives under `/portal/`, and the
+reset link still points at `/portal/reset.html` — so these two entries are
+all Supabase needs. `portal/login.html` remains as a redirect to `/client`
+so links in emails already sent keep working.
+
 If you end up on GitHub Pages at a subpath (`username.github.io/portfolio`), include the subpath in every entry. Password resets are known to misbehave on subpaths, which is one reason a Cloudflare custom domain at the root is the safer home.
 
 ## 5 · Deploy
@@ -76,7 +82,7 @@ Point 4 is the one that matters most. If a test client can see another client's 
 
 ## 7 · Admin dashboard (one-time setup)
 
-The dashboard lives at `portal/admin.html` and only opens for a profile with
+Clients sign in at `/client`. The admin dashboard lives at `portal/admin.html` and only opens for a profile with
 `is_admin = true`. Anyone else is bounced to their own project list. The
 **Admin** link appears in the portal nav automatically once you are admin.
 

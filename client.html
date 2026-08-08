@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Client login · Stephen Amanor Sackey</title>
+
+<!-- =====================================================================
+     THE CLIENT LOGIN — served at amanorsac.studio/client
+
+     This page sits at the top level so the address reads /client rather
+     than /portal/login. Everything behind the sign-in still lives in
+     /portal/, so the paths below are deliberate:
+
+       - assets and images resolve from the root, not from ../
+       - the two "you are signed in, go through" jumps point into /portal/
+       - the reset link is built from the origin plus /portal, NOT from
+         the shared PORTAL_BASE in portal.js. That one derives the folder
+         from the current URL, which is correct on /portal/login but on
+         /client would resolve to the site root and send people to a
+         reset page that does not exist.
+
+     portal/login.html is kept as a redirect here, so the links in emails
+     already sent to clients still land in the right place.
+     ===================================================================== -->
+
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="images/logo.svg" type="image/svg+xml">
+<meta name="theme-color" content="#F7F5F1">
+<link rel="apple-touch-icon" href="portal/icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AMANORSAC">
+<!-- no manifest here on purpose: the installed app is scoped to /portal/,
+     and clients install it from the dashboard once they are signed in. -->
+<link rel="stylesheet" href="assets/portal.css">
+</head>
+<body>
+<div class="auth-wrap">
+  <a class="auth-back" href="index.html"><span>&#8592;</span> Back to the studio</a>
+  <div class="auth">
+  <p class="eyebrow">Client portal</p>
+  <h1>Welcome back</h1>
+  <p class="sub">Sign in with the details the studio sent you.</p>
+  <form id="f" novalidate>
+    <div class="field"><label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required></div>
+    <div class="field"><label for="pw">Password</label>
+      <input id="pw" type="password" autocomplete="current-password" required></div>
+    <button class="btn" id="go" type="submit">Sign in</button>
+    <p class="msg" id="m" role="status" aria-live="polite"></p>
+  </form>
+  <p class="foot">Forgotten your password? <a href="#" id="forgot">Email me a reset link</a><br>
+  No account yet? The studio creates these — email
+  <a href="mailto:hello@amanorsac.studio">hello@amanorsac.studio</a>.</p>
+</div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/portal.js"></script>
+<script>
+
+/* the portal lives one level down; this page does not */
+const PORTAL_DIR = location.origin + '/portal';
+
+sb.auth.getSession().then(({data:{session}}) => {
+  if(session) location.replace(PORTAL_DIR + '/dashboard.html');
+});
+
+$('#f').addEventListener('submit', async e => {
+  e.preventDefault();
+  const m = $('#m'), go = $('#go');
+  const email = $('#email').value.trim(), password = $('#pw').value;
+  if(!email || !password){ return say(m,'Enter your email and password.','err'); }
+  go.disabled = true; go.textContent = 'Signing in';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  go.disabled = false; go.textContent = 'Sign in';
+  if(error){ return say(m, /Invalid/i.test(error.message)
+      ? 'That email and password do not match. Check the details the studio sent you.'
+      : error.message, 'err'); }
+  location.replace(PORTAL_DIR + '/dashboard.html');
+});
+
+$('#forgot').addEventListener('click', async e => {
+  e.preventDefault();
+  const m = $('#m'), email = $('#email').value.trim();
+  if(!email) return say(m,'Type your email above first, then click this.','err');
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: PORTAL_DIR + '/reset.html' });
+  say(m, error ? error.message : 'Check your inbox for the reset link.', error ? 'err' : 'ok');
+});
+
+</script>
+</body>
+</html>

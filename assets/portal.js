@@ -65,7 +65,7 @@ function say(el, text, kind){
 /* ---------- auth guard ---------- */
 async function requireSession(){
   const { data:{ session } } = await sb.auth.getSession();
-  if(!session){ location.replace('login.html'); return null; }
+  if(!session){ location.replace('/client'); return null; }
   return session;
 }
 async function currentProfile(){
@@ -244,7 +244,7 @@ async function mountNotifications(p){
     if(!panel.hidden && !e.target.closest('.notif-wrap')) panel.hidden = true;
   });
 }
-async function signOut(){ await sb.auth.signOut(); location.replace('login.html'); }
+async function signOut(){ await sb.auth.signOut(); location.replace('/client'); }
 
 /** Admin-only guard. Bounces clients back to their own dashboard. */
 async function requireAdmin(){

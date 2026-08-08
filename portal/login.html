@@ -5,69 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Client login · Stephen Amanor Sackey</title>
-<script>
-/* set the theme BEFORE first paint so there is no flash of the wrong colours */
-(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
-  document.documentElement.setAttribute('data-theme',t); })();
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" href="../images/logo.svg" type="image/svg+xml">
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#F7F5F1">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="AMANORSAC">
-<link rel="stylesheet" href="../assets/portal.css">
+<!-- The login page moved up a level so the address reads /client.
+     This stays behind as a redirect: reset and invite emails already
+     sent to clients point here, and so do bookmarks. -->
+<link rel="canonical" href="https://amanorsac.studio/client">
+<meta http-equiv="refresh" content="0; url=../client.html">
+<style>
+  body{margin:0;min-height:100svh;display:grid;place-items:center;
+    background:#F7F5F1;color:#1C1916;
+    font:15px/1.6 system-ui,-apple-system,'Segoe UI',sans-serif;text-align:center;padding:24px}
+  a{color:#8A5A2B}
+</style>
 </head>
 <body>
-<div class="auth-wrap">
-  <a class="auth-back" href="../index.html"><span>&#8592;</span> Back to the studio</a>
-  <div class="auth">
-  <p class="eyebrow">Client portal</p>
-  <h1>Welcome back</h1>
-  <p class="sub">Sign in with the details the studio sent you.</p>
-  <form id="f" novalidate>
-    <div class="field"><label for="email">Email</label>
-      <input id="email" type="email" autocomplete="email" required></div>
-    <div class="field"><label for="pw">Password</label>
-      <input id="pw" type="password" autocomplete="current-password" required></div>
-    <button class="btn" id="go" type="submit">Sign in</button>
-    <p class="msg" id="m" role="status" aria-live="polite"></p>
-  </form>
-  <p class="foot">Forgotten your password? <a href="#" id="forgot">Email me a reset link</a><br>
-  No account yet? The studio creates these — email
-  <a href="mailto:hello@amanorsac.studio">hello@amanorsac.studio</a>.</p>
-</div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/portal.js"></script>
-<script>
-
-sb.auth.getSession().then(({data:{session}}) => { if(session) location.replace('dashboard.html'); });
-
-$('#f').addEventListener('submit', async e => {
-  e.preventDefault();
-  const m = $('#m'), go = $('#go');
-  const email = $('#email').value.trim(), password = $('#pw').value;
-  if(!email || !password){ return say(m,'Enter your email and password.','err'); }
-  go.disabled = true; go.textContent = 'Signing in';
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  go.disabled = false; go.textContent = 'Sign in';
-  if(error){ return say(m, /Invalid/i.test(error.message)
-      ? 'That email and password do not match. Check the details the studio sent you.'
-      : error.message, 'err'); }
-  location.replace('dashboard.html');
-});
-
-$('#forgot').addEventListener('click', async e => {
-  e.preventDefault();
-  const m = $('#m'), email = $('#email').value.trim();
-  if(!email) return say(m,'Type your email above first, then click this.','err');
-  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: PORTAL_BASE + '/reset.html' });
-  say(m, error ? error.message : 'Check your inbox for the reset link.', error ? 'err' : 'ok');
-});
-
-</script>
+  <p>The client login has moved. <a href="../client.html">Sign in →</a></p>
+  <script>
+    /* keep any ?query or #hash the email link carried */
+    location.replace('../client.html' + location.search + location.hash);
+  </script>
 </body>
 </html>

@@ -181,6 +181,48 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
    further out. */
 .hc-body h1,.hc-body .hero-thesis{
   text-shadow:0 1px 26px color-mix(in srgb,var(--ink) 78%,transparent)}
+
+/* ---------- the App Store slide: floating, clickable apps ----------
+   Nothing to wash here, so the reading gradient is dropped and the
+   frame becomes a tinted field for the screens to sit on. */
+.hc-slide.store .hc-media::after{display:none}
+.hc-canvas{position:absolute;inset:0;
+  background:
+    radial-gradient(78% 88% at 76% 26%,color-mix(in srgb,var(--room) 24%,transparent) 0%,transparent 62%),
+    radial-gradient(66% 76% at 16% 82%,color-mix(in srgb,var(--room) 12%,transparent) 0%,transparent 58%),
+    var(--ink)}
+
+/* The layer ignores the pointer so the headline and CTA underneath stay
+   clickable; only the cards themselves take it back. */
+.hc-float{position:absolute;top:0;bottom:0;left:54%;right:2%;z-index:2;pointer-events:none}
+/* On this slide the screens carry the weight, so the words give ground:
+   a smaller headline and a narrower thesis keep the two off each other. */
+.hc-slide.store h1{font-size:clamp(32px,4.4vw,56px)}
+.hc-slide.store .hero-thesis{max-width:36ch}
+.hc-float .fa{position:absolute;left:var(--x);top:var(--y);width:var(--w);
+  z-index:var(--z);pointer-events:auto;text-decoration:none;display:block;
+  animation:hcdrift 9s ease-in-out infinite;
+  animation-delay:calc(var(--i) * -2.3s)}
+/* drift on the anchor, lift on the inner: two elements so the hover
+   transform is not fighting the animation for the same property */
+.hc-float .fa-in{display:block;position:relative;overflow:hidden;
+  border-radius:14px;background:#0E0D18;border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 16px 44px rgba(26,24,48,.26);transform:rotate(var(--rot));
+  transition:transform var(--dur-slow) var(--ease-out),
+             box-shadow var(--dur-slow) var(--ease-out)}
+.hc-float .fa img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
+.hc-float .fa b{position:absolute;left:0;right:0;bottom:0;padding:26px 12px 9px;
+  font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:-.01em;
+  color:#fff;background:linear-gradient(180deg,transparent,rgba(6,10,8,.84))}
+.hc-float .fa:hover,.hc-float .fa:focus-visible{z-index:9}
+.hc-float .fa:hover .fa-in,.hc-float .fa:focus-visible .fa-in{
+  transform:rotate(0deg) translateY(-8px) scale(1.05);
+  box-shadow:0 30px 68px rgba(26,24,48,.34)}
+@keyframes hcdrift{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}
+
+/* A hero on a phone has room for the words or the cards, not both. */
+@media (max-width:1000px){ .hc-float{display:none} }
+@media (prefers-reduced-motion:reduce){ .hc-float .fa{animation:none} }
 .hc-body{position:relative;width:100%;max-width:1080px;margin:0 auto;padding:0 var(--gut);
   transform:translateY(14px);opacity:0;transition:transform var(--dur-slow) var(--ease-out) 80ms,opacity var(--dur-slow) var(--ease-out) 80ms}
 .hc-slide.on .hc-body{transform:none;opacity:1}
@@ -616,8 +658,24 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </article>
 
-      <article class="hc-slide" style="--room:#2E8B6E" aria-roledescription="slide" aria-label="4 of 4" hidden>
-        <div class="hc-media"><img src="images/desk-01.jpg" alt="" loading="lazy"></div>
+      <!-- No photograph on this one: a picture of a desk says nothing about
+           software. The apps themselves float here, and each one is a door. -->
+      <article class="hc-slide store" style="--room:#2E8B6E" aria-roledescription="slide" aria-label="4 of 4" hidden>
+        <div class="hc-media"><span class="hc-canvas" aria-hidden="true"></span></div>
+        <div class="hc-float">
+          <a class="fa" href="performlive.html"
+             style="--x:1%;--y:19%;--w:60%;--rot:-3.5deg;--z:3;--i:0">
+            <span class="fa-in"><img src="images/apps/banner-performlive.jpg" alt="" loading="lazy"><b>PerformLive</b></span></a>
+          <a class="fa" href="apps.html#pulseroom"
+             style="--x:64%;--y:7%;--w:35%;--rot:-2deg;--z:1;--i:1">
+            <span class="fa-in"><img src="images/apps/banner-pulseroom.jpg" alt="" loading="lazy"><b>PulseRoom</b></span></a>
+          <a class="fa" href="harmoniemd.html"
+             style="--x:47%;--y:44%;--w:52%;--rot:2.5deg;--z:2;--i:2">
+            <span class="fa-in"><img src="images/apps/banner-harmoniemd.jpg" alt="" loading="lazy"><b>HarmonieMD</b></span></a>
+          <a class="fa" href="apps.html#nebulatide"
+             style="--x:0%;--y:56%;--w:45%;--rot:3deg;--z:4;--i:3">
+            <span class="fa-in"><img src="images/apps/banner-nebulatide.jpg" alt="" loading="lazy"><b>Nebula Tide</b></span></a>
+        </div>
         <div class="hc-body">
           <p class="hc-eyebrow">03 — Software</p>
           <h1>The App <em>Store</em></h1>

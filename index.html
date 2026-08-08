@@ -279,6 +279,34 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
   background:linear-gradient(135deg,var(--room),color-mix(in srgb,var(--room) 74%,#1A1830))}
 .arr-media.solid span{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.6vw,34px);
   letter-spacing:-.03em;color:#fff;text-align:center;padding:0 8%}
+
+/* ---------- the App Store door: the same floating apps as the slide ----
+   A list of four names told you nothing. The apps themselves do. The
+   whole card is already one link to the store, so these drift and
+   answer its hover but never take the pointer for themselves. */
+.arr-media.apps{position:relative;border:0;
+  background:
+    radial-gradient(80% 92% at 74% 20%,color-mix(in srgb,var(--room) 66%,#0C1D18) 0%,transparent 64%),
+    radial-gradient(72% 82% at 16% 86%,color-mix(in srgb,var(--room) 30%,#0C1D18) 0%,transparent 60%),
+    #10261F}
+.arr-float{position:absolute;inset:0}
+.arr-float .fa{position:absolute;left:var(--x);top:var(--y);width:var(--w);z-index:var(--z);
+  animation:arrdrift 9s ease-in-out infinite;animation-delay:calc(var(--i) * -2.3s)}
+/* drift on the outer, lift on the inner, so the two transforms never
+   fight over the same property */
+.arr-float .fa-in{display:block;position:relative;overflow:hidden;border-radius:11px;
+  background:#0E0D18;border:1px solid rgba(255,255,255,.17);
+  box-shadow:0 12px 32px rgba(8,24,18,.36);transform:rotate(var(--rot));
+  transition:transform var(--dur-slow) var(--ease-out),box-shadow var(--dur-slow) var(--ease-out)}
+.arr-media .arr-float img{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;filter:none}
+.arr:hover .arr-media .arr-float img{transform:none}
+.arr-float .fa b{position:absolute;left:0;right:0;bottom:0;padding:22px 11px 8px;
+  font-family:var(--display);font-weight:700;font-size:11.5px;letter-spacing:-.01em;color:#fff;
+  background:linear-gradient(180deg,transparent,rgba(6,10,8,.86))}
+.arr:hover .arr-float .fa-in{transform:rotate(calc(var(--rot) * .3)) translateY(-7px) scale(1.035);
+  box-shadow:0 22px 48px rgba(8,24,18,.42)}
+@keyframes arrdrift{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@media (prefers-reduced-motion:reduce){ .arr-float .fa{animation:none} }
 .arr-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--room);display:block;margin-bottom:16px}
 .arr-body h3{font-family:var(--display);font-weight:700;font-size:clamp(30px,4vw,52px);line-height:1.02;margin:0 0 16px;letter-spacing:-.035em}
 .arr-body p{color:var(--muted);font-size:17px;line-height:1.7;max-width:40ch;margin:0 0 22px}
@@ -717,7 +745,18 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </a>
       <a class="arr rise" href="apps.html" style="--room:#2E8B6E">
-        <div class="arr-media solid"><span>HarmonieMD · PerformLive · Nebula Tide · PulseRoom</span></div>
+        <div class="arr-media apps">
+          <span class="arr-float" aria-hidden="true">
+            <span class="fa" style="--x:6%;--y:15%;--w:46%;--rot:-4deg;--z:3;--i:0">
+              <span class="fa-in"><img src="images/apps/banner-performlive.jpg" alt="" loading="lazy"><b>PerformLive</b></span></span>
+            <span class="fa" style="--x:53%;--y:9%;--w:40%;--rot:3deg;--z:2;--i:1">
+              <span class="fa-in"><img src="images/apps/banner-pulseroom.jpg" alt="" loading="lazy"><b>PulseRoom</b></span></span>
+            <span class="fa" style="--x:9%;--y:50%;--w:45%;--rot:2.5deg;--z:4;--i:2">
+              <span class="fa-in"><img src="images/apps/banner-harmoniemd.jpg" alt="" loading="lazy"><b>HarmonieMD</b></span></span>
+            <span class="fa" style="--x:56%;--y:45%;--w:38%;--rot:-3deg;--z:1;--i:3">
+              <span class="fa-in"><img src="images/apps/banner-nebulatide.jpg" alt="" loading="lazy"><b>Nebula Tide</b></span></span>
+          </span>
+        </div>
         <div class="arr-body">
           <span class="arr-tag">03 — Software</span>
           <h3>The App Store</h3>

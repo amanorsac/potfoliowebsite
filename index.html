@@ -689,6 +689,16 @@ var CONFIG = {
      Newest first. Delete any line you do not want. */
   works: [
 
+    /* The first entry with a working link becomes the big featured
+       player in Listen. Keep the playlist?list= form: an
+       embed/videoseries URL would match the single-video rule in
+       parseLink and capture the word "videoseries" as an id. */
+    { url:   "https://www.youtube.com/playlist?list=PLTxGC8xAIcbY",
+      title: "Selected work",
+      artist:"",
+      role:  "Playlist",
+      rooms: ["home"] },
+
     { url:   "https://www.youtube.com/playlist?list=OLAK5uy_n74Hdmc1nF0HK9jpFxboc99tjXZD_Xuhg",
       title: "THE UNVEILED (full album)",
       artist:"Kingsley Anyenor",

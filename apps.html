@@ -500,10 +500,10 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <a class="al art-hmd" href="harmoniemd.html">
         <img class="real" src="images/apps/banner-harmoniemd.jpg" alt="" loading="lazy" onerror="this.remove()">
         <span><b>HarmonieMD</b><small>Rehearse ready</small></span></a>
-      <a class="al art-nt" href="#nebulatide">
+      <a class="al art-nt" href="nebulatide.html">
         <img class="real" src="images/apps/banner-nebulatide.jpg" alt="" loading="lazy" onerror="this.remove()">
         <span><b>Nebula Tide</b><small>Endless pads</small></span></a>
-      <a class="al art-pr" href="#pulseroom">
+      <a class="al art-pr" href="pulseroom.html">
         <img class="real" src="images/apps/banner-pulseroom.jpg" alt="" loading="lazy" onerror="this.remove()">
         <span><b>PulseRoom</b><small>The reference desk</small></span></a>
     </nav>
@@ -543,7 +543,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </a>
 
-      <a class="sc rise" href="#nebulatide">
+      <a class="sc rise" href="nebulatide.html">
         <div class="art art-nt">
           <span class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
           <b>Nebula Tide</b><small>An ocean of sound</small>
@@ -557,7 +557,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </a>
 
-      <a class="sc rise" href="#pulseroom">
+      <a class="sc rise" href="pulseroom.html">
         <div class="art art-pr">
           <img class="logo" src="images/apps/pulseroom-logo.svg" alt="">
           <b>PulseRoom</b><small>Every answer, one tempo</small>
@@ -632,7 +632,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <p>Endless, seamless drone pads inside an interface that’s alive. Every preset is a real recording captured in all twelve keys — never pitch-shifted — so E♭ sounds as intentional as C. Keys orbit as floating planets; tap one and the pad crossfades into a new tonal world.</p>
       <p>Two stars flank the stage — FX and textures like rain, wind, and swells — and Room, Plate, and Hall reverbs shape the space. Runs standalone on Windows or as a VST3 in your DAW, and the whole interface re-colors itself to match the sound.</p>
       <ul class="spec"><li>Seamless infinite looping</li><li>12 real recordings per preset</li><li>FX &amp; texture layers</li><li>Room / Plate / Hall</li><li>Standalone + VST3</li><li>Preset packs, drop-in</li></ul>
-      <a class="cta" data-app="nebulatide" href="#access">Request the beta <span class="go">→</span></a>
+      <a class="cta" href="nebulatide.html">Full product page <span class="go">→</span></a>
     </div>
   </section>
 
@@ -648,7 +648,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <p>The reference desk beside your DAW. Tap in your song’s BPM once and everything follows: tempo-synced delay times, reverb pre-delay and decay that land on the bar grid, EQ boost-and-cut zones painted for 13 instruments, and compression you can finally see as a drawn gain-reduction envelope.</p>
       <p>Every number ships with its why, and the app’s own footer says the rest: values are starting points — trust your ears first. Offline, no account, no ads.</p>
       <ul class="spec"><li>Tap-tempo drives it all</li><li>Click-to-copy every value</li><li>Visual EQ &amp; compression</li><li>Mix chains with reasons</li><li>LUFS &amp; reference tables</li><li>Free · Windows &amp; macOS</li></ul>
-      <a class="cta" data-app="pulseroom" href="#access">Get the download <span class="go">→</span></a>
+      <a class="cta" href="pulseroom.html">Full product page <span class="go">→</span></a>
     </div>
     <div class="shotrow rise">
       <figure><img src="images/apps/S4-reverb-designer.png" alt="PulseRoom Reverb Designer — pre-delay and decay sized to the bar grid" loading="lazy"><figcaption>Reverb Designer</figcaption></figure>
@@ -696,15 +696,10 @@ var CONFIG = {
      Leave empty and the form falls back to opening an email app. */
   formEndpoint: "https://formspree.io/f/xkodkloa",
 
-  /* 1b. APP DOWNLOAD LINKS ----------------------------------
-     Paste a real URL and that app’s button becomes a direct
-     download. Empty = the button keeps pointing at early access. */
-  appLinks: {
-    harmoniemd:  "",
-    performlive: "",
-    nebulatide:  "",
-    pulseroom:   ""
-  },
+  /* 1b. APP DOWNLOADS ---------------------------------------
+     Each app now has its own page (harmoniemd.html, performlive.html,
+     nebulatide.html, pulseroom.html). Paste installer links in the
+     CONFIG block at the bottom of that app’s own page. */
 
 
   /* 2. SOCIAL LINKS -----------------------------------------
@@ -1062,19 +1057,6 @@ var CONFIG = {
   }
 })();
 
-</script>
-<script>
-/* store buttons: real download links take over when CONFIG has them */
-(function(){
-  var links = (CONFIG && CONFIG.appLinks) || {};
-  document.querySelectorAll('[data-app]').forEach(function(a){
-    var url = links[a.getAttribute('data-app')];
-    if(url){
-      a.href = url;
-      a.firstChild.textContent = 'Download ';
-    }
-  });
-})();
 </script>
 </body>
 </html>

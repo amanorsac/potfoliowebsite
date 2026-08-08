@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nebula Tide: endless drone pads in all twelve keys | Amanorsac App Store</title>
+<meta name="description" content="Nebula Tide plays endless, seamless drone pads — real recordings in all 12 keys, never pitch-shifted — inside an interface that's alive. Windows standalone and VST3.">
+<meta property="og:title" content="An ocean of sound. In every key.">
+<meta property="og:description" content="Endless drone pads, a living interface, twelve real recordings per preset. Windows standalone and VST3.">
+<meta property="og:image" content="https://amanorsac.studio/images/apps/nt-idle.png">
+<meta property="og:url" content="https://amanorsac.studio/nebulatide.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="images/apps/nt-logo.png" type="image/png">
+<style>
+/* =====================================================================
+   Nebula Tide product page. Same skeleton as the other product pages,
+   wearing the app's own palette: deep navy sea, cyan accent, foam-white
+   text, with gold and ice reserved for the two stars - exactly the way
+   the instrument uses them.
+   ===================================================================== */
+:root{
+  --bg:#020C16; --bg-mid:#04283F; --panel:#07182640; --panel-2:#0A2233;
+  --line:rgba(79,227,255,.16);
+  --text:#BDF3FF; --muted:#6FA8BD; --dim:#6A9EB4;
+  --accent:#16B8D8; --accent-bright:#4FE3FF; --accent-soft:#062A3A;
+  --gold:#FFC96B; --ice:#BFEAFF; --go:#4FE3FF;
+  --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r:14px; --r-lg:22px;
+  --ease:cubic-bezier(.22,1,.36,1); --dur:240ms;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{margin:0;color:var(--text);font-family:var(--body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  background:var(--bg)}
+/* the sky: one deep radial, one drifting star layer. Cheap, and it is
+   the app's own background rather than a decoration borrowed from
+   somewhere else. */
+.sky{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, var(--bg-mid) 0%, transparent 62%),
+    radial-gradient(90% 60% at 80% 110%, #04202F 0%, transparent 60%),
+    var(--bg)}
+.stars{position:fixed;inset:-200px;z-index:-1;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cg fill='%23BDF3FF'%3E%3Ccircle cx='23' cy='47' r='.9' opacity='.55'/%3E%3Ccircle cx='112' cy='19' r='.6' opacity='.4'/%3E%3Ccircle cx='198' cy='86' r='1' opacity='.6'/%3E%3Ccircle cx='274' cy='31' r='.6' opacity='.35'/%3E%3Ccircle cx='355' cy='72' r='.8' opacity='.5'/%3E%3Ccircle cx='61' cy='139' r='.7' opacity='.45'/%3E%3Ccircle cx='149' cy='176' r='.5' opacity='.3'/%3E%3Ccircle cx='231' cy='142' r='.9' opacity='.55'/%3E%3Ccircle cx='318' cy='190' r='.6' opacity='.35'/%3E%3Ccircle cx='391' cy='151' r='.7' opacity='.45'/%3E%3Ccircle cx='38' cy='233' r='.8' opacity='.5'/%3E%3Ccircle cx='127' cy='271' r='.5' opacity='.3'/%3E%3Ccircle cx='209' cy='246' r='.9' opacity='.55'/%3E%3Ccircle cx='296' cy='288' r='.6' opacity='.4'/%3E%3Ccircle cx='373' cy='257' r='.8' opacity='.5'/%3E%3Ccircle cx='76' cy='339' r='.7' opacity='.45'/%3E%3Ccircle cx='166' cy='372' r='.6' opacity='.35'/%3E%3Ccircle cx='252' cy='348' r='1' opacity='.6'/%3E%3Ccircle cx='340' cy='395' r='.5' opacity='.3'/%3E%3Ccircle cx='405' cy='330' r='.8' opacity='.5'/%3E%3C/g%3E%3C/svg%3E");
+  animation:drift 140s linear infinite}
+@keyframes drift{ from{transform:translate3d(0,0,0)} to{transform:translate3d(-420px,-420px,0)} }
+
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent-bright);outline-offset:2px;border-radius:4px}
+
+.wrap{max-width:1120px;margin:0 auto;
+  padding-left:clamp(18px,4vw,40px);padding-right:clamp(18px,4vw,40px)}
+section{padding:clamp(64px,10vh,120px) 0}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+  padding:14px clamp(18px,4vw,40px);background:color-mix(in srgb,var(--bg) 82%,transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .back{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none}
+.top .back:hover{color:var(--text)}
+.top .name{margin-left:auto;display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:12px;font-weight:500;
+  letter-spacing:.32em;text-transform:uppercase}
+.top .name img{width:20px;height:20px;border-radius:5px}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(56px,9vh,100px) 0 0}
+.hero .status{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--accent-bright);background:var(--accent-soft);
+  border:1px solid color-mix(in srgb,var(--accent-bright) 30%,transparent);
+  border-radius:999px;padding:6px 14px;margin:0 0 26px}
+h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05;
+  font-size:clamp(34px,5.6vw,64px);margin:0 0 22px;max-width:15ch;
+  color:#EAFBFF;text-shadow:0 0 60px rgba(79,227,255,.18)}
+.hero .sub{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:54ch;margin:0 0 30px}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.cta{display:inline-block;font-family:var(--display);font-weight:600;font-size:15px;
+  text-decoration:none;border-radius:999px;padding:14px 28px;
+  background:linear-gradient(180deg,var(--accent-bright),#0E7EA0);color:#01141C;
+  transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease);
+  box-shadow:0 0 0 rgba(79,227,255,0)}
+.cta:hover{transform:translateY(-2px);box-shadow:0 10px 34px rgba(79,227,255,.22)}
+.cta:active{transform:translateY(0) scale(.98)}
+.cta.ghost{background:transparent;color:var(--text);
+  border:1px solid color-mix(in srgb,var(--accent-bright) 34%,transparent);box-shadow:none}
+.hero .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim);margin:0}
+.hero-shot{margin-top:clamp(36px,6vh,64px);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,.55)}
+
+/* ---------- section headings ---------- */
+h2{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.12;
+  font-size:clamp(25px,3.2vw,38px);margin:0 0 14px;color:#EAFBFF}
+.lede{color:var(--muted);max-width:60ch;margin:0 0 40px;font-size:17px}
+
+/* ---------- feature rows ---------- */
+.feat{display:grid;grid-template-columns:1fr 1.15fr;gap:clamp(24px,4vw,56px);
+  align-items:center;margin-bottom:clamp(48px,8vh,84px)}
+.feat.flip{grid-template-columns:1.15fr 1fr}
+.feat.flip .feat-copy{order:2}
+.feat .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--k,var(--accent-bright));margin:0 0 10px}
+.feat h3{font-family:var(--display);font-weight:700;font-size:clamp(20px,2.2vw,26px);
+  letter-spacing:-.015em;margin:0 0 12px;color:#EAFBFF}
+.feat p{color:var(--muted);margin:0;max-width:46ch}
+.feat .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  box-shadow:0 14px 48px rgba(0,0,0,.45)}
+.feat-wide{margin-bottom:clamp(48px,8vh,84px)}
+.feat-wide .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--k,var(--accent-bright));margin:0 0 10px}
+.feat-wide h3{font-family:var(--display);font-weight:700;font-size:clamp(20px,2.2vw,26px);
+  margin:0 0 12px;color:#EAFBFF}
+.feat-wide p{color:var(--muted);max-width:58ch;margin:0 0 26px}
+.feat-wide .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+
+/* the quiet ones */
+.trio{border-top:1px solid var(--line)}
+.trio > div{display:grid;grid-template-columns:minmax(180px,260px) 1fr;gap:18px;
+  padding:26px 0;border-bottom:1px solid var(--line)}
+.trio h3{font-family:var(--display);font-size:17px;font-weight:600;margin:0;
+  letter-spacing:-.01em;color:#EAFBFF}
+.trio p{margin:0;color:var(--muted);max-width:60ch}
+@media (max-width:640px){ .trio > div{grid-template-columns:1fr;gap:6px} }
+
+/* ---------- workflow ---------- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;counter-reset:step}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:26px 22px;counter-increment:step;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.step::before{content:counter(step,decimal-leading-zero);display:block;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  color:var(--accent-bright);margin-bottom:12px}
+.step b{display:block;font-family:var(--display);font-weight:600;font-size:17px;
+  margin-bottom:6px;color:#EAFBFF}
+.step p{margin:0;font-size:14px;color:var(--muted)}
+.manual{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);margin:20px 0 0}
+@media (max-width:720px){ .steps{grid-template-columns:1fr} }
+
+/* ---------- comparison ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;min-width:660px;background:var(--panel-2)}
+th,td{text-align:left;padding:14px 18px;font-size:14.5px;border-bottom:1px solid var(--line)}
+th{font-family:var(--display);font-weight:600;font-size:14px;color:#EAFBFF}
+thead th{background:#0C2A3C}
+tbody th{font-weight:500;color:var(--muted)}
+td b{color:var(--go);font-weight:600}
+td i{color:var(--dim);font-style:normal}
+tr:last-child th,tr:last-child td{border-bottom:0}
+
+/* ---------- packs ---------- */
+.packs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.pack{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:28px 24px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.pack .tier{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--accent-bright);margin:0 0 12px}
+.pack h3{font-family:var(--display);font-weight:700;font-size:19px;margin:0 0 8px;color:#EAFBFF}
+.pack p{margin:0;color:var(--muted);font-size:14.5px}
+.packnote{font-size:13.5px;color:var(--dim);margin-top:18px;max-width:60ch}
+@media (max-width:820px){ .packs{grid-template-columns:1fr} }
+
+/* ---------- faq ---------- */
+details{border-bottom:1px solid var(--line)}
+details summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;
+  align-items:center;gap:16px;padding:20px 0;font-family:var(--display);
+  font-weight:600;font-size:16.5px;color:#EAFBFF}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font-family:var(--mono);color:var(--muted);
+  font-size:18px;transition:transform var(--dur) var(--ease)}
+details[open] summary::after{transform:rotate(45deg)}
+details div{padding:0 0 20px;color:var(--muted);max-width:64ch}
+
+.finale{border-top:1px solid var(--line)}
+.finale h2{max-width:20ch}
+
+footer{border-top:1px solid var(--line);padding:26px clamp(18px,4vw,40px);
+  display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+footer a{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+
+/* ---------- motion ---------- */
+.rise{opacity:0;transform:translateY(24px);
+  transition:opacity 640ms var(--ease),transform 640ms var(--ease)}
+.rise.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .rise{opacity:1;transform:none}
+}
+@media (max-width:820px){
+  .feat,.feat.flip{grid-template-columns:1fr}
+  .feat.flip .feat-copy{order:0}
+}
+</style>
+</head>
+<body>
+
+<div class="sky" aria-hidden="true"></div>
+<div class="stars" aria-hidden="true"></div>
+
+<div class="top">
+  <a class="back" href="apps.html">← App Store</a>
+  <span class="name"><img src="images/apps/nt-logo.png" alt="">Nebula Tide</span>
+</div>
+
+<header class="hero wrap">
+  <span class="status">Private beta · Windows</span>
+  <h1>An ocean of sound. In every key.</h1>
+  <p class="sub">Nebula Tide plays endless, seamless drone pads — real recordings in all twelve keys — inside an interface that’s alive. One click, infinite atmosphere.</p>
+  <div class="cta-row">
+    <a class="cta" href="apps.html#access">Request the beta</a>
+    <a class="cta ghost" href="#features">See the instrument</a>
+  </div>
+  <p class="fine">Windows standalone and VST3 · macOS and iPad planned</p>
+  <div class="hero-shot rise">
+    <img src="images/apps/nt-idle.png" alt="Nebula Tide at rest: the Deep Current preset on stage, twelve key planets on their orbit, and the volume, reverb and pan controls below" fetchpriority="high">
+  </div>
+</header>
+
+<section id="features" class="wrap">
+  <h2>A pad in the right key, right now.</h2>
+  <p class="lede">Synths want programming. Loop packs end and click. A YouTube video is in the wrong key with an ad in the middle of your set. All anyone actually needs is a beautiful bed of sound that starts when you press it and doesn’t stop until you say so.</p>
+
+  <div class="feat-wide rise" style="--k:var(--accent-bright)">
+    <p class="kicker">Twelve keys</p>
+    <h3>Your E♭ was never a stretched C.</h3>
+    <p>Every preset ships as twelve separate studio recordings, one for each key — nothing is pitch-shifted anywhere in the engine. Tap a planet and the pad crossfades into a recording that was actually performed in that key, formants and character intact.</p>
+    <div class="shot"><img src="images/apps/nt-planets.png" alt="The twelve key planets on their orbit line, E flat selected and glowing" loading="lazy"></div>
+  </div>
+
+  <div class="feat rise" style="--k:var(--accent)">
+    <div class="feat-copy">
+      <p class="kicker">The living interface</p>
+      <h3>It breathes with the sound.</h3>
+      <p>Press the pad and the whole room answers: the square lights and pulses, the starfield accelerates with the output level, the aurora arcs turn. The status in the corner stops saying <i>drifting</i> and starts saying <i>transmitting</i>. It reads as an instrument, not a panel of controls.</p>
+    </div>
+    <div class="shot"><img src="images/apps/nt-playing.png" alt="Nebula Tide playing: the pad lit, the starfield streaking, E flat selected on the planet ring" loading="lazy"></div>
+  </div>
+
+  <div class="feat-wide rise" style="--k:var(--gold)">
+    <p class="kicker">Two stars</p>
+    <h3>Weather included.</h3>
+    <p>A gold star on the left for effects — claps, prayers, swells. An ice-blue star on the right for textures — wind, rain, birds, a room full of people. Both loop on their own, both survive a preset change, and both fade out gracefully when the drone stops. Drag a star vertically to set its level.</p>
+    <div class="shot"><img src="images/apps/nt-stars.png" alt="The FX star in gold on the left and the texture star in ice blue on the right, flanking the stage" loading="lazy"></div>
+  </div>
+
+  <div class="feat flip rise" style="--k:var(--ice)">
+    <div class="feat-copy">
+      <p class="kicker">One stage</p>
+      <h3>One preset. One key. One word telling you what it’s doing.</h3>
+      <p>No browser, no grid, no page of tabs. The stage carries everything you need mid-service: which preset is loaded, which key it’s in, and whether sound is leaving the app. Arrow left or right and the next preset hot-swaps under the crossfade — you never hear the seam.</p>
+    </div>
+    <div class="shot"><img src="images/apps/nt-stage.png" alt="The centre of the app: one glowing DEEP CURRENT pad square, the orbit arcs around it and the planet ring below" loading="lazy"></div>
+  </div>
+
+  <div class="feat-wide rise" style="--k:var(--accent-bright)">
+    <p class="kicker">Space</p>
+    <h3>Three rooms, three clicks.</h3>
+    <p>Room, Plate and Hall — each tuned to the character of the classics rather than left as a generic algorithm. Mix, Size and Damp are there when you want to go further, and every preset arrives with its own sensible defaults already dialled.</p>
+    <div class="shot"><img src="images/apps/nt-space.png" alt="The footer controls: volume knob, the Room, Plate and Hall buttons with Mix, Size and Damp sliders, and the crossfade control" loading="lazy"></div>
+  </div>
+
+  <div class="trio">
+    <div><h3>Nothing ever hard-cuts</h3>
+      <p>Pads, keys and whole presets change through an adjustable crossfade, half a second to twelve. Live use demands it: the congregation should never hear the transition, only the new key.</p></div>
+    <div><h3>Loops that hold all night</h3>
+      <p>Looping is sample-accurate rather than approximate, so a pad can run for a whole service or a whole session without a click, a gap, or a fade you didn’t ask for.</p></div>
+    <div><h3>Packs drop in, no reinstall</h3>
+      <p>Presets live in a folder the app reads at launch. A new sound pack is a folder you drop in — no installer, no app update, no waiting for a release.</p></div>
+    <div><h3>Stage app and studio plugin</h3>
+      <p>The same engine runs standalone on Windows or as a VST3 inside your DAW, sharing one preset folder. macOS and iPad are next from the same codebase.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Three steps.</h2>
+  <div class="steps">
+    <div class="step rise"><b>Pick your preset</b><p>Arrow to the sound you want. One square, centre stage.</p></div>
+    <div class="step rise"><b>Tap your key</b><p>Touch the planet for tonight’s key. The pad crossfades into that recording.</p></div>
+    <div class="step rise"><b>Play forever</b><p>Press the square. It doesn’t end until you end it.</p></div>
+  </div>
+  <p class="manual">That’s the whole manual.</p>
+</section>
+
+<section class="wrap">
+  <h2>The other ways people get a pad.</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th>Pad loop packs</th><th>Synth pads</th><th>YouTube pads</th><th>Nebula Tide</th></tr></thead>
+      <tbody>
+        <tr><th>All twelve keys, really recorded</th><td><i>Rarely</i></td><td><i>Synthesised</i></td><td><i>No</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Seamless infinite loop</th><td><i>Often clicks</i></td><td><i>Yes</i></td><td><i>Ends, or an ad does</i></td><td><b>Yes</b></td></tr>
+        <tr><th>One-click FX and textures</th><td><i>No</i></td><td><i>No</i></td><td><i>No</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Ready without programming</th><td><i>Yes</i></td><td><i>No</i></td><td><i>Yes</i></td><td><b>Yes</b></td></tr>
+        <tr><th>VST3 and standalone</th><td><i>Files only</i></td><td><i>Plugin only</i></td><td><i>No</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Safe to put on a stage</th><td><i>Depends</i></td><td><i>Yes</i></td><td><i>No</i></td><td><b>Yes</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>How it will be sold.</h2>
+  <p class="lede">The player is the app; the sounds are the product line. Prices are still being set, so here is the shape of it rather than a number we would have to change later.</p>
+  <div class="packs">
+    <div class="pack rise">
+      <p class="tier">The player</p>
+      <h3>Free, with Deep Current</h3>
+      <p>The instrument itself, standalone and VST3, with the first preset included — twelve keys of it.</p>
+    </div>
+    <div class="pack rise">
+      <p class="tier">Sound packs</p>
+      <h3>One-time, owned forever</h3>
+      <p>Each pack is a set of presets in all twelve keys. Buy it once, drop the folder in, keep it. No subscription.</p>
+    </div>
+    <div class="pack rise">
+      <p class="tier">Bundle</p>
+      <h3>Everything, at launch</h3>
+      <p>Every pack available at release, plus the ones that land during the launch window.</p>
+    </div>
+  </div>
+  <p class="packnote">Beta testers hear the pricing first. Ask for the beta and you’ll be on that list.</p>
+</section>
+
+<section class="wrap">
+  <h2>Questions, answered.</h2>
+  <details><summary>Are the pads pitch-shifted?</summary>
+    <div>Never. Twelve real recordings per preset, one per key. It’s the whole reason the app exists.</div></details>
+  <details><summary>Will it click when it loops?</summary>
+    <div>No. The loop is sample-accurate, and every transition — pad, key or preset — passes through a crossfade.</div></details>
+  <details><summary>Does it work in my DAW?</summary>
+    <div>VST3 on Windows today. macOS AU and VST3 are planned from the same codebase.</div></details>
+  <details><summary>Can I add my own sounds?</summary>
+    <div>Yes. Preset packs install by dropping a folder into the presets directory — no reinstall, no app update.</div></details>
+  <details><summary>Mac or iPad?</summary>
+    <div>Planned next. One codebase covers desktop, plugin and tablet, so they follow rather than restart.</div></details>
+  <details><summary>How big is it?</summary>
+    <div>The app is around ten megabytes. The sound library depends on which packs you have — the audio is FLAC, roughly half the size of the same material as WAV.</div></details>
+  <details><summary>Do I need to be a musician?</summary>
+    <div>No. Choose a preset, tap a key, press the square. If you can’t read the key off a setlist, C is a safe place to start.</div></details>
+</section>
+
+<section class="wrap finale">
+  <h2>The tide is waiting.</h2>
+  <p class="lede">Nebula Tide is in private testing on Windows. Tell us where you’d use it and we’ll send you a build.</p>
+  <div class="cta-row">
+    <a class="cta" href="apps.html#access">Request the beta</a>
+    <a class="cta ghost" href="apps.html">Back to the App Store</a>
+  </div>
+</section>
+
+<footer>
+  <a href="apps.html">App Store</a>
+  <a href="harmoniemd.html">HarmonieMD</a>
+  <a href="performlive.html">PerformLive</a>
+  <a href="pulseroom.html">PulseRoom</a>
+  <a href="index.html">Studio</a>
+  <a href="index.html#contact">Contact</a>
+  <span class="who">Amanorsac Studio</span>
+</footer>
+
+<script>
+/* reveal on scroll; falls back to visible when unsupported or reduced */
+if('IntersectionObserver' in window &&
+   !matchMedia('(prefers-reduced-motion: reduce)').matches){
+  var ro = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); ro.unobserve(e.target); } });
+  }, { threshold:.15 });
+  document.querySelectorAll('.rise').forEach(function(el){ ro.observe(el); });
+}else{
+  document.querySelectorAll('.rise').forEach(function(el){ el.classList.add('in'); });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PulseRoom: delay, reverb, EQ and compression at your tempo | Amanorsac App Store</title>
+<meta name="description" content="PulseRoom turns your song's BPM into delay times, reverb tails, EQ moves and compression settings — visual, offline, and free. A desktop reference desk for producers on Windows and macOS.">
+<meta property="og:title" content="Every mixing answer. One tempo.">
+<meta property="og:description" content="The free desktop toolkit that syncs delay, reverb, EQ and compression guidance to your song's BPM. Windows and macOS.">
+<meta property="og:image" content="https://amanorsac.studio/images/apps/S1-hero-delay-essentials.png">
+<meta property="og:url" content="https://amanorsac.studio/pulseroom.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="images/apps/pulseroom-logo.svg" type="image/svg+xml">
+<style>
+/* =====================================================================
+   PulseRoom product page. Same skeleton as the other product pages,
+   wearing the app's own colour system: near-black panels, cyan as the
+   brand accent, and the five module accents used exactly the way the
+   app uses them - one per section, never mixed.
+   ===================================================================== */
+:root{
+  --bg:#0c0e12; --panel:#12151c; --panel-2:#171b24; --line:rgba(255,255,255,.08);
+  --text:#e9ebf1; --muted:#a2a9b8; --dim:#6d7488;
+  --accent:#3fd3e4; --accent-soft:#0e2229;
+  --rv:#a48bfa; --eq:#f2b13c; --cp:#f25c7f; --ch:#4fd58f; --gd:#5f9dff; --rf:#d8a05f;
+  --go:#4fd58f;
+  --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r:14px; --r-lg:22px;
+  --ease:cubic-bezier(.16,1,.3,1); --dur:240ms;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.wrap{max-width:1120px;margin:0 auto;
+  padding-left:clamp(18px,4vw,40px);padding-right:clamp(18px,4vw,40px)}
+section{padding:clamp(64px,10vh,120px) 0}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+  padding:14px clamp(18px,4vw,40px);background:color-mix(in srgb,var(--bg) 86%,transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .back{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none}
+.top .back:hover{color:var(--text)}
+.top .name{margin-left:auto;display:flex;align-items:center;gap:9px;
+  font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em}
+.top .name img{width:18px;height:18px}
+.top .name b{color:var(--accent);font-weight:700}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(56px,9vh,100px) 0 0}
+.hero .status{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+  border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);
+  border-radius:999px;padding:6px 14px;margin:0 0 26px}
+h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05;
+  font-size:clamp(34px,5.6vw,64px);margin:0 0 22px;max-width:16ch}
+.hero .sub{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:54ch;margin:0 0 30px}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.cta{display:inline-block;font-family:var(--display);font-weight:600;font-size:15px;
+  text-decoration:none;border-radius:999px;padding:14px 28px;
+  background:var(--accent);color:#06171b;transition:transform var(--dur) var(--ease)}
+.cta:hover{transform:translateY(-2px)}
+.cta:active{transform:translateY(0) scale(.98)}
+.cta.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.hero .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim);margin:0}
+.hero-shot{margin-top:clamp(36px,6vh,64px);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.55)}
+
+/* ---------- section headings ---------- */
+h2{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.12;
+  font-size:clamp(25px,3.2vw,38px);margin:0 0 14px}
+.lede{color:var(--muted);max-width:60ch;margin:0 0 40px;font-size:17px}
+
+/* ---------- feature rows ---------- */
+.feat{display:grid;grid-template-columns:1fr 1.15fr;gap:clamp(24px,4vw,56px);
+  align-items:center;margin-bottom:clamp(48px,8vh,84px)}
+.feat.flip{grid-template-columns:1.15fr 1fr}
+.feat.flip .feat-copy{order:2}
+.feat .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--k,var(--accent));margin:0 0 10px}
+.feat h3{font-family:var(--display);font-weight:700;font-size:clamp(20px,2.2vw,26px);
+  letter-spacing:-.015em;margin:0 0 12px}
+.feat p{color:var(--muted);margin:0;max-width:46ch}
+.feat .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  box-shadow:0 14px 48px rgba(0,0,0,.45)}
+.feat-wide{margin-bottom:clamp(48px,8vh,84px)}
+.feat-wide .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--k,var(--accent));margin:0 0 10px}
+.feat-wide h3{font-family:var(--display);font-weight:700;font-size:clamp(20px,2.2vw,26px);margin:0 0 12px}
+.feat-wide p{color:var(--muted);max-width:58ch;margin:0 0 26px}
+.feat-wide .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+
+/* the quiet ones */
+.trio{border-top:1px solid var(--line)}
+.trio > div{display:grid;grid-template-columns:minmax(180px,260px) 1fr;gap:18px;
+  padding:26px 0;border-bottom:1px solid var(--line)}
+.trio h3{font-family:var(--display);font-size:17px;font-weight:600;margin:0;letter-spacing:-.01em}
+.trio p{margin:0;color:var(--muted);max-width:60ch}
+@media (max-width:640px){ .trio > div{grid-template-columns:1fr;gap:6px} }
+
+/* ---------- workflow ---------- */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;counter-reset:step}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:22px 20px;counter-increment:step}
+.step::before{content:counter(step,decimal-leading-zero);display:block;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--accent);margin-bottom:12px}
+.step b{display:block;font-family:var(--display);font-weight:600;font-size:16px;margin-bottom:6px}
+.step p{margin:0;font-size:14px;color:var(--muted)}
+@media (max-width:980px){ .steps{grid-template-columns:1fr 1fr 1fr} }
+@media (max-width:640px){ .steps{grid-template-columns:1fr 1fr} }
+@media (max-width:420px){ .steps{grid-template-columns:1fr} }
+
+/* ---------- gallery ---------- */
+.shotrow{display:grid;grid-auto-flow:column;grid-auto-columns:min(560px,86vw);gap:16px;
+  overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+  padding-bottom:14px}
+.shotrow figure{margin:0;scroll-snap-align:start}
+.shotrow .shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.shotrow figcaption{font-size:13.5px;color:var(--muted);padding:10px 4px 0}
+
+/* ---------- comparison ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;min-width:640px;background:var(--panel)}
+th,td{text-align:left;padding:14px 18px;font-size:14.5px;border-bottom:1px solid var(--line)}
+th{font-family:var(--display);font-weight:600;font-size:14px}
+thead th{background:var(--panel-2)}
+tbody th{font-weight:500;color:var(--muted)}
+td b{color:var(--go);font-weight:600}
+td i{color:var(--dim);font-style:normal}
+tr:last-child th,tr:last-child td{border-bottom:0}
+
+/* ---------- the price ---------- */
+.price{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:clamp(28px,5vw,48px);display:grid;grid-template-columns:auto 1fr;
+  gap:clamp(20px,4vw,48px);align-items:center}
+.price .big{font-family:var(--display);font-weight:800;font-size:clamp(48px,7vw,84px);
+  letter-spacing:-.04em;line-height:1;color:var(--accent);margin:0}
+.price h2{margin:0 0 8px}
+.price p{margin:0;color:var(--muted);max-width:52ch}
+@media (max-width:700px){ .price{grid-template-columns:1fr;gap:14px} }
+
+/* ---------- faq ---------- */
+details{border-bottom:1px solid var(--line)}
+details summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;
+  align-items:center;gap:16px;padding:20px 0;font-family:var(--display);font-weight:600;font-size:16.5px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font-family:var(--mono);color:var(--muted);
+  font-size:18px;transition:transform var(--dur) var(--ease)}
+details[open] summary::after{transform:rotate(45deg)}
+details div{padding:0 0 20px;color:var(--muted);max-width:64ch}
+
+.finale{border-top:1px solid var(--line)}
+.finale h2{max-width:22ch}
+
+footer{border-top:1px solid var(--line);padding:26px clamp(18px,4vw,40px);
+  display:flex;gap:20px;flex-wrap:wrap;align-items:center}
+footer a{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+
+/* ---------- motion ---------- */
+.rise{opacity:0;transform:translateY(18px);
+  transition:opacity 640ms var(--ease),transform 640ms var(--ease)}
+.rise.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .rise{opacity:1;transform:none}
+}
+@media (max-width:820px){
+  .feat,.feat.flip{grid-template-columns:1fr}
+  .feat.flip .feat-copy{order:0}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a class="back" href="apps.html">← App Store</a>
+  <span class="name"><img src="images/apps/pulseroom-logo.svg" alt="">Pulse<b>Room</b></span>
+</div>
+
+<header class="hero wrap">
+  <span class="status">Free · Windows &amp; macOS</span>
+  <h1>Every mixing answer. One tempo.</h1>
+  <p class="sub">PulseRoom turns your song’s BPM into delay times, reverb tails, EQ moves and compression settings — in one desktop app that opens faster than the browser tab it replaces.</p>
+  <div class="cta-row">
+    <a class="cta" data-dl="win" href="apps.html#access">Download free for Windows</a>
+    <a class="cta ghost" data-dl="mac" href="apps.html#access">Download for Mac</a>
+  </div>
+  <p class="fine">Around 2 MB · Works offline · No account, no ads</p>
+  <div class="hero-shot rise">
+    <img src="images/apps/S1-hero-delay-essentials.png" alt="PulseRoom open on the Delay Calculator at 140 BPM, showing the eight essential note values" fetchpriority="high">
+  </div>
+</header>
+
+<section id="features" class="wrap">
+  <h2>The mix was flowing. Then you had to Google something.</h2>
+  <p class="lede">What delay time fits 140 BPM. Where the mud lives on a vocal. What attack keeps the kick punchy. The answers exist — spread across ad-choked calculator sites, a cheat-sheet PDF somewhere in Downloads, and a YouTube video you half remember. Each lookup costs five minutes and the thread you were pulling.</p>
+
+  <div class="feat-wide rise" style="--k:var(--accent)">
+    <p class="kicker">Tempo</p>
+    <h3>One number, and the whole app follows.</h3>
+    <p>Type your BPM, nudge it, or tap it in — the bar sits above every page like a DAW transport, with milliseconds per beat and per bar always in view. Delay and reverb recalculate as you go. You never enter the tempo twice.</p>
+    <div class="shot"><img src="images/apps/S2-tempo-bar.png" alt="The tempo bar: stepper, BPM field, TAP button, and the live readouts for milliseconds per beat, per bar, and hertz per beat" loading="lazy"></div>
+  </div>
+
+  <div class="feat rise" style="--k:var(--accent)">
+    <div class="feat-copy">
+      <p class="kicker">Delay</p>
+      <h3>The eight values you actually use, first.</h3>
+      <p>PulseRoom opens on the ones that matter — 1/4, 1/8 dotted, 1/8 triplet and the rest — each with a note on what it’s for. Click a card and the millisecond value is on your clipboard. The full twenty-one-value grid is one toggle away when you need it.</p>
+    </div>
+    <div class="shot"><img src="images/apps/S3-copy-toast.png" alt="A delay card hovered, with a toast confirming the copied millisecond value" loading="lazy"></div>
+  </div>
+
+  <div class="feat flip rise" style="--k:var(--rv)">
+    <div class="feat-copy">
+      <p class="kicker">Reverb</p>
+      <h3>A tail that ends on the bar, not whenever.</h3>
+      <p>Pick a space — tight ambience through cathedral — and the pre-delay and decay are sized to the grid, so the tail breathes with the song instead of smearing it. The send-EQ curve is drawn for you: the habit that separates clean mixes from muddy ones.</p>
+    </div>
+    <div class="shot"><img src="images/apps/S4-reverb-designer.png" alt="The Reverb Designer with Concert Hall selected, showing pre-delay, decay, the decay envelope and the send-EQ curve" loading="lazy"></div>
+  </div>
+
+  <div class="feat rise" style="--k:var(--eq)">
+    <div class="feat-copy">
+      <p class="kicker">EQ</p>
+      <h3>See the spectrum the way engineers hear it.</h3>
+      <p>Thirteen sources, from kick drum to mix bus. Pick one and the boost zones, cut zones and the ones worth listening to first are painted onto a real log-scale spectrum — with the reason underneath each band, in plain language.</p>
+    </div>
+    <div class="shot"><img src="images/apps/S6-eq-cheat-sheet.png" alt="The EQ Cheat Sheet with Lead Vocal selected, boost and cut zones painted across the spectrum" loading="lazy"></div>
+  </div>
+
+  <div class="feat flip rise" style="--k:var(--cp)">
+    <div class="feat-copy">
+      <p class="kicker">Compression</p>
+      <h3>Attack and release, finally visible.</h3>
+      <p>Fourteen sources, each with its gain-reduction envelope drawn: the hit lands, the reduction dives through the attack window, holds, then recovers through the release. The most misunderstood pair of knobs in mixing, shown instead of described.</p>
+    </div>
+    <div class="shot"><img src="images/apps/S7-compression-envelope.png" alt="The Compression page showing a drawn gain-reduction envelope with ratio, attack, release and target reduction" loading="lazy"></div>
+  </div>
+
+  <div class="feat-wide rise" style="--k:var(--ch)">
+    <p class="kicker">Mix chains</p>
+    <h3>The right order, and the reasons for it.</h3>
+    <p>Ten sources, lead vocal through the mastering chain, laid out as numbered steps with the settings for each. A de-esser after the compressor causes problems no EQ will fix — so every chain carries a card explaining why it runs the way it does.</p>
+    <div class="shot"><img src="images/apps/S8-mix-chains.png" alt="The Mix Chains page: a lead vocal chain from high-pass to sends, with a note explaining the order" loading="lazy"></div>
+  </div>
+
+  <div class="trio">
+    <div><h3>Tap it in, or press T</h3>
+      <p>Tap tempo averages up to eight hits and resets if you pause, so you can find a track’s BPM by ear the way you would on a drum machine. The keyboard shortcut works from any page.</p></div>
+    <div><h3>Every number is one click away</h3>
+      <p>Click any value and it’s copied, with a small confirmation. Straight into the plugin, no retyping, no transcription errors at 2 a.m.</p></div>
+    <div><h3>Offline is the point</h3>
+      <p>No account, no telemetry, no ads, no spinner. It runs entirely on your machine, which is why it opens before a browser tab would have finished loading.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>A session with PulseRoom.</h2>
+  <div class="steps">
+    <div class="step rise"><b>Tap your tempo</b><p>Match the session once. Everything else follows.</p></div>
+    <div class="step rise"><b>Copy your delays</b><p>Quarter and eighth-dotted into the send delays.</p></div>
+    <div class="step rise"><b>Size your reverb</b><p>Pick the space, copy pre-delay and decay, mirror the EQ curve.</p></div>
+    <div class="step rise"><b>Carve with confidence</b><p>EQ zones while you cut, envelopes while you compress.</p></div>
+    <div class="step rise"><b>Check your loudness</b><p>Master against the right LUFS target for where it’s going.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>The rest of the desk.</h2>
+  <div class="shotrow">
+    <figure><div class="shot"><img src="images/apps/S9-mixing-guide.png" alt="" loading="lazy"></div>
+      <figcaption>The mixing guide: nine sections of habits, from gain staging to the mistakes everyone makes.</figcaption></figure>
+    <figure><div class="shot"><img src="images/apps/S10-reference.png" alt="" loading="lazy"></div>
+      <figcaption>Reference: LUFS targets per platform, the frequency map, and note-to-hertz for tuning 808s.</figcaption></figure>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Why not just Google it.</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th>Browser calculators</th><th>PDF cheat sheets</th><th>PulseRoom</th></tr></thead>
+      <tbody>
+        <tr><th>Tempo-synced values</th><td><i>Re-entered per site</i></td><td><i>Never</i></td><td><b>Live, app-wide</b></td></tr>
+        <tr><th>Visual EQ and compression</th><td><i>No</i></td><td><i>Static and generic</i></td><td><b>Interactive, per source</b></td></tr>
+        <tr><th>Explains the why</th><td><i>No</i></td><td><i>Rarely</i></td><td><b>Every value</b></td></tr>
+        <tr><th>Works offline</th><td><i>No</i></td><td><i>Yes</i></td><td><b>Yes</b></td></tr>
+        <tr><th>Click to copy</th><td><i>Rare</i></td><td><i>No</i></td><td><b>Everywhere</b></td></tr>
+        <tr><th>Belongs beside a DAW</th><td><i>Ads everywhere</i></td><td><i>Clip art</i></td><td><b>Plugin-grade dark UI</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="price rise">
+    <p class="big">Free</p>
+    <div>
+      <h2>Forever, for the whole toolkit.</h2>
+      <p>All seven modules, both platforms, no account and no ads. It’s the tool the studio uses every session — there was never a reason to charge for it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Questions, answered.</h2>
+  <details><summary>Is it really free?</summary>
+    <div>Yes. Free download, no account, no ads, nothing to unlock.</div></details>
+  <details><summary>Does it work offline?</summary>
+    <div>Completely. Nothing is sent anywhere and nothing is loaded from the internet — which is also why it opens instantly.</div></details>
+  <details><summary>Windows and Mac?</summary>
+    <div>Both, from the same build.</div></details>
+  <details><summary>Is it a plugin or a VST?</summary>
+    <div>Neither. It’s a standalone companion app that lives beside any DAW — second monitor, or a quick alt-tab.</div></details>
+  <details><summary>Are the values correct?</summary>
+    <div>They’re proven starting points with the reasoning attached, not laws. The app’s own sidebar says it best: values are starting points, trust your ears first.</div></details>
+  <details><summary>Will it slow my machine down?</summary>
+    <div>No. It’s about two megabytes of app and lighter than a single browser tab.</div></details>
+  <details><summary>Which DAWs does it work with?</summary>
+    <div>All of them. It doesn’t touch your session — it hands you numbers you type or paste wherever you like.</div></details>
+</section>
+
+<section class="wrap finale">
+  <h2>Your next session starts at your tempo.</h2>
+  <p class="lede">Free, offline, no account. Close six browser tabs on the way in.</p>
+  <div class="cta-row">
+    <a class="cta" data-dl="win" href="apps.html#access">Download free for Windows</a>
+    <a class="cta ghost" data-dl="mac" href="apps.html#access">Download for Mac</a>
+  </div>
+  <p class="fine">Values are starting points — trust your ears first.</p>
+</section>
+
+<footer>
+  <a href="apps.html">App Store</a>
+  <a href="harmoniemd.html">HarmonieMD</a>
+  <a href="performlive.html">PerformLive</a>
+  <a href="nebulatide.html">Nebula Tide</a>
+  <a href="index.html">Studio</a>
+  <a href="index.html#contact">Contact</a>
+  <span class="who">Amanorsac Studio</span>
+</footer>
+
+<script>
+/* ===========================================================
+   EDIT THIS BLOCK ONLY.
+   Paste the installer links here and every Download button on
+   this page becomes a real download. Leave them empty and the
+   buttons keep pointing at the App Store's early-access form.
+   =========================================================== */
+var CONFIG = {
+  downloadWin: "",
+  downloadMac: ""
+};
+
+/* ---------- wiring ---------- */
+(function(){
+  var map = { win: CONFIG.downloadWin, mac: CONFIG.downloadMac };
+  document.querySelectorAll('[data-dl]').forEach(function(a){
+    var url = map[a.getAttribute('data-dl')];
+    if(url){ a.href = url; a.setAttribute('download',''); }
+  });
+  /* Mac first if that's what they're on - the package asks for it. */
+  if(/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)){
+    document.querySelectorAll('.cta-row').forEach(function(row){
+      var mac = row.querySelector('[data-dl="mac"]'), win = row.querySelector('[data-dl="win"]');
+      if(mac && win){
+        mac.classList.remove('ghost'); win.classList.add('ghost');
+        row.insertBefore(mac, win);
+      }
+    });
+  }
+  /* reveal on scroll; falls back to visible when unsupported or reduced */
+  if('IntersectionObserver' in window &&
+     !matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var ro = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); ro.unobserve(e.target); } });
+    }, { threshold:.15 });
+    document.querySelectorAll('.rise').forEach(function(el){ ro.observe(el); });
+  }else{
+    document.querySelectorAll('.rise').forEach(function(el){ el.classList.add('in'); });
+  }
+})();
+</script>
+</body>
+</html>

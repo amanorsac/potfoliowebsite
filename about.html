@@ -219,8 +219,48 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .shot.empty::after{display:none}
 .slot-note{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);text-align:center;padding:20px;line-height:1.8;margin:0}
 .slot-note b{display:block;color:var(--accent);font-weight:400;margin-bottom:5px}
-.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
-.gallery .shot{aspect-ratio:4/5}
+/* =====================================================================
+   GALLERY
+   Columns, not a grid: a photograph keeps the shape it was taken in.
+   A 4/5 crop box turned every frame into the same rectangle, which is
+   exactly what a gallery should not do.
+   ===================================================================== */
+.gallery{column-count:3;column-gap:14px}
+.gallery .shot{break-inside:avoid;margin:0 0 14px;aspect-ratio:auto;cursor:zoom-in;
+  transition:transform var(--dur) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
+.gallery .shot img{width:100%;height:auto;object-fit:initial}
+.gallery .shot:hover{transform:translateY(-3px);box-shadow:var(--shadow-2)}
+.gallery .shot::after{opacity:.14}
+.gallery .shot:hover::after{opacity:0}
+@media (max-width:900px){ .gallery{column-count:2} }
+@media (max-width:520px){ .gallery{column-count:1} }
+
+/* ---------- lightbox ---------- */
+.lb{position:fixed;inset:0;z-index:120;display:none;
+  background:color-mix(in srgb,#0B0A14 94%,transparent);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.lb.on{display:grid;grid-template-rows:1fr auto;
+  animation:lbin var(--dur) var(--ease-out)}
+@keyframes lbin{from{opacity:0}to{opacity:1}}
+.lb-stage{display:grid;place-items:center;padding:clamp(14px,4vw,56px);min-height:0}
+.lb-stage img{max-width:100%;max-height:100%;width:auto;height:auto;
+  border-radius:var(--r);box-shadow:0 30px 90px rgba(0,0,0,.6);
+  animation:lbpop var(--dur-slow) var(--ease-out)}
+@keyframes lbpop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.lb-bar{display:flex;align-items:center;gap:14px;
+  padding:0 clamp(14px,4vw,40px) calc(20px + env(safe-area-inset-bottom,0px))}
+.lb-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(255,255,255,.62);flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-btn{width:44px;height:44px;flex:none;border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;background:rgba(255,255,255,.06);color:#fff;cursor:pointer;
+  font-size:17px;line-height:1;display:grid;place-items:center;
+  transition:background var(--dur) var(--ease-out),transform var(--dur-fast) var(--ease-out)}
+.lb-btn:hover{background:rgba(255,255,255,.16)}
+.lb-btn:active{transform:scale(.94)}
+.lb-close{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));
+  right:clamp(14px,4vw,40px);z-index:2}
+body.lb-open{overflow:hidden}
 
 /* ---------- app cards ---------- */
 .app{border:1px solid var(--line);border-radius:var(--r-lg);padding:44px 42px;margin-bottom:18px;box-shadow:var(--shadow-1);
@@ -394,8 +434,10 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 .band.empty{display:flex;align-items:center;justify-content:center;border-style:dashed}
 
 /* ---------- taller gallery, feature first tile ---------- */
-.gallery .shot:first-child{grid-column:span 2}
-@media (max-width:640px){ .gallery .shot:first-child{grid-column:span 1} }
+/* the first frame leads: it gets a column to itself at the top */
+.gallery .shot:first-child{column-span:all;margin-bottom:18px}
+.gallery .shot:first-child img{max-height:min(62vh,560px);
+  width:100%;object-fit:cover;object-position:center 38%}
 
 </style>
 </head>
@@ -408,7 +450,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   <div class="rack-nav">
     <a class="strip" href="index.html"><span class="strip-name">Home</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="mixing.html"><span class="strip-name">Mixing</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
-    <a class="strip" href="piano.html"><span class="strip-name" data-short="Keys">Piano &amp; MD</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="blog.html"><span class="strip-name">Blog</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="apps.html"><span class="strip-name">Apps</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="portal/login.html"><span class="strip-name">Clients</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip on" href="about.html"><span class="strip-name">About</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
@@ -483,12 +525,23 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <h2>The rooms</h2>
     <div class="next">
       <a href="mixing.html"><span>01 — Studio</span><b>Mixing &amp; Mastering</b></a>
-      <a href="piano.html"><span>02 — Keys</span><b>Piano &amp; Music Direction</b></a>
+      <a href="blog.html"><span>02 — Writing</span><b>Notes from the room</b></a>
       <a href="apps.html"><span>03 — Software</span><b>The App Store</b></a>
     </div>
   </section>
 
 </div></main>
+
+<!-- the lightbox: one for the whole page, built empty -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photograph" hidden>
+  <button class="lb-btn lb-close" type="button" id="lb-x" aria-label="Close">&times;</button>
+  <div class="lb-stage" id="lb-stage"></div>
+  <div class="lb-bar">
+    <button class="lb-btn" type="button" id="lb-prev" aria-label="Previous photograph">&#8249;</button>
+    <p class="lb-cap" id="lb-cap"></p>
+    <button class="lb-btn" type="button" id="lb-next" aria-label="Next photograph">&#8250;</button>
+  </div>
+</div>
 
 <footer>
   <span><a href="index.html">← Back to the hub</a></span>
@@ -609,8 +662,12 @@ var CONFIG = {
        Deliberately not included: desk-02.jpg (the four-shirts photo you
        had removed), and stage-01 / studio-01 / piano-03 / session-01,
        which are duplicate frames of the ones already listed. */
-    about:  ["images/desk-01.jpg","images/piano-01.jpg",
-             "images/piano-02.jpg","images/session-02.jpg"],
+    about:  [
+      { src:"images/desk-01.jpg",    cap:"Writing at the keys, Accra" },
+      { src:"images/piano-01.jpg",   cap:"Directing from the keys" },
+      { src:"images/piano-02.jpg",   cap:"Live set, stage keys and vocal" },
+      { src:"images/session-02.jpg", cap:"The band, TV3 Ghana" }
+    ],
     live:   ["images/stream-01.jpg","images/stage-01.jpg"],
     piano:  ["images/piano-01.jpg","images/piano-02.jpg","images/piano-03.jpg"]
   },
@@ -717,15 +774,58 @@ var CONFIG = {
     while(made.firstChild) ps.appendChild(made.firstChild);
   }
 
-  var gal=$('#gallery');
+  var gal=$('#gallery'), shots=[];
   if(gal){
     var key=gal.getAttribute('data-set')||'home';
-    (CONFIG.gallery[key]||[]).forEach(function(src,i){
-      var alts = { home:'Studio and live work', mixing:'Mixing session at the desk',
-                   live:'Live and broadcast production', piano:'Playing keys on a session' };
-      gal.appendChild(shot(src, (alts[key]||'Studio work') + ' \u2014 photo ' + (i+1)));
+    (CONFIG.gallery[key]||[]).forEach(function(item,i){
+      /* an entry is either "images/x.jpg" or {src:..., cap:...} */
+      var src = typeof item === 'string' ? item : item.src;
+      var cap = typeof item === 'string' ? '' : (item.cap||'');
+      var d = shot(src, cap || 'Photograph ' + (i+1));
+      d.setAttribute('data-i', shots.length);
+      shots.push({src:src, cap:cap});
+      gal.appendChild(d);
     });
   }
+
+  /* ---- lightbox ---- */
+  (function(){
+    var lb=$('#lb'); if(!lb || !shots.length) return;
+    var stage=$('#lb-stage'), cap=$('#lb-cap'), at=0;
+    function show(i){
+      at = (i + shots.length) % shots.length;
+      var s = shots[at];
+      stage.innerHTML='';
+      var im=new Image(); im.src=s.src; im.alt=s.cap||'';
+      stage.appendChild(im);
+      cap.textContent = (s.cap ? s.cap + '  \u00b7  ' : '') + (at+1) + ' / ' + shots.length;
+    }
+    function open(i){ lb.hidden=false; lb.classList.add('on');
+      document.body.classList.add('lb-open'); show(i); $('#lb-x').focus(); }
+    function close(){ lb.classList.remove('on'); lb.hidden=true;
+      document.body.classList.remove('lb-open'); stage.innerHTML=''; }
+    gal.addEventListener('click', function(e){
+      var d=e.target.closest('.shot[data-i]'); if(d) open(+d.getAttribute('data-i'));
+    });
+    $('#lb-x').addEventListener('click', close);
+    $('#lb-prev').addEventListener('click', function(){ show(at-1); });
+    $('#lb-next').addEventListener('click', function(){ show(at+1); });
+    lb.addEventListener('click', function(e){ if(e.target===lb||e.target===stage) close(); });
+    document.addEventListener('keydown', function(e){
+      if(lb.hidden) return;
+      if(e.key==='Escape') close();
+      else if(e.key==='ArrowLeft') show(at-1);
+      else if(e.key==='ArrowRight') show(at+1);
+    });
+    /* swipe on a phone */
+    var x0=null;
+    lb.addEventListener('touchstart',function(e){ x0=e.touches[0].clientX; },{passive:true});
+    lb.addEventListener('touchend',function(e){
+      if(x0===null) return;
+      var dx=e.changedTouches[0].clientX-x0; x0=null;
+      if(Math.abs(dx)>50) show(dx<0 ? at+1 : at-1);
+    },{passive:true});
+  })();
 
   /* ---- works: paste any YouTube or Spotify link ---- */
   function parseLink(url){

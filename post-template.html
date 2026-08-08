@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- =====================================================================
+     HOW TO PUBLISH A POST
+
+     1. Copy this file. Name it after the post, e.g.
+          post-teaching-notes.html
+     2. Fill in the four things marked EDIT below.
+     3. Write the post in the <article> block. The only tags you need are
+        <h2>, <p>, <blockquote>, <ul><li>, and <figure> - all styled.
+     4. Open blog.html, find CONFIG.posts near the bottom, and add a line
+        pointing at your new file. That is what puts it on the shelf.
+
+     This template file itself is not linked from anywhere and is marked
+     noindex, so it never shows up as a real post.
+     ===================================================================== -->
+<meta name="robots" content="noindex">
+
+<!-- EDIT 1 - the title, twice -->
+<title>Post title | Notes from the room</title>
+<meta property="og:title" content="Post title">
+<!-- EDIT 2 - one sentence, for search results and link previews -->
+<meta name="description" content="One sentence describing the post.">
+<meta property="og:description" content="One sentence describing the post.">
+<!-- EDIT 3 - the header image -->
+<meta property="og:image" content="https://amanorsac.studio/images/hero-piano.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="images/logo.svg" type="image/svg+xml">
+<style>
+/* =====================================================================
+   A post. One column, wide margins, and nothing competing with the
+   words. Same dark as the blog shelf it came from.
+   ===================================================================== */
+:root{
+  --ink:#0B0A0F; --panel:#16141C; --panel-2:#1E1B26; --line:#2A2634;
+  --paper:#F2EFEA; --muted:#9C95A8; --accent:#E8A33D;
+  --display:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r:14px; --r-lg:22px;
+  --ease:cubic-bezier(.23,1,.32,1); --dur:240ms;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);
+  font-size:17px;line-height:1.75;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+.wrap{max-width:720px;margin:0 auto;
+  padding-left:clamp(20px,5vw,40px);padding-right:clamp(20px,5vw,40px)}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+  padding:14px clamp(20px,5vw,40px);
+  background:color-mix(in srgb,var(--ink) 86%,transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line)}
+.top a{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);text-decoration:none}
+.top a:hover{color:var(--paper)}
+.top .name{margin-left:auto}
+
+/* ---------- the head of the post ---------- */
+.posthead{padding:clamp(36px,7vh,72px) 0 0}
+.tagline{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 18px}
+h1{font-family:var(--display);font-weight:800;letter-spacing:-.032em;line-height:1.06;
+  font-size:clamp(32px,5.4vw,54px);margin:0 0 20px}
+.byline{display:flex;align-items:center;gap:12px;margin:0 0 clamp(28px,5vh,44px);
+  color:var(--muted);font-size:14.5px}
+.byline img{width:38px;height:38px;border-radius:999px;object-fit:cover;flex:none}
+.byline b{font-weight:500;color:var(--paper)}
+.cover{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);
+  margin:0 0 clamp(32px,6vh,56px);box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.cover img{width:100%;aspect-ratio:16/9;object-fit:cover}
+
+/* ---------- the words ---------- */
+article h2{font-family:var(--display);font-weight:700;letter-spacing:-.022em;
+  font-size:clamp(22px,3vw,30px);line-height:1.2;margin:clamp(38px,6vh,58px) 0 14px}
+article h3{font-family:var(--display);font-weight:600;font-size:20px;
+  margin:32px 0 10px;letter-spacing:-.015em}
+article p{margin:0 0 20px}
+article a{color:var(--accent);text-underline-offset:3px}
+article ul,article ol{margin:0 0 20px;padding-left:22px}
+article li{margin:0 0 9px}
+article blockquote{margin:clamp(28px,5vh,44px) 0;padding:0 0 0 22px;
+  border-left:3px solid var(--accent);font-family:var(--display);
+  font-size:clamp(19px,2.4vw,23px);line-height:1.45;letter-spacing:-.018em}
+article blockquote p{margin:0}
+article figure{margin:clamp(28px,5vh,44px) 0}
+article figure img{border-radius:var(--r);border:1px solid var(--line)}
+article figcaption{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);padding:11px 2px 0}
+article hr{border:0;border-top:1px solid var(--line);margin:clamp(34px,6vh,54px) 0}
+article code{font-family:var(--mono);font-size:.9em;background:var(--panel-2);
+  border:1px solid var(--line);border-radius:5px;padding:2px 6px}
+
+/* ---------- the end ---------- */
+.endnote{border-top:1px solid var(--line);margin-top:clamp(44px,7vh,72px);
+  padding:clamp(30px,5vh,48px) 0 0;color:var(--muted);font-size:15.5px}
+.backrow{display:flex;gap:12px;flex-wrap:wrap;
+  padding:clamp(30px,5vh,48px) 0 clamp(50px,8vh,90px)}
+.cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--body);
+  font-size:15px;font-weight:600;text-decoration:none;border-radius:999px;
+  padding:13px 24px;background:var(--accent);color:#17120A;
+  transition:transform var(--dur) var(--ease)}
+.cta:hover{transform:translateY(-2px)}
+.cta:active{transform:translateY(0) scale(.98)}
+.cta.ghost{background:transparent;color:var(--paper);border:1px solid var(--line)}
+
+footer{border-top:1px solid var(--line);padding:24px clamp(20px,5vw,40px);
+  display:flex;gap:18px;flex-wrap:wrap;align-items:center;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted)}
+footer a{text-decoration:none}
+footer a:hover{color:var(--paper)}
+footer .who{margin-left:auto}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a href="blog.html">← All posts</a>
+  <a class="name" href="index.html">Amanorsac Studio</a>
+</div>
+
+<header class="posthead wrap">
+  <!-- EDIT 4 - topic, title, date and read time -->
+  <p class="tagline">Music direction</p>
+  <h1>Post title goes here, and it can run to two lines</h1>
+  <div class="byline">
+    <img src="images/portrait.jpg" alt="">
+    <span><b>Stephen Amanor Sackey</b> · August 2026 · 6 min read</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="cover"><img src="images/hero-piano.jpg" alt="" fetchpriority="high"></div>
+</div>
+
+<article class="wrap">
+
+  <p>Open with the moment, not the thesis. One or two sentences that put the reader in the room before you tell them what the post is about.</p>
+
+  <p>Then the point of the piece, plainly.</p>
+
+  <h2>A section heading</h2>
+
+  <p>Body text. Keep paragraphs short — three or four lines reads much better on a phone than a wall does.</p>
+
+  <blockquote><p>A line worth pulling out, set apart so the eye lands on it.</p></blockquote>
+
+  <p>You can <a href="blog.html">link to anything</a>, use <code>a little code</code>, and drop a picture in whenever the words need one:</p>
+
+  <figure>
+    <img src="images/desk-01.jpg" alt="Describe what is in the picture">
+    <figcaption>A caption goes here.</figcaption>
+  </figure>
+
+  <h2>Another section</h2>
+
+  <ul>
+    <li>Lists work.</li>
+    <li>So do numbered ones, with <code>&lt;ol&gt;</code>.</li>
+  </ul>
+
+  <p>Close with what changed, or what you would do differently.</p>
+
+  <div class="endnote">
+    <p>Written by Stephen Amanor Sackey — producer, mix engineer and music director, Virginia. <a href="about.html">More about the studio</a>.</p>
+  </div>
+
+  <div class="backrow">
+    <a class="cta" href="blog.html">More posts</a>
+    <a class="cta ghost" href="about.html#contact">Start a project</a>
+  </div>
+
+</article>
+
+<footer>
+  <a href="blog.html">Blog</a>
+  <a href="index.html">Studio</a>
+  <a href="about.html">About</a>
+  <a href="about.html#contact">Contact</a>
+  <span class="who">Amanorsac Studio</span>
+</footer>
+
+</body>
+</html>

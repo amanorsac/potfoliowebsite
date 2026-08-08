@@ -90,6 +90,8 @@ img{display:block;max-width:100%}
 .sitehead-name{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--muted);text-decoration:none;padding-left:var(--gut);white-space:nowrap}
 .sitehead-name:hover{color:var(--paper)}
+/* the wordmark only stands in for the name on a phone */
+.sh-mark{display:none}
 .sitehead-actions{display:flex;align-items:center;gap:15px;background:var(--accent);color:#fff;
   border-radius:var(--r-pill);padding:10px clamp(16px,2.4vw,22px);margin-right:var(--gut);
   box-shadow:var(--shadow-1);transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
@@ -104,9 +106,31 @@ img{display:block;max-width:100%}
 .sh-social svg{width:18px;height:18px;display:block;fill:currentColor}
 @media(max-width:860px){
   main{padding-top:0}
-  .sitehead{position:static;left:0;height:auto;z-index:auto}
-  .sitehead-name{display:none}
-  .sitehead-actions{width:100%;justify-content:flex-end;height:46px}
+  /* ---------- the top bar, phone ----------
+     A full-width block of accent colour across the top read as a band
+     stuck to the page. Facebook's answer is the one worth copying: the
+     page's own background, the wordmark on the left, plain icons on the
+     right, one hairline underneath. Desktop is untouched. */
+  .sitehead{position:sticky;top:0;left:0;height:56px;z-index:50;padding:0 14px;
+    background:color-mix(in srgb,var(--ink) 94%,transparent);
+    border-bottom:1px solid var(--line)}
+  .sitehead::after{display:none}
+  .sitehead-name{display:flex;align-items:center;padding-left:0;flex:none}
+  .sitehead-name .txt{display:none}
+  .sh-mark{display:block;height:33px;width:auto}
+  /* the actions lose the pill and become what they are: icons */
+  .sitehead-actions{width:auto;margin-right:0;padding:0;gap:16px;height:auto;
+    background:transparent;color:var(--paper);box-shadow:none;border-radius:0}
+  .sitehead-actions:hover{transform:none;box-shadow:none}
+  .sitehead-actions a{color:var(--paper)}
+  .sh-social{gap:16px}
+  .sh-social svg{width:21px;height:21px}
+  .sh-social a{opacity:.82}
+  /* one thing here is a destination rather than a link out, so it keeps
+     its name and its colour */
+  .sh-login{order:2;background:var(--accent);color:#fff;border-radius:var(--r-pill);
+    padding:8px 15px;font-size:13.5px;font-weight:600;line-height:1}
+  .sh-login:active{transform:scale(.96)}
 }
 
 /* ---------- shell ---------- */
@@ -672,7 +696,10 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 </nav>
 
 <div class="sitehead">
-  <a class="sitehead-name" href="index.html">Stephen Amanor Sackey</a>
+  <a class="sitehead-name" href="index.html">
+    <img class="sh-mark" src="images/logo.svg" alt="Amanorsac Studio">
+    <span class="txt">Stephen Amanor Sackey</span>
+  </a>
   <div class="sitehead-actions">
     <a class="sh-login" href="portal/login.html">Clients</a>
     <span class="sh-social" id="head-social"></span>

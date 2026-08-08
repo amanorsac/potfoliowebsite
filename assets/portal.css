@@ -154,7 +154,19 @@ textarea{resize:vertical;min-height:88px}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 
 /* ---------- auth pages ---------- */
-.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:30px 20px}
+.auth-wrap{position:relative;min-height:100vh;display:grid;place-items:center;padding:30px 20px}
+/* A signed-out visitor who lands here had no way back to the site.
+   One link, above the card, where a back button would be. */
+.auth-back{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));
+  left:max(18px, env(safe-area-inset-left,0px));
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);padding:10px 14px 10px 12px;border-radius:999px;
+  border:1px solid var(--line);background:var(--surface);
+  transition:color .2s,border-color .2s,transform .2s}
+.auth-back:hover{color:var(--ink);border-color:var(--muted)}
+.auth-back:active{transform:scale(.97)}
+.auth-back span{font-size:14px;line-height:1}
 .auth{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);
   border-radius:14px;padding:38px 34px;box-shadow:var(--shadow);
   animation:lift .6s cubic-bezier(.2,.8,.3,1)}

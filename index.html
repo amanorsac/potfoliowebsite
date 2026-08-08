@@ -154,7 +154,8 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 40px}
 
 /* ---------- hero carousel ---------- */
-.hc{position:relative;left:50%;margin-left:calc(-50vw + var(--rail)/2);width:calc(100vw - var(--rail));
+/* a hero is a band, not a text section: it takes no section padding */
+.hc{padding:0;position:relative;left:50%;margin-left:calc(-50vw + var(--rail)/2);width:calc(100vw - var(--rail));
   height:clamp(520px,86vh,880px);height:clamp(520px,86dvh,880px);
   overflow:hidden;background:var(--panel-2);isolation:isolate;touch-action:pan-y}
 .hc-track{position:absolute;inset:0}
@@ -256,7 +257,10 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
   transition:width var(--dur) var(--ease-out),background var(--dur) var(--ease-out)}
 .hc-dot.on{width:30px;background:var(--accent)}
 @media(max-width:860px){
-  .hc{left:auto;margin-left:0;width:100%;height:clamp(460px,74vh,720px);height:clamp(460px,74dvh,720px)}
+  /* Edge to edge. Inset by the page gutter it read as a card someone had
+     dropped on the page; a hero on a phone should be the screen. */
+  .hc{left:auto;width:auto;margin-left:calc(var(--gut) * -1);margin-right:calc(var(--gut) * -1);
+    height:clamp(500px,80vh,760px);height:clamp(500px,80dvh,760px)}
   .hc-media::after{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 55%,transparent) 0%,
     color-mix(in srgb,var(--ink) 88%,transparent) 62%,var(--ink) 100%)}
 }
@@ -485,12 +489,40 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 }
 @media (max-width:860px){
   :root{--rail:0px}
-  .rack{position:sticky;top:0;bottom:auto;width:100%;height:auto;flex-direction:row;align-items:center;padding:0 10px;
-    overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);background:var(--panel)}
+  /* ---------- the rail becomes a floating tab bar ----------
+     As a scrolling strip along the top it truncated "Contact" mid-word,
+     which reads as a broken page rather than a scrollable one. Six equal
+     tabs in a pill fit the width honestly, sit under the thumb, and give
+     the site the app feel it wants on a phone. */
+  .rack{position:fixed;left:12px;right:12px;top:auto;z-index:60;
+    bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    width:auto;height:auto;flex-direction:row;align-items:center;
+    padding:6px 7px;border:1px solid var(--line);border-right-width:1px;
+    border-radius:var(--r-pill);
+    background:color-mix(in srgb,var(--panel) 88%,transparent);
+    -webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);
+    box-shadow:0 6px 16px rgba(26,24,48,.14), 0 20px 48px rgba(26,24,48,.22)}
   .rack-brand,.rack-foot,.meter{display:none}
-  .rack-nav{flex-direction:row;justify-content:flex-start}
-  .strip{border-left:0;border-bottom:2px solid transparent;padding:14px 12px 11px;white-space:nowrap}
-  .strip.on{border-bottom-color:var(--accent);background:transparent}
+  .rack-nav{flex-direction:row;flex:1;justify-content:space-between;gap:2px;min-width:0}
+  .strip{flex:1 1 0;min-width:0;text-align:center;white-space:nowrap;
+    border-left:0;border-radius:var(--r-pill);padding:9px 3px;
+    transition:background var(--dur) var(--ease-out)}
+  .strip:hover{background:transparent}
+  .strip.on{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+  .strip.on .strip-name{color:var(--accent)}
+  .strip-name{font-size:11.5px;letter-spacing:-.012em}
+  /* "Piano & MD" will not share a phone with five other labels */
+  .strip-name[data-short]{font-size:0}
+  .strip-name[data-short]::after{content:attr(data-short);font-size:11.5px}
+  /* the bar floats over the page, so the page has to end above it */
+  footer{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+
+  /* Apple-tight rhythm: 12vh between bands is two thirds of a phone
+     screen of nothing, which reads as the page having ended. */
+  section{padding:clamp(52px,7vh,88px) 0}
+  /* the earlier padding-top:0 sits above the rule it means to beat, so
+     the desktop header offset was still opening a gap over the hero */
+  main{padding-top:0}
   main,footer{margin-left:0}
   .lane{grid-template-columns:1fr;gap:9px}
   .hero{min-height:74vh;min-height:74dvh}
@@ -631,7 +663,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   <div class="rack-nav">
     <a class="strip on" href="index.html"><span class="strip-name">Home</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="mixing.html"><span class="strip-name">Mixing</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
-    <a class="strip" href="piano.html"><span class="strip-name">Piano &amp; MD</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="piano.html"><span class="strip-name" data-short="Keys">Piano &amp; MD</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="apps.html"><span class="strip-name">Apps</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="portal/login.html"><span class="strip-name">Clients</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="#contact"><span class="strip-name">Contact</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
@@ -825,7 +857,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
       </form>
       <div>
-        <a class="mail" href="mailto:amanorsac@gmail.com">amanorsac@gmail.com</a>
+        <a class="mail" href="mailto:hello@amanorsac.studio">hello@amanorsac.studio</a>
         <p class="contact-meta">Virginia, United States<br>US Eastern time<br>Remote worldwide</p>
         <p class="contact-meta" id="social"></p>
       </div>
@@ -947,7 +979,7 @@ var CONFIG = {
     piano:  ["images/piano-01.jpg","images/piano-02.jpg","images/piano-03.jpg"]
   },
 
-  email: "amanorsac@gmail.com"
+  email: "hello@amanorsac.studio"
 };
 /* ==================== stop editing here ==================== */
 

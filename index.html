@@ -1196,6 +1196,7 @@ var CONFIG = {
     var scroll  = document.getElementById('ytp-scroll');
     var countEl = document.getElementById('ytp-count');
     var player  = null, ready = false;
+    var total   = tracks.length;   // live count once the player reports in
 
     function esc(s){
       return String(s == null ? '' : s)
@@ -1225,14 +1226,36 @@ var CONFIG = {
       player.playVideoAt(+b.getAttribute('data-i'));
     });
 
-    // getPlaylist() is empty for a beat after onReady; poll briefly.
-    function thumbs(tries){
-      var ids = [];
-      try { ids = player.getPlaylist() || []; } catch(e){}
-      if(!ids.length){
-        if((tries||0) < 12) setTimeout(function(){ thumbs((tries||0)+1); }, 400);
-        return;
-      }
+    // oEmbed is public and needs no API key. One call per video, cached
+    // for the session, so a browse of the site pays for it once.
+    function meta(id){
+      try {
+        var hit = sessionStorage.getItem('ytm:'+id);
+        if(hit) return Promise.resolve(JSON.parse(hit));
+      } catch(e){}
+      return fetch('https://www.youtube.com/oembed?format=json&url=' +
+          encodeURIComponent('https://www.youtube.com/watch?v='+id))
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(j){
+          if(!j) return null;
+          var m = { t:j.title, by:j.author_name };
+          try { sessionStorage.setItem('ytm:'+id, JSON.stringify(m)); } catch(e){}
+          return m;
+        })
+        .catch(function(){ return null; });
+    }
+
+    function rowHtml(i, t, by, d){
+      return '<li><button class="ytp-row" type="button" data-i="'+i+'">'+
+        '<span class="n"><em>'+(i+1)+'</em>'+
+          '<i class="eq" aria-hidden="true"><i></i><i></i><i></i></i></span>'+
+        '<span class="th"></span>'+
+        '<span class="tx"><b>'+esc(t)+'</b><small>'+esc(by||'')+'</small></span>'+
+        '<span class="d">'+esc(d||'')+'</span>'+
+      '</button></li>';
+    }
+
+    function thumbs(ids){
       var cells = box.querySelectorAll('.ytp-row .th');
       for(var i=0;i<cells.length && i<ids.length;i++){
         if(cells[i].firstChild) continue;
@@ -1241,6 +1264,42 @@ var CONFIG = {
         im.alt = ''; im.loading = 'lazy';
         cells[i].appendChild(im);
       }
+    }
+
+    // getPlaylist() is empty for a beat after onReady; poll briefly.
+    function sync(tries){
+      var ids = [];
+      try { ids = player.getPlaylist() || []; } catch(e){}
+      if(!ids.length){
+        if((tries||0) < 12) setTimeout(function(){ sync((tries||0)+1); }, 400);
+        return;
+      }
+
+      // Same number of videos as the config knows about: nothing has
+      // been added or removed, so keep the hand-written titles.
+      // Otherwise the playlist has moved on without us, and YouTube
+      // becomes the source of truth for what each row says. Durations
+      // are dropped in that case rather than shown wrong: oEmbed does
+      // not carry them and a stale duration is worse than none.
+      if(ids.length !== tracks.length){
+        listEl.innerHTML = ids.map(function(id,i){
+          return rowHtml(i, 'Track ' + (i+1), '', '');
+        }).join('');
+        ids.forEach(function(id,i){
+          meta(id).then(function(m){
+            if(!m) return;
+            var r = listEl.querySelector('.ytp-row[data-i="'+i+'"]');
+            if(!r) return;
+            r.querySelector('.tx b').textContent = m.t;
+            r.querySelector('.tx small').textContent = m.by || '';
+          });
+        });
+      }
+
+      thumbs(ids);
+      if(countEl) countEl.textContent = '1 / ' + ids.length;
+      total = ids.length;
+      paint();
     }
 
     function paint(){
@@ -1264,7 +1323,7 @@ var CONFIG = {
           rows[i].removeAttribute('aria-current');
         }
       }
-      if(countEl) countEl.textContent = ((idx < 0 ? 0 : idx) + 1) + ' / ' + tracks.length;
+      if(countEl) countEl.textContent = ((idx < 0 ? 0 : idx) + 1) + ' / ' + total;
     }
 
     function fallback(){
@@ -1289,7 +1348,7 @@ var CONFIG = {
         playerVars:{ listType:'playlist', list:L.playlist,
                      rel:0, modestbranding:1, playsinline:1 },
         events:{
-          onReady: function(){ clearTimeout(giveUp); ready = true; thumbs(0); paint(); },
+          onReady: function(){ clearTimeout(giveUp); ready = true; sync(0); },
           onStateChange: paint
         }
       });

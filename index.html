@@ -162,14 +162,25 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
   opacity:0;visibility:hidden;transition:opacity var(--dur-slow) var(--ease-out),visibility 0s linear var(--dur-slow)}
 .hc-slide.on{opacity:1;visibility:visible;transition:opacity var(--dur-slow) var(--ease-out),visibility 0s}
 .hc-media{position:absolute;inset:0;z-index:-1;overflow:hidden}
+/* No saturation cut: the photographs are 2400px and should look it. */
 .hc-media img{width:100%;height:100%;object-fit:cover;object-position:center 32%;
-  transform:scale(1.06);transition:transform 9s linear;filter:saturate(.92)}
+  transform:scale(1.04);transition:transform 9s linear}
 .hc-slide.on .hc-media img{transform:scale(1)}          /* slow drift while a slide is up */
-/* The wash exists for the text, not the mood: solid only where the words
-   sit, gone by mid-frame so the photograph actually reads as one. */
+/* The wash is a reading aid, not a mood: it hugs the left edge where the
+   words start and is gone by the middle, so most of the frame is the
+   photograph at full strength. */
 .hc-media::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,var(--ink) 0%,color-mix(in srgb,var(--ink) 78%,transparent) 34%,
-    color-mix(in srgb,var(--ink) 28%,transparent) 60%,color-mix(in srgb,var(--ink) 8%,transparent) 100%)}
+  background:linear-gradient(90deg,
+    color-mix(in srgb,var(--ink) 90%,transparent) 0%,
+    color-mix(in srgb,var(--ink) 68%,transparent) 24%,
+    color-mix(in srgb,var(--ink) 32%,transparent) 48%,
+    color-mix(in srgb,var(--ink) 6%,transparent) 66%,
+    transparent 78%)}
+/* Insurance for the words that now sit on bare photograph: a wide, faint
+   halo in the page colour. Invisible over the washed edge, just enough
+   further out. */
+.hc-body h1,.hc-body .hero-thesis{
+  text-shadow:0 1px 26px color-mix(in srgb,var(--ink) 78%,transparent)}
 .hc-body{position:relative;width:100%;max-width:1080px;margin:0 auto;padding:0 var(--gut);
   transform:translateY(14px);opacity:0;transition:transform var(--dur-slow) var(--ease-out) 80ms,opacity var(--dur-slow) var(--ease-out) 80ms}
 .hc-slide.on .hc-body{transform:none;opacity:1}

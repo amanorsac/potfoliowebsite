@@ -275,9 +275,76 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .artists li{font-family:var(--display);font-weight:600;font-size:clamp(17px,2vw,22px);
   letter-spacing:-.02em;background:var(--panel);border:1px solid var(--line);
   border-radius:var(--r-pill);padding:11px 22px}
-.plist{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
-  background:var(--panel);box-shadow:var(--shadow-1)}
-.plist iframe{display:block;width:100%;aspect-ratio:16/9;border:0}
+/* ---------- Listen: playlist player with a clickable tray ----------
+   The YouTube watch-page shape: player on the left, the playlist beside
+   it. The tray is ours, not YouTube's, so it can wear the site's type
+   and colour while still driving the real player. */
+.ytp{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(300px,1fr);
+  gap:18px;align-items:stretch}
+.ytp-stage{min-width:0}
+.ytp-frame{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0E0D18;
+  border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-1)}
+.ytp-frame iframe,.ytp-frame > div{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* The tray's contents are taken out of flow so nine tracks cannot
+   stretch the grid row: the row height stays whatever the player's
+   16:9 box makes it, and the list scrolls inside that. */
+.ytp-list{position:relative;min-height:0;overflow:hidden;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow-1)}
+.ytp-inner{position:absolute;inset:0;display:flex;flex-direction:column}
+.ytp-head{display:flex;align-items:baseline;gap:10px;padding:15px 16px;
+  border-bottom:1px solid var(--line)}
+.ytp-head b{font-family:var(--display);font-size:14.5px;font-weight:700;letter-spacing:-.01em}
+.ytp-head span{margin-left:auto;font-family:var(--mono);font-size:10px;
+  letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+#ytp-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#ytp-tracks{list-style:none;margin:0;padding:6px}
+.ytp-foot{display:block;padding:11px 16px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;transition:color var(--dur-fast) var(--ease-out)}
+.ytp-foot:hover{color:var(--accent)}
+
+.ytp-row{display:grid;grid-template-columns:20px 88px minmax(0,1fr) auto;gap:10px;
+  align-items:center;width:100%;text-align:left;font:inherit;color:inherit;
+  background:none;border:0;cursor:pointer;padding:7px 8px;border-radius:var(--r-sm);
+  transition:background var(--dur-fast) var(--ease-out)}
+.ytp-row:hover{background:var(--panel-2)}
+.ytp-row.on{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.ytp-row .n{display:grid;place-items:center;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.ytp-row.on .n{color:var(--accent)}
+.ytp-row .th{position:relative;aspect-ratio:16/9;overflow:hidden;border-radius:6px;
+  background:var(--panel-2)}
+.ytp-row .th img{width:100%;height:100%;object-fit:cover;display:block}
+.ytp-row .tx{min-width:0}
+.ytp-row .tx b{font-size:12.5px;font-weight:600;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ytp-row .tx small{display:block;margin-top:2px;font-size:11px;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ytp-row .d{font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+/* three bars in place of the track number while that track plays */
+.ytp-row .eq{display:none;gap:2px;align-items:flex-end;height:12px}
+.ytp-row.playing .eq{display:flex}
+.ytp-row.playing .n em{display:none}
+.ytp-row .n em{font-style:normal}
+.ytp-row .eq i{width:2.5px;height:12px;border-radius:2px;background:var(--accent);
+  transform-origin:bottom;transform:scaleY(.3);animation:eqbar .9s ease-in-out infinite}
+.ytp-row .eq i:nth-child(2){animation-delay:.15s}
+.ytp-row .eq i:nth-child(3){animation-delay:.3s}
+@keyframes eqbar{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+
+/* without the player API the tray cannot drive anything; say so by touch */
+.ytp.noctl .ytp-row{cursor:default}
+.ytp.noctl .ytp-row:hover{background:none}
+
+@media (max-width:900px){
+  .ytp{grid-template-columns:1fr}
+  .ytp-list{height:min(58vh,380px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .ytp-row .eq i{animation:none;transform:scaleY(.75)}
+}
 
 /* ---------- keyboard motif (piano) ---------- */
 .keys{display:flex;height:74px;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0 0 8px}
@@ -511,9 +578,21 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <p class="eyebrow">Songs</p>
     <h2>The work</h2>
     <p class="lede">Records I mixed and mastered. Same playlist as the front page &mdash; the work speaks either way.</p>
-    <div class="plist"><iframe id="plist" title="Records mixed and mastered by Amanorsac"
-      src="" loading="lazy" allowfullscreen
-      allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"></iframe></div>
+    <div class="ytp" id="ytp">
+      <div class="ytp-stage">
+        <div class="ytp-frame"><div id="yt-player"></div></div>
+      </div>
+      <aside class="ytp-list">
+       <div class="ytp-inner">
+        <div class="ytp-head">
+          <b id="ytp-title">Playlist</b>
+          <span id="ytp-count"></span>
+        </div>
+        <div id="ytp-scroll"><ol id="ytp-tracks"></ol></div>
+        <a class="ytp-foot" id="ytp-out" href="https://www.youtube.com/playlist?list=PLTxGC8xAIcbY" target="_blank" rel="noopener">Open on YouTube</a>
+       </div>
+      </aside>
+    </div>
   </section>
 
   <section>
@@ -666,9 +745,24 @@ var CONFIG = {
     live:   { src:"images/band-live.jpg",   cap:"Sunday, mid-service" },
     piano:  { src:"images/band-piano.jpg",  cap:"Keys" }
   },
-  /* The records playlist. Keep this the same as the one on the home
-     page - both point at the one YouTube playlist. */
-  listen: { playlist: "PLTxGC8xAIcbY" },
+  /* The records playlist. This is the same block as the one on the home
+     page, and both drive the same player - if you add a song, change it
+     in both places (or add it on YouTube and the tray will follow). */
+  listen: {
+    playlist: "PLTxGC8xAIcbY",
+    title:    "MIXED by Amanorsac",
+    tracks: [
+      { t:"THE UNVEILED [ft. Vivi Adjei]",                    by:"Kingsley Anyenor",        d:"9:22"  },
+      { t:"HOME (REST) - Live",                               by:"Vivi Adjei",              d:"9:59"  },
+      { t:"DEEPER WORSHIP 3.0 [Official Music Video - Live]",  by:"Kingsley Anyenor",        d:"26:55" },
+      { t:"DEEPER WORSHIP 4.0 [Official Music Video - Live]",  by:"Kingsley Anyenor",        d:"16:22" },
+      { t:"FIRE MEDLEY",                                      by:"Vivi Adjei",              d:"15:28" },
+      { t:"The Prevailing Travail (Yahweh Medley)",           by:"Vivi Adjei and Vivi's Fire", d:"24:29" },
+      { t:"ISAIAH 63 (Official Music Video - Live)",          by:"Kingsley Anyenor",        d:"9:13"  },
+      { t:"HOLY ft. Philip Adzale",                           by:"Kingsley Anyenor",        d:"10:13" },
+      { t:"PERFECT GOD (He Loves Me) - Official Visualizer",  by:"Diana Hamilton",          d:"4:25"  }
+    ]
+  },
 
   gallery: {
     home:   ["images/studio-01.jpg","images/live-01.jpg","images/session-01.jpg","images/live-02.jpg"],
@@ -789,14 +883,192 @@ var CONFIG = {
     });
   }
 
-  /* ---- the records playlist ---- */
+  /* ---- Listen: the playlist player ----
+     The tray is ours; the player is YouTube's. We drive it by position
+     (playVideoAt) rather than by video id, which means the track list
+     below needs no ids at all — the thumbnails are read back off the
+     player once it has the playlist. If the API never arrives, a plain
+     playlist iframe takes its place and the tray goes quiet. */
   (function(){
-    var f=$('#plist'), id=((CONFIG.listen||{}).playlist||'').trim();
-    if(!f) return;
-    if(!id){ f.closest('.plist').hidden = true; return; }
-    f.src = 'https://www.youtube-nocookie.com/embed/videoseries?list=' + encodeURIComponent(id);
-  })();
+    var box = document.getElementById('ytp');
+    var L   = CONFIG.listen;
+    if(!box || !L || !L.playlist) return;
 
+    var tracks  = L.tracks || [];
+    var listEl  = document.getElementById('ytp-tracks');
+    var scroll  = document.getElementById('ytp-scroll');
+    var countEl = document.getElementById('ytp-count');
+    var player  = null, ready = false;
+    var total   = tracks.length;   // live count once the player reports in
+
+    function esc(s){
+      return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    document.getElementById('ytp-title').textContent = L.title || 'Playlist';
+    document.getElementById('ytp-out').href =
+      'https://www.youtube.com/playlist?list=' + encodeURIComponent(L.playlist);
+
+    // Paint the tray now, so the section is readable before the API lands.
+    listEl.innerHTML = tracks.map(function(t,i){
+      return '<li><button class="ytp-row" type="button" data-i="'+i+'">'+
+        '<span class="n"><em>'+(i+1)+'</em>'+
+          '<i class="eq" aria-hidden="true"><i></i><i></i><i></i></i></span>'+
+        '<span class="th"></span>'+
+        '<span class="tx"><b>'+esc(t.t)+'</b><small>'+esc(t.by||'')+'</small></span>'+
+        '<span class="d">'+esc(t.d||'')+'</span>'+
+      '</button></li>';
+    }).join('');
+    if(countEl) countEl.textContent = '1 / ' + tracks.length;
+
+    listEl.addEventListener('click', function(e){
+      var b = e.target.closest ? e.target.closest('.ytp-row') : null;
+      if(!b || !ready || !player) return;
+      player.playVideoAt(+b.getAttribute('data-i'));
+    });
+
+    // oEmbed is public and needs no API key. One call per video, cached
+    // for the session, so a browse of the site pays for it once.
+    function meta(id){
+      try {
+        var hit = sessionStorage.getItem('ytm:'+id);
+        if(hit) return Promise.resolve(JSON.parse(hit));
+      } catch(e){}
+      return fetch('https://www.youtube.com/oembed?format=json&url=' +
+          encodeURIComponent('https://www.youtube.com/watch?v='+id))
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(j){
+          if(!j) return null;
+          var m = { t:j.title, by:j.author_name };
+          try { sessionStorage.setItem('ytm:'+id, JSON.stringify(m)); } catch(e){}
+          return m;
+        })
+        .catch(function(){ return null; });
+    }
+
+    function rowHtml(i, t, by, d){
+      return '<li><button class="ytp-row" type="button" data-i="'+i+'">'+
+        '<span class="n"><em>'+(i+1)+'</em>'+
+          '<i class="eq" aria-hidden="true"><i></i><i></i><i></i></i></span>'+
+        '<span class="th"></span>'+
+        '<span class="tx"><b>'+esc(t)+'</b><small>'+esc(by||'')+'</small></span>'+
+        '<span class="d">'+esc(d||'')+'</span>'+
+      '</button></li>';
+    }
+
+    function thumbs(ids){
+      var cells = box.querySelectorAll('.ytp-row .th');
+      for(var i=0;i<cells.length && i<ids.length;i++){
+        if(cells[i].firstChild) continue;
+        var im = document.createElement('img');
+        im.src = 'https://i.ytimg.com/vi/'+ids[i]+'/mqdefault.jpg';
+        im.alt = ''; im.loading = 'lazy';
+        cells[i].appendChild(im);
+      }
+    }
+
+    // getPlaylist() is empty for a beat after onReady; poll briefly.
+    function sync(tries){
+      var ids = [];
+      try { ids = player.getPlaylist() || []; } catch(e){}
+      if(!ids.length){
+        if((tries||0) < 12) setTimeout(function(){ sync((tries||0)+1); }, 400);
+        return;
+      }
+
+      // Same number of videos as the config knows about: nothing has
+      // been added or removed, so keep the hand-written titles.
+      // Otherwise the playlist has moved on without us, and YouTube
+      // becomes the source of truth for what each row says. Durations
+      // are dropped in that case rather than shown wrong: oEmbed does
+      // not carry them and a stale duration is worse than none.
+      if(ids.length !== tracks.length){
+        listEl.innerHTML = ids.map(function(id,i){
+          return rowHtml(i, 'Track ' + (i+1), '', '');
+        }).join('');
+        ids.forEach(function(id,i){
+          meta(id).then(function(m){
+            if(!m) return;
+            var r = listEl.querySelector('.ytp-row[data-i="'+i+'"]');
+            if(!r) return;
+            r.querySelector('.tx b').textContent = m.t;
+            r.querySelector('.tx small').textContent = m.by || '';
+          });
+        });
+      }
+
+      thumbs(ids);
+      if(countEl) countEl.textContent = '1 / ' + ids.length;
+      total = ids.length;
+      paint();
+    }
+
+    function paint(){
+      var idx = -1, state = -1;
+      try { idx   = player.getPlaylistIndex(); } catch(e){}
+      try { state = player.getPlayerState();   } catch(e){}
+      var rows = box.querySelectorAll('.ytp-row');
+      for(var i=0;i<rows.length;i++){
+        var on = (i === idx);
+        rows[i].classList.toggle('on', on);
+        rows[i].classList.toggle('playing', on && state === 1);
+        if(on){
+          rows[i].setAttribute('aria-current','true');
+          // keep the live row in view without scrolling the page itself
+          var top = rows[i].parentNode.offsetTop;
+          if(top < scroll.scrollTop ||
+             top + rows[i].offsetHeight > scroll.scrollTop + scroll.clientHeight){
+            scroll.scrollTop = top - 8;
+          }
+        } else {
+          rows[i].removeAttribute('aria-current');
+        }
+      }
+      if(countEl) countEl.textContent = ((idx < 0 ? 0 : idx) + 1) + ' / ' + total;
+    }
+
+    function fallback(){
+      if(ready) return;
+      var slot = document.getElementById('yt-player');
+      if(!slot) return;
+      var f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/videoseries?list=' + L.playlist;
+      f.title = L.title || 'Playlist';
+      f.setAttribute('frameborder','0');
+      f.setAttribute('allowfullscreen','');
+      f.setAttribute('allow','clipboard-write; encrypted-media; picture-in-picture; fullscreen');
+      slot.parentNode.replaceChild(f, slot);
+      box.classList.add('noctl');
+    }
+    var giveUp = setTimeout(fallback, 7000);
+
+    function make(){
+      player = new YT.Player('yt-player', {
+        width:'100%', height:'100%',
+        host:'https://www.youtube-nocookie.com',
+        playerVars:{ listType:'playlist', list:L.playlist,
+                     rel:0, modestbranding:1, playsinline:1 },
+        events:{
+          onReady: function(){ clearTimeout(giveUp); ready = true; sync(0); },
+          onStateChange: paint
+        }
+      });
+    }
+
+    if(window.YT && window.YT.Player){ make(); }
+    else {
+      var prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = function(){
+        if(prev){ try { prev(); } catch(e){} }
+        make();
+      };
+      var s = document.createElement('script');
+      s.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(s);
+    }
+  })();
   /* ---- works: paste any YouTube or Spotify link ---- */
   function parseLink(url){
     if(!url) return null;

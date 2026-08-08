@@ -410,7 +410,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <a class="strip" href="piano.html"><span class="strip-name" data-short="Keys">Piano &amp; MD</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="apps.html"><span class="strip-name">Apps</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="portal/login.html"><span class="strip-name">Clients</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
-    <a class="strip" href="index.html#contact"><span class="strip-name">Contact</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="about.html"><span class="strip-name">About</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
   </div>
   <div class="rack-foot">EST</div>
 </nav>
@@ -505,17 +505,11 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   </section>
 
   <section>
-    <p class="eyebrow">Gallery</p>
-    <h2>At the desk</h2>
-    <div class="gallery rise" id="gallery" data-set="mixing"></div>
-  </section>
-
-  <section>
     <p class="eyebrow">Next</p>
     <h2>Other rooms</h2>
     <div class="next">
       <a href="piano.html"><span>02 — Keys</span><b>Piano &amp; Music Direction</b></a>
-      <a href="index.html#contact"><span>Start something</span><b>Get in touch</b></a>
+      <a href="about.html#contact"><span>Start something</span><b>Get in touch</b></a>
     </div>
   </section>
 
@@ -732,10 +726,12 @@ var CONFIG = {
 
   var ps=$('#portrait-slot');
   if(ps){
+    /* copying innerHTML AND appending the node put the portrait in twice:
+       one on top of the other, downloaded twice. Move the nodes only. */
     var made=shot(CONFIG.portrait,'Stephen Amanor Sackey');
     ps.className=made.className+' portrait';
-    ps.innerHTML=made.innerHTML;
-    if(made.firstChild && made.firstChild.tagName==='IMG') ps.appendChild(made.firstChild);
+    ps.innerHTML='';
+    while(made.firstChild) ps.appendChild(made.firstChild);
   }
 
   var gal=$('#gallery');

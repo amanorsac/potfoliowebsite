@@ -666,7 +666,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <a class="strip" href="piano.html"><span class="strip-name" data-short="Keys">Piano &amp; MD</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="apps.html"><span class="strip-name">Apps</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="portal/login.html"><span class="strip-name">Clients</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
-    <a class="strip" href="#contact"><span class="strip-name">Contact</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
+    <a class="strip" href="about.html"><span class="strip-name">About</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
   </div>
   <div class="rack-foot">EST</div>
 </nav>
@@ -692,7 +692,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
           <p class="hero-thesis">A music producer, audio engineer, session pianist, and software developer dedicated to pushing the boundaries of music production, live performance, and creative technology.</p>
           <div class="hero-cta">
             <a class="cta" href="#rooms">See the work</a>
-            <a class="cta ghost" href="#contact">Start a project</a>
+            <a class="cta ghost" href="about.html#contact">Start a project</a>
           </div>
           <div class="wave" aria-hidden="true"></div>
         </div>
@@ -826,41 +826,13 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <div class="reelrow" id="reelrow"></div>
   </section>
 
-  <section id="about" class="about">
-    <div class="about-grid">
-      <div>
-        <p class="first">I started in Accra, running a studio and directing music for churches and a live band. Somewhere in there I became the person artists called when a vocal was almost right and nobody could say why. The work grew from there into gospel highlife, worship records, close-harmony trios, and live albums cut in one take with no second chance.</p>
-        <p>These days I direct music at a multicultural congregation in Virginia and run its broadcast mix myself, while finishing a master's in Commercial Music Performance at Liberty University.</p>
-        <p>The software came out of frustration. Rehearsals kept going to parts people could have learned at home, and backing tracks were turning live bands into playback operators. So I wrote HarmonieMD for the first problem and PerformLive for the second. I like thinking about a voice at the fader and at the buffer, even if that's an odd pair of places to live.</p>
-      </div>
-      <div class="shot portrait" id="portrait-slot"></div>
-    </div>
-  </section>
-
-  <section id="contact">
-    <h2>Start a project</h2>
-    <p class="lede">Tell me what it should feel like and I'll tell you what it needs.</p>
-    <div class="contact-grid">
-      <form id="contact-form" novalidate>
-        <div class="field"><label for="name">Your name</label><input id="name" name="name" type="text" autocomplete="name" required></div>
-        <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
-        <div class="field"><label for="service">What do you need</label>
-          <select id="service" name="service">
-            <option>Mixing</option><option>Mastering</option><option>Mixing and mastering</option>
-            <option>Production</option><option>Session piano</option><option>Music direction</option>
-            <option>Live or broadcast audio</option><option>Something else</option>
-          </select></div>
-        <div class="field"><label for="message">The project</label>
-          <textarea id="message" name="message" placeholder="Song count, deadline, where the files are now, and what it should feel like." required></textarea></div>
-        <div class="hp" aria-hidden="true"><label for="company">Company</label><input id="company" name="_gotcha" type="text" tabindex="-1" autocomplete="off"></div>
-        <button class="send" type="submit" id="send">Send message</button>
-        <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
-      </form>
-      <div>
-        <a class="mail" href="mailto:hello@amanorsac.studio">hello@amanorsac.studio</a>
-        <p class="contact-meta">Virginia, United States<br>US Eastern time<br>Remote worldwide</p>
-        <p class="contact-meta" id="social"></p>
-      </div>
+  <section id="about-teaser">
+    <p class="eyebrow">Who</p>
+    <h2>Accra to Virginia, by way of a lot of Sundays</h2>
+    <p class="lede">Producer, mix engineer, session pianist and music director. I became the person artists called when a vocal was almost right and nobody could say why — and I write the software I wished the room already had.</p>
+    <div class="next">
+      <a href="about.html"><span>The story</span><b>About me →</b></a>
+      <a href="about.html#contact"><span>Start something</span><b>Get in touch →</b></a>
     </div>
   </section>
 
@@ -1165,10 +1137,12 @@ var CONFIG = {
 
   var ps=$('#portrait-slot');
   if(ps){
+    /* copying innerHTML AND appending the node put the portrait in twice:
+       one on top of the other, downloaded twice. Move the nodes only. */
     var made=shot(CONFIG.portrait,'Stephen Amanor Sackey');
     ps.className=made.className+' portrait';
-    ps.innerHTML=made.innerHTML;
-    if(made.firstChild && made.firstChild.tagName==='IMG') ps.appendChild(made.firstChild);
+    ps.innerHTML='';
+    while(made.firstChild) ps.appendChild(made.firstChild);
   }
 
   var gal=$('#gallery');

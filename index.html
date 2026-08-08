@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stephen Amanor Sackey — Producer, Mixing &amp; Mastering Engineer, Music Director</title>
+<title>Amanorsac Studio — mixing, music direction, and studio software</title>
 <meta name="description" content="Producer and mixing engineer. Eleven years on voices: gospel, highlife, and worship records, live production, piano, and audio software. Virginia, United States.">
 <meta property="og:title" content="Stephen Amanor Sackey">
 <meta property="og:description" content="Producer, mixing and mastering engineer, music director, pianist, app founder.">
@@ -292,6 +292,19 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
   .hc-media img{transition:none;transform:none}
   .hc-body{transition:opacity 200ms linear;transform:none}
 }
+
+/* ---------- the whiteboard ----------
+   Small and quiet on purpose. It is a note pinned to the wall, not a
+   feature: the point is that someone reading it can tell the studio is
+   working this month. */
+.board{list-style:none;margin:0 0 18px;padding:0;max-width:60ch}
+.board li{position:relative;padding:9px 0 9px 22px;font-size:16.5px;
+  border-bottom:1px solid var(--line)}
+.board li:last-child{border-bottom:0}
+.board li::before{content:"";position:absolute;left:2px;top:18px;
+  width:6px;height:6px;border-radius:999px;background:var(--accent)}
+.board-when{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 34px}
 
 /* ---------- door arrangements (editorial, alternating) ---------- */
 .arrangements{display:flex;flex-direction:column;gap:clamp(48px,8vw,116px)}
@@ -715,8 +728,8 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         <div class="hc-media"><img src="images/hero-home.jpg" alt="" fetchpriority="high"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Accra &nbsp;→&nbsp; Virginia</p>
-          <h1>Stephen<br>Amanor <em>Sackey</em></h1>
-          <p class="hero-thesis">A music producer, audio engineer, session pianist, and software developer dedicated to pushing the boundaries of music production, live performance, and creative technology.</p>
+          <h1><em>Amanorsac</em></h1>
+          <p class="hero-thesis">Producer, mix engineer, pianist. I also build the studio software I always wished existed.</p>
           <div class="hero-cta">
             <a class="cta" href="#rooms">See the work</a>
             <a class="cta ghost" href="about.html#contact">Start a project</a>
@@ -728,7 +741,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <article class="hc-slide" style="--room:#C0722B" aria-roledescription="slide" aria-label="2 of 4" hidden>
         <div class="hc-media"><img src="images/mixing-studio.jpg" alt="" loading="lazy"></div>
         <div class="hc-body">
-          <p class="hc-eyebrow">01 — Studio</p>
+          <p class="hc-eyebrow">Studio</p>
           <h1>Mixing &amp; <em>Mastering</em></h1>
           <p class="hero-thesis">Close harmony, lead vocals, and full masters. Hear the before and after on the same eight bars.</p>
           <div class="hero-cta"><a class="cta" href="mixing.html">Enter the room</a></div>
@@ -738,9 +751,9 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <article class="hc-slide" style="--room:#9A7B3F" aria-roledescription="slide" aria-label="3 of 4" hidden>
         <div class="hc-media"><img src="images/hero-mixing.jpg" alt="" loading="lazy"></div>
         <div class="hc-body">
-          <p class="hc-eyebrow">02 — Writing</p>
-          <h1>Notes from <em>the room</em></h1>
-          <p class="hero-thesis">Music direction, piano, mixing, and the software that came out of doing all three.</p>
+          <p class="hc-eyebrow">Writing</p>
+          <h1>The Modern <em>Musician</em></h1>
+          <p class="hero-thesis">Writing on music direction, piano, mixing, and building software from inside the work.</p>
           <div class="hero-cta"><a class="cta" href="blog.html">Read the blog</a></div>
         </div>
       </article>
@@ -764,9 +777,9 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
             <span class="fa-in"><img src="images/apps/banner-nebulatide.jpg" alt="" loading="lazy"><b>Nebula Tide</b></span></a>
         </div>
         <div class="hc-body">
-          <p class="hc-eyebrow">03 — Software</p>
+          <p class="hc-eyebrow">Software</p>
           <h1>The App <em>Store</em></h1>
-          <p class="hero-thesis">HarmonieMD, PerformLive, Nebula Tide, PulseRoom. Studio-proven software, with more on the way.</p>
+          <p class="hero-thesis">PerformLive, PulseRoom, HarmonieMD, Nebula Tide. Tools born in rehearsals and mix sessions, not in a product meeting.</p>
           <div class="hero-cta"><a class="cta" href="apps.html">Enter the room</a></div>
         </div>
       </article>
@@ -782,13 +795,12 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   </section>
 
   <section id="rooms">
-    <h2>Pick a door</h2>
-    <p class="lede">Same person, three different jobs.</p>
+    <h2>What I do</h2>
     <div class="arrangements">
       <a class="arr rise" href="mixing.html" style="--room:#C0722B">
         <div class="arr-media"><img src="images/mixing-studio.jpg" alt="The studio: console, racks and monitors" loading="lazy"></div>
         <div class="arr-body">
-          <span class="arr-tag">01 — Studio</span>
+          <span class="arr-tag">Studio</span>
           <h3>Mixing &amp; Mastering</h3>
           <p>Close harmony, lead vocals, full masters. Hear the before and after.</p>
           <span class="arr-go">Enter the room →</span>
@@ -797,9 +809,9 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <a class="arr rise" href="blog.html" style="--room:#9A7B3F">
         <div class="arr-media"><img src="images/hero-mixing.jpg" alt="Directing from the keys" loading="lazy"></div>
         <div class="arr-body">
-          <span class="arr-tag">02 — Writing</span>
-          <h3>Notes from the room</h3>
-          <p>Music direction, piano, mixing, and the software that came out of doing all three.</p>
+          <span class="arr-tag">Writing</span>
+          <h3>The Modern Musician</h3>
+          <p>Writing on music direction, piano, mixing, and building software from inside the work.</p>
           <span class="arr-go">Read the blog →</span>
         </div>
       </a>
@@ -817,9 +829,9 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
           </span>
         </div>
         <div class="arr-body">
-          <span class="arr-tag">03 — Software</span>
-          <h3>The App Store</h3>
-          <p>A growing suite of studio-proven tools: rehearse, perform, breathe, mix.</p>
+          <span class="arr-tag">Software</span>
+          <h3>Software</h3>
+          <p>PerformLive, PulseRoom, HarmonieMD, Nebula Tide. Tools born in rehearsals and mix sessions, not in a product meeting.</p>
           <span class="arr-go">Enter the room →</span>
         </div>
       </a>
@@ -827,8 +839,8 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   </section>
 
   <section id="work-media">
-    <h2>Listen</h2>
-    <p class="lede">Records I mixed, mastered, produced, or played on.</p>
+    <h2>On record</h2>
+    <p class="lede">Records I mixed, mastered, produced, or played on. This playlist is a sample, not the archive — a lot of the work lives on other people's records and Sunday broadcasts that never got uploaded.</p>
     <div class="ytp" id="ytp">
       <div class="ytp-stage">
         <div class="ytp-frame"><div id="yt-player"></div></div>
@@ -840,7 +852,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
           <span id="ytp-count"></span>
         </div>
         <div id="ytp-scroll"><ol id="ytp-tracks"></ol></div>
-        <a class="ytp-foot" id="ytp-out" href="#" target="_blank" rel="noopener">Open on YouTube</a>
+        <a class="ytp-foot" id="ytp-out" href="https://www.youtube.com/playlist?list=PLTxGC8xAIcbY" target="_blank" rel="noopener">Open on YouTube</a>
        </div>
       </aside>
     </div>
@@ -853,10 +865,13 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <div class="reelrow" id="reelrow"></div>
   </section>
 
-  <section id="about-teaser">
-    <p class="eyebrow">Who</p>
-    <h2>Accra to Virginia, by way of a lot of Sundays</h2>
-    <p class="lede">Producer, mix engineer, session pianist and music director. I became the person artists called when a vocal was almost right and nobody could say why — and I write the software I wished the room already had.</p>
+  <!-- The whiteboard. Renders only when CONFIG.now has something in it,
+       so an empty list leaves no gap and no placeholder on a live page. -->
+  <section id="now" hidden>
+    <p class="eyebrow">Right now</p>
+    <h2>On the desk this month</h2>
+    <ul class="board" id="board"></ul>
+    <p class="board-when" id="board-when"></p>
     <div class="next">
       <a href="about.html"><span>The story</span><b>About me →</b></a>
       <a href="about.html#contact"><span>Start something</span><b>Get in touch →</b></a>
@@ -917,6 +932,17 @@ var CONFIG = {
      The tracks below must stay in the playlist's running order:
      the tray drives the player by position, not by video id.
      Thumbnails are fetched from the player at runtime. */
+  /* WHAT IS ON THE DESK THIS MONTH -------------------------
+     Two or three lines, whatever you are actually working on. The
+     section on the home page stays hidden until there is something
+     here, so an empty list costs nothing.
+       items:   ["Mixing a live worship album", "PerformLive v2 beta"]
+       updated: "August 2026"                                        */
+  now: {
+    items:   [],
+    updated: ""
+  },
+
   listen: {
     playlist: "PLTxGC8xAIcbY",
     title:    "MIXED by Amanorsac",
@@ -966,7 +992,7 @@ var CONFIG = {
 
   /* Full-width photo strips between sections. */
   band: {
-    home:   { src:"images/band-home.jpg",   cap:"Front of house" },
+    home:   { src:"images/band-home.jpg",   cap:"The band" },
     mixing: { src:"images/band-mixing.jpg", cap:"At the desk" },
     live:   { src:"images/band-live.jpg",   cap:"Sunday, mid-service" },
     piano:  { src:"images/band-piano.jpg",  cap:"Keys" }
@@ -1181,6 +1207,19 @@ var CONFIG = {
       gal.appendChild(shot(src, (alts[key]||'Studio work') + ' \u2014 photo ' + (i+1)));
     });
   }
+
+  /* ---- the whiteboard ---- */
+  (function(){
+    var sec=$('#now'), list=$('#board'); if(!sec||!list) return;
+    var n=(CONFIG.now||{}), items=(n.items||[]).filter(function(t){ return String(t).trim(); });
+    if(!items.length) return;                 /* stays hidden */
+    list.innerHTML = items.map(function(t){
+      var d=document.createElement('div'); d.textContent=t;
+      return '<li>'+d.innerHTML+'</li>';
+    }).join('');
+    if(n.updated) $('#board-when').textContent = 'Updated ' + n.updated;
+    sec.hidden = false;
+  })();
 
   /* ---- works: paste any YouTube or Spotify link ---- */
   function parseLink(url){

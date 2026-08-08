@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mixing & Mastering — Stephen Amanor Sackey</title>
+<title>Amanorsac Studio — Mixing &amp; Mastering</title>
 <meta name="description" content="Vocal-forward mixing and mastering. Close harmony, gospel, highlife, and live worship records. Hear the before and after.">
 <meta property="og:title" content="Mixing & Mastering — Stephen Amanor Sackey">
 <meta property="og:description" content="Vocal-forward mixing and mastering. Close harmony, gospel, highlife, and live worship records. Hear the before and after.">
@@ -264,6 +264,21 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
   padding:13px 0;border-bottom:1px solid var(--line)}
 @media(max-width:760px){ .split{grid-template-columns:1fr} }
 
+/* ---------- plain lists, written as sentences ---------- */
+.prep{list-style:none;margin:0;padding:0;max-width:66ch}
+.prep li{position:relative;padding:13px 0 13px 24px;font-size:17px;line-height:1.6;
+  border-bottom:1px solid var(--line)}
+.prep li:last-child{border-bottom:0}
+.prep li::before{content:"";position:absolute;left:3px;top:22px;width:7px;height:7px;
+  border-radius:999px;background:var(--accent)}
+.artists{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.artists li{font-family:var(--display);font-weight:600;font-size:clamp(17px,2vw,22px);
+  letter-spacing:-.02em;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r-pill);padding:11px 22px}
+.plist{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  background:var(--panel);box-shadow:var(--shadow-1)}
+.plist iframe{display:block;width:100%;aspect-ratio:16/9;border:0}
+
 /* ---------- keyboard motif (piano) ---------- */
 .keys{display:flex;height:74px;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:0 0 8px}
 .keys i{flex:1;background:#F2ECDE;border-right:1px solid #cbbfae;position:relative}
@@ -451,7 +466,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 </div>
 <main id="main"><div class="wrap">
   <header class="hero short">
-    <div class="hero-eyebrow">01 — Studio</div>
+    <div class="hero-eyebrow">Studio</div>
     <h1>Mixing &amp;<br><em>Mastering</em></h1>
     <p class="hero-thesis">Close harmony, lead vocals, and live captures that only happened once.</p>
     <div class="wave" aria-hidden="true"></div>
@@ -465,37 +480,40 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   </section>
 
   <section>
-    <p class="eyebrow">The work</p>
-    <h2>What actually happens to your song</h2>
-    <ol class="steps">
-      <li><div><h3>Listen and ask</h3><p>You send a reference. I tell you honestly what is fixable in the mix and what needs a re-take.</p></div></li>
-      <li><div><h3>Edit</h3><p>Where most of the result lives. Comping, timing, tuning, sibilance and plosive repair, breath shaping, noise floor matched across takes.</p></div></li>
-      <li><div><h3>Mix</h3><p>Built around the voice. On close harmony, timbre matching and phase alignment happen before a single fader moves.</p></div></li>
-      <li><div><h3>Revise</h3><p>Two rounds included. Send timestamps, not adjectives, and we will get there faster.</p></div></li>
-      <li><div><h3>Master</h3><p>Streaming, broadcast, and reference masters delivered separately. Stereo or Dolby Atmos.</p></div></li>
-    </ol>
+    <p class="eyebrow">Send me</p>
+    <h2>How to prepare your files</h2>
+    <p class="lede">Send it right and we skip a day of back-and-forth.</p>
+    <ul class="prep">
+      <li>WAV, 24-bit, at the session sample rate. No MP3s.</li>
+      <li>Stems from zero. Every track exported from the same start point.</li>
+      <li>Mostly dry. Strip the mix bus. If an effect is part of the writing, keep it and tell me which.</li>
+      <li>Peaks under &minus;6 dBFS. If something clipped on the way in, send it anyway and flag it.</li>
+      <li>Name things like a person. "Lead Vox", "Alto Dbl 2", "Kick In". Not "Audio 14".</li>
+      <li>Send a reference and a line about what the song is about. Both change decisions.</li>
+    </ul>
   </section>
 
   <div class="band" id="band" aria-hidden="true"></div>
 
   <section>
-    <p class="eyebrow">Send me</p>
-    <h2>How to prepare your files</h2>
-    <div class="grid">
-      <div class="cell rise"><span class="tag">Format</span><h3>WAV, 24-bit</h3><p>Session sample rate. No MP3s, no conversion on the way out.</p></div>
-      <div class="cell rise"><span class="tag">Stems</span><h3>From zero</h3><p>Everything exported from the same start point.</p></div>
-      <div class="cell rise"><span class="tag">Processing</span><h3>Dry, mostly</h3><p>Strip the mix bus. Keep effects that are part of the writing and tell me which.</p></div>
-      <div class="cell rise"><span class="tag">Headroom</span><h3>No clipping</h3><p>Peaks under −6 dBFS. If it clipped on the way in, send it anyway.</p></div>
-      <div class="cell rise"><span class="tag">Naming</span><h3>Plain words</h3><p>"Lead Vox", "Alto Dbl 2", "Kick In". Not "Audio 14".</p></div>
-      <div class="cell rise"><span class="tag">Notes</span><h3>A reference</h3><p>One track to sit beside, and what the song is about. Both change decisions.</p></div>
-    </div>
+    <p class="eyebrow">The work</p>
+    <h2>What happens to your song</h2>
+    <ol class="steps">
+      <li><div><h3>Listen</h3><p>You send a reference and the rough. I tell you honestly what the mix can fix and what needs a re-take. This call is free and it saves everyone money.</p></div></li>
+      <li><div><h3>Edit</h3><p>This is where most of the result lives, and it&rsquo;s the part nobody sees. Comping, timing, tuning, sibilance and plosive repair, breath shaping, matching the noise floor across takes.</p></div></li>
+      <li><div><h3>Mix</h3><p>Built around the voice. On close harmony I match timbre and align phase before touching a single fader &mdash; that&rsquo;s the difference between &ldquo;blended&rdquo; and &ldquo;stacked&rdquo;.</p></div></li>
+      <li><div><h3>Revise</h3><p>Two rounds included. Timestamps get us there faster than adjectives.</p></div></li>
+      <li><div><h3>Master</h3><p>Streaming, broadcast, and reference masters delivered separately. Stereo or Dolby Atmos.</p></div></li>
+    </ol>
   </section>
 
   <section>
     <p class="eyebrow">Songs</p>
-    <h2>Hear the work</h2>
-    <p class="lede">Records I mixed and mastered.</p>
-    <div class="media-grid two" data-works="mixing"></div>
+    <h2>The work</h2>
+    <p class="lede">Records I mixed and mastered. Same playlist as the front page &mdash; the work speaks either way.</p>
+    <div class="plist"><iframe id="plist" title="Records mixed and mastered by Amanorsac"
+      src="" loading="lazy" allowfullscreen
+      allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"></iframe></div>
   </section>
 
   <section>
@@ -504,12 +522,11 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <p class="lede">Not every mix starts as a studio file. A good share of mine arrives off a stage.</p>
     <div class="split">
       <div>
-        <p>I run live capture, front of house, and broadcast post on a weekly clock — multitrack off the desk on Sunday, mixed and mastered for release during the week. I own the broadcast chain end to end at a multicultural congregation in Virginia, and the live albums in my catalogue were cut the same way: one take, a full room, no second chance.</p>
-        <p>The work overlaps more than people expect. Close harmony recorded live has the same problems as close harmony in a booth — timbre matching, phase on doubled passes, a noise floor that has to hold across a whole service — only you cannot re-track it. If you have a service, concert, or live session that needs mixing for release, it comes to this same desk.</p>
+        <p>I run live capture and broadcast post on a weekly clock &mdash; multitrack off the desk on Sunday, mixed and mastered for release during the week. I own the broadcast chain end to end at a multicultural congregation in Virginia, and the live albums in my catalogue were cut the same way: one take, a full room, no second chance.</p>
+        <p>The work overlaps more than people expect. Close harmony recorded live has the same problems as close harmony in a booth &mdash; timbre matching, phase on doubled passes, a noise floor that has to hold across a whole service &mdash; only you cannot re-track it. If you have a service, concert, or live session that needs mixing for release, it comes to this same desk.</p>
       </div>
       <ul class="spec-list">
         <li>Multitrack live capture</li>
-        <li>Front of house</li>
         <li>Stream and broadcast mix</li>
         <li>Broadcast post, weekly turnaround</li>
         <li>Live albums, mixed for release</li>
@@ -518,24 +535,21 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   </section>
 
   <section>
-    <p class="eyebrow">Credits</p>
-    <h2>Recent and earlier</h2>
-    <div class="ruler"><span>Artist</span><span>Work</span></div>
-    <div class="lane rise"><div class="lane-label">Kingsley Anyenor</div><div class="clip">
-      <p class="clip-title"><span>Unveiled</span></p><p class="clip-role">Mix &amp; Master — Album</p>
-      <p class="clip-note">Also "Pentecost" (ft. Siisi Baidoo), "We Will Not Bow," and the live albums Deeper Worship Vol. 1 &amp; 2 and Maranatha.</p></div></div>
-    <div class="lane rise"><div class="lane-label">Viv Adjei</div><div class="clip">
-      <p class="clip-title"><span>Home</span></p><p class="clip-role">Mix &amp; Master</p></div></div>
-    <div class="lane rise"><div class="lane-label">Blossom 3io</div><div class="clip">
-      <p class="clip-title">Full catalogue</p><p class="clip-role">Production &amp; Mix</p>
-      <p class="clip-note">Close three-part harmony. Broadcast on TV3 Ghana; brand work with Nestlé Ghana.</p></div></div>
+    <p class="eyebrow">Artists</p>
+    <h2>Some of the artists I&rsquo;ve worked with</h2>
+    <p class="lede">This list is the short version.</p>
+    <ul class="artists">
+      <li>Kingsley Anyenor</li>
+      <li>Viv Adjei</li>
+      <li>Blossom 3io</li>
+    </ul>
   </section>
 
   <section>
     <p class="eyebrow">Next</p>
     <h2>Other rooms</h2>
     <div class="next">
-      <a href="blog.html"><span>02 — Writing</span><b>Notes from the room</b></a>
+      <a href="blog.html"><span>Writing</span><b>The Modern Musician</b></a>
       <a href="about.html#contact"><span>Start something</span><b>Get in touch</b></a>
     </div>
   </section>
@@ -647,11 +661,15 @@ var CONFIG = {
 
   /* Full-width photo strips between sections. */
   band: {
-    home:   { src:"images/band-home.jpg",   cap:"Front of house" },
+    home:   { src:"images/band-home.jpg",   cap:"The band" },
     mixing: { src:"images/band-mixing.jpg", cap:"At the desk" },
     live:   { src:"images/band-live.jpg",   cap:"Sunday, mid-service" },
     piano:  { src:"images/band-piano.jpg",  cap:"Keys" }
   },
+  /* The records playlist. Keep this the same as the one on the home
+     page - both point at the one YouTube playlist. */
+  listen: { playlist: "PLTxGC8xAIcbY" },
+
   gallery: {
     home:   ["images/studio-01.jpg","images/live-01.jpg","images/session-01.jpg","images/live-02.jpg"],
     mixing: ["images/desk-01.jpg","images/desk-02.jpg","images/session-02.jpg"],
@@ -770,6 +788,14 @@ var CONFIG = {
       gal.appendChild(shot(src, (alts[key]||'Studio work') + ' \u2014 photo ' + (i+1)));
     });
   }
+
+  /* ---- the records playlist ---- */
+  (function(){
+    var f=$('#plist'), id=((CONFIG.listen||{}).playlist||'').trim();
+    if(!f) return;
+    if(!id){ f.closest('.plist').hidden = true; return; }
+    f.src = 'https://www.youtube-nocookie.com/embed/videoseries?list=' + encodeURIComponent(id);
+  })();
 
   /* ---- works: paste any YouTube or Spotify link ---- */
   function parseLink(url){

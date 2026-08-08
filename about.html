@@ -259,6 +259,9 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 @media (max-width:900px){ .gallery{column-count:2} }
 @media (max-width:520px){ .gallery{column-count:1} }
 
+.gal-lede{margin-bottom:34px}
+.gal-more{display:flex;justify-content:center;padding:30px 0 0}
+
 /* ---------- lightbox ---------- */
 .lb{position:fixed;inset:0;z-index:120;display:none;
   background:color-mix(in srgb,#0B0A14 94%,transparent);
@@ -514,9 +517,9 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
   <section id="gallery-sec">
     <p class="eyebrow">Gallery</p>
-    <h2>At the desk, and at the keys</h2>
-    <p class="lede">Sessions, services, and the rooms they happened in.</p>
+    <p class="lede gal-lede">Sessions, services, and the rooms they happened in.</p>
     <div class="gallery rise" id="gallery" data-set="about"></div>
+    <div class="gal-more"><button class="cta ghost" type="button" id="gal-more" hidden></button></div>
   </section>
 
   <section id="contact">
@@ -551,9 +554,9 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <p class="eyebrow">Next</p>
     <h2>The rooms</h2>
     <div class="next">
-      <a href="mixing.html"><span>01 — Studio</span><b>Mixing &amp; Mastering</b></a>
-      <a href="blog.html"><span>02 — Writing</span><b>Notes from the room</b></a>
-      <a href="apps.html"><span>03 — Software</span><b>The App Store</b></a>
+      <a href="mixing.html"><span>Studio</span><b>Mixing &amp; Mastering</b></a>
+      <a href="blog.html"><span>Writing</span><b>The Modern Musician</b></a>
+      <a href="apps.html"><span>Software</span><b>Software</b></a>
     </div>
   </section>
 
@@ -676,7 +679,7 @@ var CONFIG = {
 
   /* Full-width photo strips between sections. */
   band: {
-    home:   { src:"images/band-home.jpg",   cap:"Front of house" },
+    home:   { src:"images/band-home.jpg",   cap:"The band" },
     mixing: { src:"images/band-mixing.jpg", cap:"At the desk" },
     live:   { src:"images/band-live.jpg",   cap:"Sunday, mid-service" },
     piano:  { src:"images/band-piano.jpg",  cap:"Keys" }
@@ -801,18 +804,47 @@ var CONFIG = {
     while(made.firstChild) ps.appendChild(made.firstChild);
   }
 
+  /* ---- the gallery ----
+     Built to stay quick as the set grows: only the first FIRST_RUN
+     photographs are in the page on load, the rest arrive when asked
+     for, and every one of them is lazy and async-decoded so a long
+     wall of pictures never blocks the first screen. */
+  var FIRST_RUN = 12;
   var gal=$('#gallery'), shots=[];
   if(gal){
-    var key=gal.getAttribute('data-set')||'home';
-    (CONFIG.gallery[key]||[]).forEach(function(item,i){
-      /* an entry is either "images/x.jpg" or {src:..., cap:...} */
-      var src = typeof item === 'string' ? item : item.src;
-      var cap = typeof item === 'string' ? '' : (item.cap||'');
-      var d = shot(src, cap || 'Photograph ' + (i+1));
-      d.setAttribute('data-i', shots.length);
-      shots.push({src:src, cap:cap});
-      gal.appendChild(d);
+    var key = gal.getAttribute('data-set') || 'home';
+    var all = (CONFIG.gallery[key] || []).map(function(item, i){
+      return typeof item === 'string'
+        ? { src:item, cap:'' }
+        : { src:item.src, cap:item.cap || '' };
     });
+    shots = all;
+
+    function paint(from, to){
+      var frag = document.createDocumentFragment();
+      all.slice(from, to).forEach(function(o, n){
+        var i = from + n;
+        var d = shot(o.src, o.cap || 'Photograph ' + (i+1));
+        d.setAttribute('data-i', i);
+        var im = d.querySelector('img');
+        if(im){ im.loading = 'lazy'; im.decoding = 'async'; }
+        frag.appendChild(d);
+      });
+      gal.appendChild(frag);
+    }
+
+    paint(0, FIRST_RUN);
+
+    var more = $('#gal-more');
+    if(more && all.length > FIRST_RUN){
+      var rest = all.length - FIRST_RUN;
+      more.hidden = false;
+      more.textContent = 'View all ' + all.length + ' photographs';
+      more.addEventListener('click', function(){
+        paint(FIRST_RUN, all.length);
+        more.remove();
+      });
+    }
   }
 
   /* ---- lightbox ---- */

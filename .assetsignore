@@ -1,0 +1,24 @@
+# Files in this repository that are NOT part of the website.
+#
+# Everything at the root is uploaded and served by address, so without
+# this list the worker's own source, the database scripts and the setup
+# notes would all be downloadable from the site. None of them hold a
+# secret - the only keys in this repository are the publishable ones -
+# but they are not pages, so they should not be served as pages.
+
+worker.js
+wrangler.jsonc
+.assetsignore
+
+# database scripts, run by hand in Supabase
+*.sql
+supabase/
+
+# notes for whoever maintains this
+README.md
+SETUP.md
+
+# working files
+.agents/
+.claude/
+skills-lock.json

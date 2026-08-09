@@ -1,0 +1,34 @@
+/* =====================================================================
+   How Cloudflare builds and serves this site.
+
+   Until now these settings lived only in the Cloudflare dashboard, and
+   the Worker had no code at all - it just handed out files. That is why
+   the functions/ folder was ignored: that convention belongs to
+   Cloudflare Pages, and this is a Worker.
+
+   With "main" set below, the arrangement is:
+
+     a request that matches a file  ->  the file, exactly as before.
+                                        The Worker never runs. Every page,
+                                        image and font is untouched.
+     a request that matches nothing ->  worker.js, which answers for
+                                        /blog/<post> and /sitemap.xml and
+                                        hands everything else back to the
+                                        file server.
+
+   The values here were read off the dashboard so that deploying with
+   this file in place produces the same Worker, not a second one.
+   ===================================================================== */
+{
+  "name": "potfoliowebsite",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-09",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    // an address that is not a file and not a post gets the site's own
+    // 404 page, rather than the blank one the browser draws itself
+    "not_found_handling": "404-page"
+  }
+}

@@ -5,29 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- =====================================================================
-     HOW TO PUBLISH A POST
+     THE SHAPE OF A POST
 
-     1. Copy this file. Name it after the post, e.g.
-          post-teaching-notes.html
-     2. Fill in the four things marked EDIT below.
-     3. Write the post in the <article> block. The only tags you need are
-        <h2>, <p>, <blockquote>, <ul><li>, and <figure> - all styled.
-     4. Open blog.html, find CONFIG.posts near the bottom, and add a line
-        pointing at your new file. That is what puts it on the shelf.
+     Posts are written in the portal, under Writing, and kept in the
+     database. This file is the layout they are poured into: when someone
+     opens /blog/<something>, functions/blog/[slug].js fetches the post,
+     replaces everything between the post: markers below, and sends the
+     result. Nothing is generated ahead of time and no file is written.
 
-     This template file itself is not linked from anywhere and is marked
-     noindex, so it never shows up as a real post.
+     So this page is the design, not the content. Restyle it freely - the
+     markers are the only part the code depends on, and the placeholder
+     writing between them is here so the page can be opened on its own
+     and looked at. On its own it is marked noindex; a real post replaces
+     that whole block with its own title, description and preview image.
      ===================================================================== -->
+<!--post:head-->
 <meta name="robots" content="noindex">
-
-<!-- EDIT 1 - the title, twice -->
 <title>Post title | The Modern Musician</title>
 <meta property="og:title" content="Post title">
-<!-- EDIT 2 - one sentence, for search results and link previews -->
 <meta name="description" content="One sentence describing the post.">
 <meta property="og:description" content="One sentence describing the post.">
-<!-- EDIT 3 - the header image -->
 <meta property="og:image" content="https://amanorsac.studio/images/hero-piano.jpg">
+<!--/post:head-->
 
 <link rel="icon" href="images/logo.svg" type="image/svg+xml">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/sora-latin.woff2">
@@ -203,20 +202,22 @@ footer .who{margin-left:auto}
 </div>
 
 <header class="posthead wrap">
-  <!-- EDIT 4 - topic, title, date and read time -->
-  <p class="tagline">Music direction</p>
-  <h1>Post title goes here, and it can run to two lines</h1>
+  <p class="tagline"><!--post:tag-->Music direction<!--/post:tag--></p>
+  <h1><!--post:title-->Post title goes here, and it can run to two lines<!--/post:title--></h1>
   <div class="byline">
     <img src="images/portrait.webp" alt="">
-    <span><b>Stephen Amanor Sackey</b> · August 2026 · 6 min read</span>
+    <span><!--post:byline--><b>Stephen Amanor Sackey</b> &middot; August 2026 &middot; 6 min read<!--/post:byline--></span>
   </div>
 </header>
 
+<!--post:cover-->
 <div class="wrap">
   <div class="cover"><img src="images/hero-piano.webp" alt="" fetchpriority="high"></div>
 </div>
+<!--/post:cover-->
 
 <article class="wrap">
+<!--post:body-->
 
   <p>Open with the moment, not the thesis. One or two sentences that put the reader in the room before you tell them what the post is about.</p>
 
@@ -243,6 +244,7 @@ footer .who{margin-left:auto}
   </ul>
 
   <p>Close with what changed, or what you would do differently.</p>
+<!--/post:body-->
 
   <div class="endnote">
     <p>Written by Stephen Amanor Sackey — producer, mix engineer and music director, Virginia. <a href="about.html">More about the studio</a>.</p>

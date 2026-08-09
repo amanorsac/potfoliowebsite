@@ -749,16 +749,17 @@ var CONFIG = {
     piano:  { src:"images/band-piano.webp",  cap:"Keys" }
   },
   /* 4. THE BLOG ---------------------------------------------
-     One entry per post, newest first. To publish a post:
-       1. copy post-template.html to post-<something>.html
-       2. write it
-       3. add a line here with url: "post-<something>.html"
-     Leave url empty and the card shows as "Coming soon" and is not
-     clickable - useful for announcing something you are still writing.
-       tag   : must match one of the topics below, or it will not filter
-       img   : the thumbnail, 16:9 looks best
-       read  : "6 min read" - sits where a video's duration would
-       date  : written however you like, e.g. "August 2026" */
+     Posts are written in the portal now, under Writing, and this page
+     fetches them when it loads. Nothing below needs editing to publish.
+
+     The topics list is the exception: it is the set of chips along the
+     top, and the editor offers exactly these, so a topic added here has
+     to be added in portal/admin-post.html too.
+
+     The posts below are the fallback. They appear only if the database
+     cannot be reached, or before the first real post is written, so the
+     page is never blank. Leave url empty and a card reads "Coming soon"
+     and is not clickable. */
   topics: ["Music direction","Piano","Mixing","Worship","Software"],
   posts: [
     { title: "Why I stopped teaching notes at rehearsal",
@@ -908,7 +909,7 @@ var CONFIG = {
   (function(){
     var shelf=$('#shelf'); if(!shelf) return;
     var chipsEl=$('#chips'), leadEl=$('#lead'), noneEl=$('#nothing');
-    var posts=(CONFIG.posts||[]), author=CONFIG.author||{}, filter='All';
+    var posts=[], author=CONFIG.author||{}, filter='All';
 
     function esc(t){ var d=document.createElement('div'); d.textContent=t==null?'':t; return d.innerHTML; }
 
@@ -962,31 +963,72 @@ var CONFIG = {
       list.slice(1).forEach(function(p){ shelf.appendChild(card(p)); });
     }
 
-    /* chips: All, then whichever topics actually have posts */
-    var used = CONFIG.topics.filter(function(t){
-      return posts.some(function(p){ return p.tag===t; });
-    });
-    ['All'].concat(used).forEach(function(t,i){
-      var b=document.createElement('button');
-      b.type='button'; b.className='chip'+(i?'':' on'); b.textContent=t;
-      b.setAttribute('role','tab'); b.setAttribute('aria-selected', i?'false':'true');
-      b.addEventListener('click', function(){
-        filter=t;
-        $$('.chip', chipsEl).forEach(function(c){
-          var on = c===b; c.classList.toggle('on', on);
-          c.setAttribute('aria-selected', on?'true':'false');
-        });
-        draw();
+    function build(){
+      /* chips: All, then whichever topics actually have posts */
+      var used = CONFIG.topics.filter(function(t){
+        return posts.some(function(p){ return p.tag===t; });
       });
-      chipsEl.appendChild(b);
-    });
-    if(!posts.length){
-      chipsEl.hidden = true;
-      noneEl.innerHTML = '<div class="nothing"><h3>The first posts are on their way</h3>'
-        + '<p>Writing about music direction, mixing, and the software behind them.</p></div>';
-      return;
+      chipsEl.innerHTML = '';
+      ['All'].concat(used).forEach(function(t,i){
+        var b=document.createElement('button');
+        b.type='button'; b.className='chip'+(i?'':' on'); b.textContent=t;
+        b.setAttribute('role','tab'); b.setAttribute('aria-selected', i?'false':'true');
+        b.addEventListener('click', function(){
+          filter=t;
+          $$('.chip', chipsEl).forEach(function(c){
+            var on = c===b; c.classList.toggle('on', on);
+            c.setAttribute('aria-selected', on?'true':'false');
+          });
+          draw();
+        });
+        chipsEl.appendChild(b);
+      });
+      if(!posts.length){
+        chipsEl.hidden = true;
+        noneEl.innerHTML = '<div class="nothing"><h3>The first posts are on their way</h3>'
+          + '<p>Writing about music direction, mixing, and the software behind them.</p></div>';
+        return;
+      }
+      chipsEl.hidden = false;
+      draw();
     }
-    draw();
+
+    /* ---- where the posts come from ----
+       The studio writes in the portal; this asks the database what is
+       published. The key is the publishable one, and the function it
+       calls only ever returns posts that are live and due - a draft is
+       not filtered out here, it is unreachable.
+
+       If that call fails, or there is nothing written yet, the entries
+       in CONFIG above are used instead, so a database having a bad
+       morning shows a slightly old blog rather than an empty one. */
+    var API = 'https://kdxckigyhpnwhwgjdgqq.supabase.co/rest/v1/rpc/posts_public';
+    var KEY = 'sb_publishable_PlVBmRgFdhTkVMurXLiBFQ_NjiVssQp';
+
+    function shape(r){
+      var d = r.published_at ? new Date(r.published_at) : null;
+      return {
+        title: r.title,
+        blurb: r.blurb || '',
+        tag:   r.tag || '',
+        img:   r.cover || '',
+        date:  (d && !isNaN(d))
+                 ? d.toLocaleDateString('en-GB',{month:'long',year:'numeric'}) : '',
+        read:  r.read_minutes ? r.read_minutes + ' min read' : '',
+        url:   '/blog/' + r.slug
+      };
+    }
+
+    fetch(API, { method:'POST',
+        headers:{ 'Content-Type':'application/json', apikey:KEY,
+                  Authorization:'Bearer ' + KEY },
+        body: JSON.stringify({ p_limit: 60 }) })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .catch(function(){ return null; })
+      .then(function(rows){
+        posts = (rows && rows.length) ? rows.map(shape) : (CONFIG.posts || []);
+        build();
+      });
   })();
 
   /* ---- works: paste any YouTube or Spotify link ---- */

@@ -24,6 +24,39 @@
 
 
 -- =====================================================================
+--  0 · CLEAR OUT ANY EARLIER VERSION OF THE FUNCTIONS
+--
+--  create-or-replace can change what a function does but not the shape
+--  of what it returns, so an older version with different columns has to
+--  be dropped rather than replaced. Argument lists have moved too, and a
+--  changed argument list creates a second overload instead of replacing
+--  the first - which then makes every call ambiguous.
+--
+--  So: drop every overload by name, whatever its arguments, and let the
+--  rest of this file put the current ones back. The tables and the data
+--  in them are never touched.
+-- =====================================================================
+do $$
+declare f record;
+begin
+  for f in
+    select p.oid::regprocedure::text as sig
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in (
+        'track_view', 'track_engagement', 'track_event',
+        'analytics_channel', 'analytics_sessions', 'analytics_summary',
+        'analytics_daily', 'analytics_top_pages', 'analytics_journey',
+        'analytics_acquisition', 'analytics_tech', 'analytics_events',
+        'analytics_speed', 'analytics_prune')
+  loop
+    execute 'drop function if exists ' || f.sig;
+  end loop;
+end $$;
+
+
+-- =====================================================================
 --  1 · TABLES
 -- =====================================================================
 

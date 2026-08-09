@@ -63,6 +63,22 @@
   .rows .lab small{display:block;color:var(--muted);font-size:12px}
   .rows .num{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
   .empty{color:var(--muted);font-size:14px;margin:0;padding:8px 0}
+
+  /* ---------- comparison tables ---------- */
+  .tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  .tbl th,.tbl td{text-align:left;padding:9px 10px 9px 0;border-bottom:1px solid var(--line);
+    white-space:nowrap}
+  .tbl th{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:400}
+  .tbl td:first-child,.tbl th:first-child{white-space:normal;width:100%;
+    max-width:0;overflow:hidden;text-overflow:ellipsis}
+  .tbl td.n,.tbl th.n{text-align:right;padding-right:0;padding-left:16px}
+  .tbl td.n{font-family:var(--mono);font-size:12.5px}
+  .tbl tr:last-child td{border-bottom:0}
+  .tblwrap{overflow-x:auto}
+  .sec{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin:26px 0 10px}
+  .why{font-size:12.5px;color:var(--muted);margin:-4px 0 14px}
 </style>
 </head>
 <body>
@@ -90,24 +106,60 @@
     <div class="chart-x"><span id="x0"></span><span id="x1"></span></div>
   </div>
 
+  <p class="sec">What they read</p>
+  <div class="card">
+    <div class="card-head"><h2>Most read</h2></div>
+    <p class="why">Time is how long the page was actually open. Scroll is how far down the average reader got — a low number on a long page means they left before the good part.</p>
+    <div class="tblwrap"><table class="tbl" id="pages"></table></div>
+  </div>
+
   <div class="cols">
     <div class="card">
-      <div class="card-head"><h2>Most read</h2></div>
-      <ul class="rows" id="pages"></ul>
+      <div class="card-head"><h2>Where visits start</h2></div>
+      <p class="why">The first page someone lands on. These are the pages doing your first impression.</p>
+      <div class="tblwrap"><table class="tbl" id="landing"></table></div>
     </div>
     <div class="card">
-      <div class="card-head"><h2>Where they came from</h2></div>
-      <ul class="rows" id="sources"></ul>
-    </div>
-    <div class="card">
-      <div class="card-head"><h2>On what</h2></div>
-      <ul class="rows" id="devices"></ul>
-    </div>
-    <div class="card">
-      <div class="card-head"><h2>From where</h2></div>
-      <ul class="rows" id="countries"></ul>
+      <div class="card-head"><h2>Where visits end</h2></div>
+      <p class="why">The last page before they left. Normal for Contact; worth a look anywhere else.</p>
+      <div class="tblwrap"><table class="tbl" id="exits"></table></div>
     </div>
   </div>
+
+  <p class="sec">Where they come from</p>
+  <div class="cols">
+    <div class="card">
+      <div class="card-head"><h2>Channels</h2></div>
+      <p class="why">Not just how many, but how they behave once they arrive. A channel with high bounce is sending you the wrong people.</p>
+      <div class="tblwrap"><table class="tbl" id="channels"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Referrers</h2></div>
+      <div class="tblwrap"><table class="tbl" id="referrers"></table></div>
+    </div>
+  </div>
+
+  <p class="sec">What they did</p>
+  <div class="card">
+    <div class="card-head"><h2>Conversions</h2></div>
+    <p class="why">Enquiries sent, early-access clicks, outbound links followed. This is the number that matters — traffic that does nothing is just traffic.</p>
+    <div class="tblwrap"><table class="tbl" id="events"></table></div>
+  </div>
+
+  <p class="sec">On what</p>
+  <div class="cols">
+    <div class="card"><div class="card-head"><h2>Device</h2></div><ul class="rows" id="devices"></ul></div>
+    <div class="card"><div class="card-head"><h2>Browser</h2></div><ul class="rows" id="browsers"></ul></div>
+    <div class="card"><div class="card-head"><h2>System</h2></div><ul class="rows" id="oses"></ul></div>
+    <div class="card"><div class="card-head"><h2>Country</h2></div><ul class="rows" id="countries"></ul></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Speed</h2></div>
+    <p class="why">How long a page takes to finish loading. Google treats this as a ranking signal, and people leave slow pages.</p>
+    <p id="speed" class="empty"></p>
+  </div>
+
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -120,73 +172,123 @@
   const m = $('#m');
   let days = 30;
 
-  const esc = t => { const d=document.createElement('div'); d.textContent = t==null?'':t; return d.innerHTML; };
-  const num = n => Number(n||0).toLocaleString();
+  const esc  = t => { const d=document.createElement('div'); d.textContent = t==null?'':t; return d.innerHTML; };
+  const num  = n => Number(n||0).toLocaleString();
+  const pct  = n => (n==null ? '—' : Number(n).toFixed(1).replace(/\.0$/,'') + '%');
+  const secs = n => {
+    if(n==null) return '—';
+    n = Math.round(Number(n));
+    return n < 60 ? n + 's' : Math.floor(n/60) + 'm ' + String(n%60).padStart(2,'0') + 's';
+  };
 
-  function delta(now, before){
-    if(!before) return '';
-    const pct = Math.round(((now - before) / before) * 100);
-    if(!isFinite(pct) || pct === 0) return '<span class="d">no change on the period before</span>';
-    const up = pct > 0;
-    return '<span class="d '+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+Math.abs(pct)+'% on the period before</span>';
+  /* Bounce and load time are the two where down is good. */
+  function delta(now, before, lowerIsBetter){
+    if(before == null || !Number(before)) return '';
+    const change = Math.round(((now - before) / before) * 100);
+    if(!isFinite(change) || change === 0) return '<span class="d">level with the period before</span>';
+    const good = lowerIsBetter ? change < 0 : change > 0;
+    return '<span class="d '+(good?'up':'down')+'">'+(change>0?'▲':'▼')+' '+
+           Math.abs(change)+'% on the period before</span>';
   }
 
-  function list(el, rows, fmt){
-    if(!rows.length){ el.innerHTML = '<li class="empty">Nothing yet.</li>'; return; }
-    el.innerHTML = rows.map(fmt).join('');
+  function table(el, head, rows, cells){
+    if(!rows.length){ el.innerHTML = '<tr><td class="empty">Nothing yet.</td></tr>'; return; }
+    el.innerHTML =
+      '<tr>' + head.map((h,i) => '<th'+(i?' class="n"':'')+'>'+esc(h)+'</th>').join('') + '</tr>' +
+      rows.map(r => '<tr>' + cells(r).map((c,i) =>
+        '<td'+(i?' class="n"':'')+'>'+c+'</td>').join('') + '</tr>').join('');
+  }
+  function simpleList(el, rows){
+    el.innerHTML = rows.length
+      ? rows.map(r => '<li><span class="lab">'+esc(r.label)+'</span>'+
+                      '<span class="num">'+num(r.visits)+'</span></li>').join('')
+      : '<li class="empty">Nothing yet.</li>';
   }
 
   async function draw(){
     say(m, 'Loading…');
 
-    const [sum, daily, top, brk] = await Promise.all([
-      sb.rpc('analytics_summary',   { p_days: days }),
-      sb.rpc('analytics_daily',     { p_days: days }),
-      sb.rpc('analytics_top_pages', { p_days: days, p_limit: 12 }),
-      sb.rpc('analytics_breakdown', { p_days: days })
+    const [sum, daily, top, jour, acq, tech, evs, spd] = await Promise.all([
+      sb.rpc('analytics_summary',     { p_days: days }),
+      sb.rpc('analytics_daily',       { p_days: days }),
+      sb.rpc('analytics_top_pages',   { p_days: days, p_limit: 12 }),
+      sb.rpc('analytics_journey',     { p_days: days, p_limit: 8 }),
+      sb.rpc('analytics_acquisition', { p_days: days }),
+      sb.rpc('analytics_tech',        { p_days: days }),
+      sb.rpc('analytics_events',      { p_days: days }),
+      sb.rpc('analytics_speed',       { p_days: days })
     ]);
 
-    const err = [sum, daily, top, brk].find(r => r.error);
-    if(err){
-      // The most likely cause by far is that the SQL has not been run yet.
-      say(m, /function|does not exist|schema cache/i.test(err.error.message)
-        ? 'Analytics is not set up in the database yet. Run supabase-analytics.sql in the Supabase SQL editor, then reload this page.'
-        : err.error.message, 'err');
+    const bad = [sum,daily,top,jour,acq,tech,evs,spd].find(r => r.error);
+    if(bad){
+      say(m, /function|does not exist|schema cache/i.test(bad.error.message)
+        ? 'Analytics is not set up in the database yet, or the latest version has not been run. Open supabase-analytics.sql, paste the whole file into the Supabase SQL editor, run it, then reload this page.'
+        : bad.error.message, 'err');
       return;
     }
     say(m, '');
 
-    /* ---- headline ---- */
-    const s = (sum.data && sum.data[0]) || {views:0, visits:0, prev_views:0, prev_visits:0};
-    $('#figs').innerHTML =
-      '<div class="fig"><p class="k">Visits</p><p class="v">'+num(s.visits)+'</p>'+delta(s.visits, s.prev_visits)+'</div>'+
-      '<div class="fig"><p class="k">Page views</p><p class="v">'+num(s.views)+'</p>'+delta(s.views, s.prev_views)+'</div>'+
-      '<div class="fig"><p class="k">Pages per visit</p><p class="v">'+
-        (s.visits ? (s.views/s.visits).toFixed(1) : '0')+'</p></div>';
+    /* ---------- the headline ---------- */
+    const s = (sum.data && sum.data[0]) || {};
+    $('#figs').innerHTML = [
+      ['Visits',       num(s.visits),            delta(s.visits, s.prev_visits)],
+      ['Visitors',     num(s.visitors),          '<span class="d">'+num(s.new_visitors)+' of them new</span>'],
+      ['Page views',   num(s.views),             delta(s.views, s.prev_views)],
+      ['Bounce rate',  pct(s.bounce_pct),        delta(s.bounce_pct, s.prev_bounce_pct, true)],
+      ['Avg visit',    secs(s.avg_session_s),    delta(s.avg_session_s, s.prev_avg_session_s)],
+      ['Pages / visit',(s.pages_per_visit ?? 0), ''],
+      ['Conversions',  num(s.conversions),       '<span class="d">'+pct(s.conversion_pct)+' of visits</span>']
+    ].map(([k,v,d]) => '<div class="fig"><p class="k">'+k+'</p><p class="v">'+v+'</p>'+d+'</div>').join('');
 
-    /* ---- the daily bars ---- */
+    /* ---------- by day ---------- */
     const d = daily.data || [];
     const peak = Math.max(1, ...d.map(r => Number(r.views)));
-    $('#chart').innerHTML = d.length
-      ? d.map(r => '<i style="height:'+Math.max(2, Math.round(Number(r.views)/peak*128))+'px">'+
-          '<span>'+esc(r.day)+' · '+num(r.views)+' views · '+num(r.visits)+' visits</span></i>').join('')
-      : '';
+    $('#chart').innerHTML = d.map(r =>
+      '<i style="height:'+Math.max(2, Math.round(Number(r.views)/peak*128))+'px">'+
+      '<span>'+esc(r.day)+' · '+num(r.views)+' views · '+num(r.visits)+' visits</span></i>').join('');
     $('#x0').textContent = d.length ? d[0].day : '';
     $('#x1').textContent = d.length ? d[d.length-1].day : '';
 
-    /* ---- most read ---- */
-    list($('#pages'), top.data || [], r =>
-      '<li><span class="lab">'+esc(r.path)+
-        (r.title ? '<small>'+esc(r.title)+'</small>' : '')+
-      '</span><span class="num">'+num(r.views)+'</span></li>');
+    /* ---------- pages ---------- */
+    table($('#pages'), ['Page','Views','Visits','Time','Scroll','Bounce'], top.data || [],
+      r => [esc(r.path) + (r.title ? '<small style="display:block;color:var(--muted)">'+esc(r.title)+'</small>' : ''),
+            num(r.views), num(r.visits), secs(r.avg_s),
+            r.scroll_pct==null?'—':r.scroll_pct+'%', pct(r.bounce_pct)]);
 
-    /* ---- the three breakdowns come back in one call ---- */
-    const of = kind => (brk.data || []).filter(r => r.kind === kind).slice(0, 10);
-    const simple = r => '<li><span class="lab">'+esc(r.label)+'</span>'+
-                        '<span class="num">'+num(r.visits)+'</span></li>';
-    list($('#sources'),   of('source'),  simple);
-    list($('#devices'),   of('device'),  simple);
-    list($('#countries'), of('country'), simple);
+    const jr = kind => (jour.data || []).filter(r => r.kind === kind);
+    table($('#landing'), ['Page','Visits','Bounce'], jr('landing'),
+      r => [esc(r.path), num(r.visits), pct(r.bounce_pct)]);
+    table($('#exits'), ['Page','Visits'], jr('exit'),
+      r => [esc(r.path), num(r.visits)]);
+
+    /* ---------- acquisition ---------- */
+    const aq = kind => (acq.data || []).filter(r => r.kind === kind).slice(0, 12);
+    table($('#channels'), ['Channel','Visits','Bounce','Avg','Conv'], aq('channel'),
+      r => [esc(r.label), num(r.visits), pct(r.bounce_pct), secs(r.avg_session_s), pct(r.conversion_pct)]);
+    table($('#referrers'), ['Referrer','Visits','Conv'], aq('referrer'),
+      r => [esc(r.label), num(r.visits), pct(r.conversion_pct)]);
+
+    /* ---------- conversions ---------- */
+    const names = { enquiry:'Enquiry sent', early_access:'Early access asked for',
+                    client_login:'Client login opened', email_click:'Email address clicked',
+                    outbound:'Left for another site', download:'Download started' };
+    table($('#events'), ['What','Where','Times','Visits'], evs.data || [],
+      r => [esc(names[r.name] || r.name), esc(r.label || '—'), num(r.count), num(r.visits)]);
+
+    /* ---------- tech ---------- */
+    const tk = kind => (tech.data || []).filter(r => r.kind === kind).slice(0, 8);
+    simpleList($('#devices'),   tk('device'));
+    simpleList($('#browsers'),  tk('browser'));
+    simpleList($('#oses'),      tk('os'));
+    simpleList($('#countries'), tk('country'));
+
+    /* ---------- speed ---------- */
+    const sp = (spd.data && spd.data[0]) || {};
+    $('#speed').innerHTML = sp.samples
+      ? 'Half of page loads finish in <b>'+(sp.median_ms/1000).toFixed(1)+'s</b>, '+
+        'and three quarters within <b>'+(sp.p75_ms/1000).toFixed(1)+'s</b>. '+
+        '<span style="color:var(--muted)">('+num(sp.samples)+' measured)</span>'
+      : 'Nothing measured yet.';
   }
 
   $$('#range button').forEach(b => b.addEventListener('click', () => {

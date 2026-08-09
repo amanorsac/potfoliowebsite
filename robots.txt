@@ -1,0 +1,11 @@
+# amanorsac.studio
+User-agent: *
+Allow: /
+
+# The client portal is private and has nothing for a search engine.
+Disallow: /portal/
+Disallow: /client
+Disallow: /client.html
+Disallow: /post-template.html
+
+Sitemap: https://amanorsac.studio/sitemap.xml

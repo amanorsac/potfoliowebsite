@@ -90,6 +90,7 @@ async function mountChrome(active){
       '<a href="admin-projects.html" class="'+(active==='admin-projects' ?'on':'')+'">Projects</a>'+
       '<a href="admin-reviews.html"  class="'+(active==='admin-reviews'  ?'on':'')+'">Reviews</a>'+
       '<a href="admin-billing.html"  class="'+(active==='admin-billing'  ?'on':'')+'">Billing</a>'+
+      '<a href="admin-traffic.html"  class="'+(active==='admin-traffic'  ?'on':'')+'">Traffic</a>'+
       '<a href="account.html"        class="'+(active==='account'        ?'on':'')+'">Account</a>'+
       '<a href="../index.html">Studio site</a>'
     : '<a href="dashboard.html" class="'+(active==='projects'?'on':'')+'">Projects</a>'+
@@ -126,13 +127,14 @@ async function mountChrome(active){
     talk:    '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
     money:   '<svg viewBox="0 0 24 24"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
     person:  '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>',
+    graph:   '<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   };
   const tabs = (p && p.is_admin)
     ? [['admin.html','admin','home','Home'],
        ['admin-projects.html','admin-projects','disc','Projects'],
        ['admin-reviews.html','admin-reviews','talk','Reviews'],
        ['admin-billing.html','admin-billing','money','Billing'],
-       ['account.html','account','person','Account']]
+       ['admin-traffic.html','admin-traffic','graph','Traffic']]
     : [['dashboard.html','projects','disc','Projects'],
        ['billing.html','billing','money','Billing'],
        ['account.html','account','person','Account']];

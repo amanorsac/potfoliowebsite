@@ -1,0 +1,48 @@
+/* =====================================================================
+   How Cloudflare builds and serves this site.
+
+   This started as the file Cloudflare offered in its own pull request
+   (#1, "Add Cloudflare Workers configuration"), which was never merged -
+   so these settings only ever existed in the dashboard. Two things are
+   added to it: "main", which gives the Worker some code to run, and the
+   two asset options that code needs.
+
+   Without "main" the Worker has no script at all. That is what the
+   dashboard means by "a Worker that only has static assets", and it is
+   why the functions/ folder was ignored: that folder is a Cloudflare
+   Pages convention, and this is a Worker.
+
+   With "main" set, the arrangement is:
+
+     a request matching a file  ->  the file, exactly as before. The
+                                    Worker never runs. Every page, image
+                                    and font is served as it is today.
+     a request matching nothing ->  worker.js, which answers for
+                                    /blog/<post> and /sitemap.xml and
+                                    hands everything else straight back
+                                    to the file server.
+
+   compatibility_date is pinned to what the dashboard reports the live
+   Worker already running, so deploying this changes nothing about how
+   the runtime behaves.
+   ===================================================================== */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "potfoliowebsite",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-09",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": ".",
+    // worker.js reaches the files through this name
+    "binding": "ASSETS",
+    // an address that is neither a file nor a post gets the site's own
+    // 404 page, instead of the blank one the browser draws itself
+    "not_found_handling": "404-page"
+  }
+}

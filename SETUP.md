@@ -373,11 +373,16 @@ A published post is at `amanorsac.studio/blog/<address>` straight away,
 appears on the blog page, and is added to `sitemap.xml` — which is built
 on request, so search engines see new posts without you touching it.
 
-Two pieces of the site do this work: `functions/blog/[slug].js` builds the
-page, and `functions/sitemap.xml.js` builds the sitemap. They run on
-Cloudflare rather than in the browser, which is what makes the title,
+`worker.js` does this work — the only code on the site that runs on a
+server rather than in a browser. That is what makes the title,
 description and preview picture correct in a Google result and in a link
-posted to WhatsApp — those readers never run JavaScript.
+posted to WhatsApp: those readers never run JavaScript, so a page that
+assembles itself in the browser reaches them empty.
+
+It answers `/blog/<address>` and `/sitemap.xml` and nothing else. Every
+other address — every page, image and font — is served by Cloudflare
+straight off disk exactly as before, and never touches this file.
+`wrangler.jsonc` is what tells Cloudflare to run it.
 
 `post-template.html` is the design of a post, not a post. Restyle it and
 every post changes. The only part the code depends on is the pairs of

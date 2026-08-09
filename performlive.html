@@ -108,7 +108,7 @@ section{padding:clamp(64px,10vh,120px) 0}
   padding:14px clamp(18px,4vw,40px);background:color-mix(in srgb,var(--bg) 86%,transparent);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .top .back{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--muted);text-decoration:none}
+  color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;min-height:24px}
 .top .back:hover{color:var(--text)}
 .top .name{margin-left:auto;font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em}
 .top .name b{color:var(--accent);font-weight:700}
@@ -116,7 +116,7 @@ section{padding:clamp(64px,10vh,120px) 0}
 /* ---------- hero ---------- */
 .hero{padding:clamp(56px,9vh,100px) 0 0}
 .hero .status{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+  text-transform:uppercase;color:color-mix(in srgb,var(--accent) 94%,#fff);background:var(--accent-soft);
   border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);
   border-radius:999px;padding:6px 14px;margin:0 0 26px}
 h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.02;
@@ -217,7 +217,9 @@ details div{padding:0 0 20px;color:var(--muted);max-width:64ch}
 footer{border-top:1px solid var(--line);padding:26px clamp(18px,4vw,40px);
   display:flex;gap:20px;flex-wrap:wrap;align-items:center}
 footer a{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--muted);text-decoration:none}
+  text-transform:uppercase;color:var(--muted);text-decoration:none;
+  /* 18px tall was under the 24px minimum for a touch target */
+  display:inline-flex;align-items:center;min-height:24px}
 footer a:hover{color:var(--text)}
 footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}

@@ -148,8 +148,13 @@ img{display:block;max-width:100%}
   -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .sitehead::after{content:"";position:absolute;left:0;right:0;bottom:-20px;height:20px;pointer-events:none;
   background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 55%,transparent),transparent)}
+/* The links along the top were between 11 and 23 pixels tall, which is
+   under the 24px a finger can reliably hit. Each one below grows its box
+   to 24px and gives back the same number of pixels in the gap beside it,
+   so the text and icons stay exactly where they were. */
 .sitehead-name{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--muted);text-decoration:none;padding-left:var(--gut);white-space:nowrap}
+  color:var(--muted);text-decoration:none;padding-left:var(--gut);white-space:nowrap;
+  display:inline-flex;align-items:center;min-height:24px}
 .sitehead-name:hover{color:var(--paper)}
 /* the wordmark only stands in for the name on a phone */
 .sh-mark{display:none}
@@ -159,10 +164,11 @@ img{display:block;max-width:100%}
 .sitehead-actions:hover{transform:translateY(-1px);box-shadow:var(--shadow-2)}
 .sitehead-actions a{color:#fff;text-decoration:none;display:inline-flex;align-items:center}
 .sh-login{font-family:var(--body);font-size:14px;font-weight:600;letter-spacing:0;opacity:.97;
-  transition:opacity var(--dur) var(--ease-out)}
+  min-height:24px;transition:opacity var(--dur) var(--ease-out)}
 .sh-login:hover{opacity:1}
-.sh-social{display:inline-flex;align-items:center;gap:13px}
-.sh-social a{opacity:.9;transition:opacity .2s,transform .2s}
+.sh-social{display:inline-flex;align-items:center;gap:5px}   /* the boxes below grew 6px each; this gives back the same total */
+.sh-social a{opacity:.9;transition:opacity .2s,transform .2s;
+  display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px}
 .sh-social a:hover{opacity:1;transform:translateY(-1px)}
 .sh-social svg{width:18px;height:18px;display:block;fill:currentColor}
 @media(max-width:860px){
@@ -184,7 +190,7 @@ img{display:block;max-width:100%}
     background:transparent;color:var(--paper);box-shadow:none;border-radius:0}
   .sitehead-actions:hover{transform:none;box-shadow:none}
   .sitehead-actions a{color:var(--paper)}
-  .sh-social{gap:16px}
+  .sh-social{gap:12px}   /* likewise, so the row is the width it always was */
   .sh-social svg{width:21px;height:21px}
   .sh-social a{opacity:.82}
   /* one thing here is a destination rather than a link out, so it keeps
@@ -313,7 +319,9 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
   transform:translateY(14px);opacity:0;transition:transform var(--dur-slow) var(--ease-out) 80ms,opacity var(--dur-slow) var(--ease-out) 80ms}
 .hc-slide.on .hc-body{transform:none;opacity:1}
 .hc-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
-  color:var(--room,var(--accent));margin:0 0 26px}
+  /* the room colour itself is too light for 11px type on paper - this is
+     the same hue with the lightness taken out, set per slide */
+  color:var(--room-ink,var(--room,var(--accent)));margin:0 0 26px}
 .hc-body h1{margin:0 0 22px}
 .hc-body h1 em{color:var(--room,var(--accent))}
 .hc-body .hero-thesis{margin-bottom:34px}
@@ -337,10 +345,15 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
   clip-path:polygon(0 0,38% 0,38% 100%,0 100%,0 0,62% 0,100% 0,100% 100%,62% 100%)}
 .hc-play[aria-pressed="true"]::before{clip-path:polygon(0 0,100% 50%,0 100%)}
 .hc-dots{display:flex;align-items:center;gap:9px;padding:0 6px}
-.hc-dot{width:9px;height:9px;padding:0;border:0;border-radius:var(--r-pill);cursor:pointer;
+/* The dot stays 9px, because that is the design. The pseudo-element below
+   it is a 24px invisible pad, so a thumb that lands near the dot still
+   hits it. Nothing about this is visible. */
+.hc-dot{width:9px;height:9px;padding:0;border:0;border-radius:var(--r-pill);cursor:pointer;position:relative;
   background:color-mix(in srgb,var(--paper) 45%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--panel) 45%,transparent);
   transition:width var(--dur) var(--ease-out),background var(--dur) var(--ease-out)}
 .hc-dot.on{width:30px;background:var(--accent)}
+.hc-dot::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:max(24px,100%);height:24px}
 @media(max-width:860px){
   /* Edge to edge. Inset by the page gutter it read as a card someone had
      dropped on the page; a hero on a phone should be the screen. */
@@ -409,7 +422,7 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
   box-shadow:0 22px 48px rgba(8,24,18,.42)}
 @keyframes arrdrift{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media (prefers-reduced-motion:reduce){ .arr-float .fa{animation:none} }
-.arr-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--room);display:block;margin-bottom:16px}
+.arr-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--room-ink,var(--room));display:block;margin-bottom:16px}
 .arr-body h3{font-family:var(--display);font-weight:700;font-size:clamp(30px,4vw,52px);line-height:1.02;margin:0 0 16px;letter-spacing:-.035em}
 .arr-body p{color:var(--muted);font-size:17px;line-height:1.7;max-width:40ch;margin:0 0 22px}
 .arr-go{display:inline-flex;align-items:center;gap:8px;font-family:var(--body);font-size:15px;font-weight:600;
@@ -549,7 +562,11 @@ button.send[disabled]{opacity:.55;cursor:default}
 .form-msg.ok{color:var(--signal)}
 .form-msg.err{color:#D98A6A}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.skip{position:absolute;left:-9999px;top:0;z-index:200;background:var(--accent);color:#fff;
+/* The one control whose whole job is accessibility should not itself be
+   hard to read. Only ever seen on keyboard focus, so darkening the fill
+   enough for white text costs the design nothing. */
+.skip{position:absolute;left:-9999px;top:0;z-index:200;
+  background:color-mix(in srgb,var(--accent) 63%,#000);color:#fff;
   font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:12px 18px}
 .skip:focus{left:0}
 
@@ -565,7 +582,8 @@ button.send[disabled]{opacity:.55;cursor:default}
 footer{margin-left:var(--rail);padding:24px var(--gut);border-top:1px solid var(--line);font-family:var(--mono);
   font-size:10px;letter-spacing:.11em;color:var(--muted);text-transform:uppercase;
   display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-footer a{text-decoration:none}
+footer a{text-decoration:none;display:inline-flex;align-items:center;min-height:24px}
+footer{align-items:center}   /* the links are 24px tall now; keep the rows centred */
 footer a:hover{color:var(--accent)}
 
 body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.032;
@@ -888,7 +906,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   <section class="hc" id="hero" aria-roledescription="carousel" aria-label="Studio Amanorsac">
     <div class="hc-track">
 
-      <article class="hc-slide on" style="--room:#EF9F27" aria-roledescription="slide" aria-label="1 of 4">
+      <article class="hc-slide on" style="--room:#EF9F27;--room-ink:#885B16" aria-roledescription="slide" aria-label="1 of 4">
         <div class="hc-media"><img src="images/hero-home.webp" alt="" fetchpriority="high"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Accra &nbsp;→&nbsp; Virginia</p>
@@ -902,7 +920,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </article>
 
-      <article class="hc-slide" style="--room:#C0722B" aria-roledescription="slide" aria-label="2 of 4" hidden>
+      <article class="hc-slide" style="--room:#C0722B;--room-ink:#945821" aria-roledescription="slide" aria-label="2 of 4" hidden>
         <div class="hc-media"><img src="images/mixing-studio.webp" alt="" loading="lazy"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Studio</p>
@@ -912,7 +930,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </article>
 
-      <article class="hc-slide" style="--room:#E8A33D" aria-roledescription="slide" aria-label="3 of 4" hidden>
+      <article class="hc-slide" style="--room:#E8A33D;--room-ink:#845D23" aria-roledescription="slide" aria-label="3 of 4" hidden>
         <div class="hc-media"><img src="images/hero-mixing.webp" alt="" loading="lazy"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Writing</p>
@@ -924,7 +942,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
       <!-- No photograph on this one: a picture of a desk says nothing about
            software. The apps themselves float here, and each one is a door. -->
-      <article class="hc-slide store" style="--room:#8B7BFF" aria-roledescription="slide" aria-label="4 of 4" hidden>
+      <article class="hc-slide store" style="--room:#8B7BFF;--room-ink:#6459B8" aria-roledescription="slide" aria-label="4 of 4" hidden>
         <div class="hc-media"><span class="hc-canvas" aria-hidden="true"></span></div>
         <div class="hc-float">
           <a class="fa" href="performlive.html"
@@ -961,7 +979,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   <section id="rooms">
     <h2>What I do</h2>
     <div class="arrangements">
-      <a class="arr rise" href="mixing.html" style="--room:#C0722B">
+      <a class="arr rise" href="mixing.html" style="--room:#C0722B;--room-ink:#945821">
         <div class="arr-media"><img src="images/mixing-studio.webp" alt="The studio: console, racks and monitors" loading="lazy"></div>
         <div class="arr-body">
           <span class="arr-tag">Studio</span>
@@ -970,7 +988,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
           <span class="arr-go">Enter the room →</span>
         </div>
       </a>
-      <a class="arr rise" href="blog.html" style="--room:#E8A33D">
+      <a class="arr rise" href="blog.html" style="--room:#E8A33D;--room-ink:#845D23">
         <div class="arr-media"><img src="images/hero-mixing.webp" alt="Directing from the keys" loading="lazy"></div>
         <div class="arr-body">
           <span class="arr-tag">Writing</span>
@@ -979,7 +997,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
           <span class="arr-go">Read the blog →</span>
         </div>
       </a>
-      <a class="arr rise" href="apps.html" style="--room:#8B7BFF">
+      <a class="arr rise" href="apps.html" style="--room:#8B7BFF;--room-ink:#6459B8">
         <div class="arr-media apps">
           <span class="arr-float" aria-hidden="true">
             <span class="fa" style="--x:6%;--y:15%;--w:46%;--rot:-4deg;--z:3;--i:0">

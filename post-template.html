@@ -127,7 +127,9 @@ a{color:inherit}
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line)}
 .top a{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--muted);text-decoration:none}
+  text-transform:uppercase;color:var(--muted);text-decoration:none;
+  /* 19px tall was under the 24px minimum for a touch target */
+  display:inline-flex;align-items:center;min-height:24px}
 .top a:hover{color:var(--paper)}
 .top .name{margin-left:auto}
 
@@ -183,7 +185,8 @@ footer{border-top:1px solid var(--line);padding:24px clamp(20px,5vw,40px);
   display:flex;gap:18px;flex-wrap:wrap;align-items:center;
   font-family:var(--mono);font-size:10px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--muted)}
-footer a{text-decoration:none}
+footer a{text-decoration:none;display:inline-flex;align-items:center;min-height:24px}
+footer{align-items:center}   /* the links are 24px tall now; keep the rows centred */
 footer a:hover{color:var(--paper)}
 footer .who{margin-left:auto}
 @media (prefers-reduced-motion:reduce){

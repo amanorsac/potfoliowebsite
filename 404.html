@@ -106,7 +106,9 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 .wrap{max-width:640px}
 img.logo{width:min(280px,60vw);height:auto;margin:0 0 44px}
 .code{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
-  color:var(--accent);margin:0 0 22px}
+  /* small uppercase type needs more separation from the paper than the
+     room colour gives it, so this is the same hue with the lightness taken out */
+  color:color-mix(in srgb,var(--accent) 60%,#000);margin:0 0 22px}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(38px,7vw,76px);line-height:1;
   margin:0 0 20px;letter-spacing:-.02em;text-wrap:balance}
 p{color:var(--muted);font-size:18px;line-height:1.75;margin:0 0 38px;max-width:46ch;text-wrap:pretty}

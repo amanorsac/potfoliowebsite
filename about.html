@@ -148,8 +148,13 @@ img{display:block;max-width:100%}
   -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .sitehead::after{content:"";position:absolute;left:0;right:0;bottom:-20px;height:20px;pointer-events:none;
   background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 55%,transparent),transparent)}
+/* The links along the top were between 11 and 23 pixels tall, which is
+   under the 24px a finger can reliably hit. Each one below grows its box
+   to 24px and gives back the same number of pixels in the gap beside it,
+   so the text and icons stay exactly where they were. */
 .sitehead-name{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--muted);text-decoration:none;padding-left:var(--gut);white-space:nowrap}
+  color:var(--muted);text-decoration:none;padding-left:var(--gut);white-space:nowrap;
+  display:inline-flex;align-items:center;min-height:24px}
 .sitehead-name:hover{color:var(--paper)}
 /* the wordmark only stands in for the name on a phone */
 .sh-mark{display:none}
@@ -159,10 +164,11 @@ img{display:block;max-width:100%}
 .sitehead-actions:hover{transform:translateY(-1px);box-shadow:var(--shadow-2)}
 .sitehead-actions a{color:#fff;text-decoration:none;display:inline-flex;align-items:center}
 .sh-login{font-family:var(--body);font-size:14px;font-weight:600;letter-spacing:0;opacity:.97;
-  transition:opacity var(--dur) var(--ease-out)}
+  min-height:24px;transition:opacity var(--dur) var(--ease-out)}
 .sh-login:hover{opacity:1}
-.sh-social{display:inline-flex;align-items:center;gap:13px}
-.sh-social a{opacity:.9;transition:opacity .2s,transform .2s}
+.sh-social{display:inline-flex;align-items:center;gap:5px}   /* the boxes below grew 6px each; this gives back the same total */
+.sh-social a{opacity:.9;transition:opacity .2s,transform .2s;
+  display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px}
 .sh-social a:hover{opacity:1;transform:translateY(-1px)}
 .sh-social svg{width:18px;height:18px;display:block;fill:currentColor}
 @media(max-width:860px){
@@ -184,7 +190,7 @@ img{display:block;max-width:100%}
     background:transparent;color:var(--paper);box-shadow:none;border-radius:0}
   .sitehead-actions:hover{transform:none;box-shadow:none}
   .sitehead-actions a{color:var(--paper)}
-  .sh-social{gap:16px}
+  .sh-social{gap:12px}   /* likewise, so the row is the width it always was */
   .sh-social svg{width:21px;height:21px}
   .sh-social a{opacity:.82}
   /* one thing here is a destination rather than a link out, so it keeps
@@ -388,6 +394,9 @@ body.lb-open{overflow:hidden}
   line-height:1.2;border-bottom:1px solid var(--line);transition:border-color .25s,color .25s;word-break:break-word}
 .mail:hover{color:var(--accent);border-color:var(--accent)}
 .contact-meta{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--muted);margin-top:26px;line-height:2}
+/* the links in here were 15px tall; line-height:2 already leaves the room
+   for a 24px box, so this costs no layout */
+.contact-meta a{display:inline-flex;align-items:center;min-height:24px}
 form{display:flex;flex-direction:column;gap:16px}
 .field{display:flex;flex-direction:column;gap:7px}
 label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
@@ -405,7 +414,11 @@ button.send[disabled]{opacity:.55;cursor:default}
 .form-msg.ok{color:var(--signal)}
 .form-msg.err{color:#D98A6A}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.skip{position:absolute;left:-9999px;top:0;z-index:200;background:var(--accent);color:#fff;
+/* The one control whose whole job is accessibility should not itself be
+   hard to read. Only ever seen on keyboard focus, so darkening the fill
+   enough for white text costs the design nothing. */
+.skip{position:absolute;left:-9999px;top:0;z-index:200;
+  background:color-mix(in srgb,var(--accent) 63%,#000);color:#fff;
   font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:12px 18px}
 .skip:focus{left:0}
 
@@ -421,7 +434,8 @@ button.send[disabled]{opacity:.55;cursor:default}
 footer{margin-left:var(--rail);padding:24px var(--gut);border-top:1px solid var(--line);font-family:var(--mono);
   font-size:10px;letter-spacing:.11em;color:var(--muted);text-transform:uppercase;
   display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-footer a{text-decoration:none}
+footer a{text-decoration:none;display:inline-flex;align-items:center;min-height:24px}
+footer{align-items:center}   /* the links are 24px tall now; keep the rows centred */
 footer a:hover{color:var(--accent)}
 
 body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.032;

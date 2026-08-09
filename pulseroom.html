@@ -83,7 +83,7 @@
    ===================================================================== */
 :root{
   --bg:#0c0e12; --panel:#12151c; --panel-2:#171b24; --line:rgba(255,255,255,.08);
-  --text:#e9ebf1; --muted:#a2a9b8; --dim:#6d7488;
+  --text:#e9ebf1; --muted:#a2a9b8; --dim:#7f8596;   /* lifted: the old grey sat under 4.5:1 on this near-black */
   --accent:#3fd3e4; --accent-soft:#0e2229;
   --rv:#a48bfa; --eq:#f2b13c; --cp:#f25c7f; --ch:#4fd58f; --gd:#5f9dff; --rf:#d8a05f;
   --go:#4fd58f;
@@ -111,7 +111,7 @@ section{padding:clamp(64px,10vh,120px) 0}
   padding:14px clamp(18px,4vw,40px);background:color-mix(in srgb,var(--bg) 86%,transparent);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .top .back{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--muted);text-decoration:none}
+  color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;min-height:24px}
 .top .back:hover{color:var(--text)}
 .top .name{margin-left:auto;display:flex;align-items:center;gap:9px;
   font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em}
@@ -229,7 +229,9 @@ details div{padding:0 0 20px;color:var(--muted);max-width:64ch}
 footer{border-top:1px solid var(--line);padding:26px clamp(18px,4vw,40px);
   display:flex;gap:20px;flex-wrap:wrap;align-items:center}
 footer a{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--muted);text-decoration:none}
+  text-transform:uppercase;color:var(--muted);text-decoration:none;
+  /* 18px tall was under the 24px minimum for a touch target */
+  display:inline-flex;align-items:center;min-height:24px}
 footer a:hover{color:var(--text)}
 footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}

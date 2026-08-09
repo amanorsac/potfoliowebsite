@@ -9,11 +9,72 @@
 <meta property="og:description" content="The stem performance instrument for stages and services. Per-stem control, bar-quantised cues, scenes, and pads. Windows, touch-first.">
 <meta property="og:image" content="https://amanorsac.studio/images/PL-perform-workspace.png">
 <meta property="og:url" content="https://amanorsac.studio/performlive.html">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/sora-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/inter-latin.woff2">
 <style>
+/* ---------- fonts ----------
+   Served from this site rather than fonts.googleapis.com. That stylesheet
+   blocked the first paint on every visit while the browser opened a
+   connection to a third party and waited for an answer. These are the
+   same typefaces, variable-weight, latin only, and they come down the
+   connection the page is already using. Nothing about visitors is shared
+   with Google to render text any more. */
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(fonts/inter-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(fonts/inter-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url(fonts/jetbrains-mono-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url(fonts/jetbrains-mono-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(fonts/sora-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(fonts/sora-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* =====================================================================
    PerformLive product page. Dark on purpose: the product is a dark
    instrument and every screenshot is a dark frame; a light page would
@@ -214,7 +275,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   </div>
   <p class="fine">Windows. Touch-first. No account, no network activity.</p>
   <div class="hero-shot rise">
-    <img src="images/PL-perform-workspace.png" alt="The PerformLive perform workspace: four decks of stems, scenes, transport, and twelve pads" fetchpriority="high">
+    <img src="images/PL-perform-workspace.webp" alt="The PerformLive perform workspace: four decks of stems, scenes, transport, and twelve pads" fetchpriority="high">
   </div>
 </header>
 
@@ -227,7 +288,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
       <h3>Drop the drums. Keep the pad.</h3>
       <p>Every stem is independently mutable while it plays. Breakdowns, a cappella moments, and "just the keys" become live decisions instead of separate bounces.</p>
     </div>
-    <div class="shot"><img src="images/PL-clip-editor.png" alt="The clip editor with per-stem waveforms" loading="lazy"></div>
+    <div class="shot"><img src="images/PL-clip-editor.webp" alt="The clip editor with per-stem waveforms" loading="lazy"></div>
   </div>
 
   <div class="feat rise">
@@ -235,13 +296,13 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
       <h3>Hold the room.</h3>
       <p>Twelve colour-coded pads for atmosphere and one-shots. Tap to start, tap to stop, glowing the whole time they sound. A prayer that runs long is no longer a problem.</p>
     </div>
-    <div class="shot"><img src="images/PL-07-pads-fx-closeup.png" alt="The pads and FX section, colour-coded and lit while sounding" loading="lazy"></div>
+    <div class="shot"><img src="images/PL-07-pads-fx-closeup.webp" alt="The pads and FX section, colour-coded and lit while sounding" loading="lazy"></div>
   </div>
 
   <div class="feat-wide rise">
     <h3>A real grid, when you need one.</h3>
     <p>Bar, 1/2, 1/4, 1/8, 1/16, 1/32, with start and end markers, 64x zoom, and snapping that follows the grid you can actually see.</p>
-    <div class="shot"><img src="images/PL-08-editor-grid-closeup.png" alt="The editor grid at high zoom with start and end markers" loading="lazy"></div>
+    <div class="shot"><img src="images/PL-08-editor-grid-closeup.webp" alt="The editor grid at high zoom with start and end markers" loading="lazy"></div>
   </div>
 
   <div class="trio">
@@ -267,13 +328,13 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
 <section class="wrap">
   <h2>Around the instrument.</h2>
   <div class="shotrow">
-    <figure><div class="shot"><img src="images/PL-03-library.png" alt="" loading="lazy"></div>
+    <figure><div class="shot"><img src="images/PL-03-library.webp" alt="" loading="lazy"></div>
       <figcaption>The library: stems tagged with tempo and key, searchable.</figcaption></figure>
-    <figure><div class="shot"><img src="images/PL-04-mixer.png" alt="" loading="lazy"></div>
+    <figure><div class="shot"><img src="images/PL-04-mixer.webp" alt="" loading="lazy"></div>
       <figcaption>The mixer: a fader per channel, with per-channel output routing.</figcaption></figure>
-    <figure><div class="shot"><img src="images/PL-06-settings.png" alt="" loading="lazy"></div>
+    <figure><div class="shot"><img src="images/PL-06-settings.webp" alt="" loading="lazy"></div>
       <figcaption>Settings: audio device, buffer, and MIDI Learn for rows, pads and FX.</figcaption></figure>
-    <figure><div class="shot"><img src="images/PL-05-store.png" alt="" loading="lazy"></div>
+    <figure><div class="shot"><img src="images/PL-05-store.webp" alt="" loading="lazy"></div>
       <figcaption>The built-in store, ready for loop and stem packs.</figcaption></figure>
   </div>
 </section>

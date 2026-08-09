@@ -15,10 +15,71 @@
 <meta property="og:site_name" content="Studio Amanorsac">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://amanorsac.studio/images/hero-home.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/sora-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/inter-latin.woff2">
 <style>
+/* ---------- fonts ----------
+   Served from this site rather than fonts.googleapis.com. That stylesheet
+   blocked the first paint on every visit while the browser opened a
+   connection to a third party and waited for an answer. These are the
+   same typefaces, variable-weight, latin only, and they come down the
+   connection the page is already using. Nothing about visitors is shared
+   with Google to render text any more. */
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(fonts/inter-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(fonts/inter-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url(fonts/jetbrains-mono-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url(fonts/jetbrains-mono-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(fonts/sora-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(fonts/sora-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* ===========================================================
    Stephen Amanor Sackey — shared design system
    One stylesheet for all five pages. Each page sets
@@ -828,7 +889,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <div class="hc-track">
 
       <article class="hc-slide on" style="--room:#EF9F27" aria-roledescription="slide" aria-label="1 of 4">
-        <div class="hc-media"><img src="images/hero-home.jpg" alt="" fetchpriority="high"></div>
+        <div class="hc-media"><img src="images/hero-home.webp" alt="" fetchpriority="high"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Accra &nbsp;→&nbsp; Virginia</p>
           <h1><em>Amanorsac</em></h1>
@@ -842,7 +903,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       </article>
 
       <article class="hc-slide" style="--room:#C0722B" aria-roledescription="slide" aria-label="2 of 4" hidden>
-        <div class="hc-media"><img src="images/mixing-studio.jpg" alt="" loading="lazy"></div>
+        <div class="hc-media"><img src="images/mixing-studio.webp" alt="" loading="lazy"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Studio</p>
           <h1>Mixing &amp; <em>Mastering</em></h1>
@@ -852,7 +913,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       </article>
 
       <article class="hc-slide" style="--room:#E8A33D" aria-roledescription="slide" aria-label="3 of 4" hidden>
-        <div class="hc-media"><img src="images/hero-mixing.jpg" alt="" loading="lazy"></div>
+        <div class="hc-media"><img src="images/hero-mixing.webp" alt="" loading="lazy"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Writing</p>
           <h1>The Modern <em>Musician</em></h1>
@@ -868,16 +929,16 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         <div class="hc-float">
           <a class="fa" href="performlive.html"
              style="--x:1%;--y:19%;--w:60%;--rot:-3.5deg;--z:3;--i:0">
-            <span class="fa-in"><img src="images/apps/banner-performlive.jpg" alt="" loading="lazy"><b>PerformLive</b></span></a>
+            <span class="fa-in"><img src="images/apps/banner-performlive.webp" alt="" loading="lazy"><b>PerformLive</b></span></a>
           <a class="fa" href="pulseroom.html"
              style="--x:64%;--y:7%;--w:35%;--rot:-2deg;--z:1;--i:1">
-            <span class="fa-in"><img src="images/apps/banner-pulseroom.jpg" alt="" loading="lazy"><b>PulseRoom</b></span></a>
+            <span class="fa-in"><img src="images/apps/banner-pulseroom.webp" alt="" loading="lazy"><b>PulseRoom</b></span></a>
           <a class="fa" href="harmoniemd.html"
              style="--x:47%;--y:44%;--w:52%;--rot:2.5deg;--z:2;--i:2">
-            <span class="fa-in"><img src="images/apps/banner-harmoniemd.jpg" alt="" loading="lazy"><b>HarmonieMD</b></span></a>
+            <span class="fa-in"><img src="images/apps/banner-harmoniemd.webp" alt="" loading="lazy"><b>HarmonieMD</b></span></a>
           <a class="fa" href="nebulatide.html"
              style="--x:0%;--y:56%;--w:45%;--rot:3deg;--z:4;--i:3">
-            <span class="fa-in"><img src="images/apps/banner-nebulatide.jpg" alt="" loading="lazy"><b>Nebula Tide</b></span></a>
+            <span class="fa-in"><img src="images/apps/banner-nebulatide.webp" alt="" loading="lazy"><b>Nebula Tide</b></span></a>
         </div>
         <div class="hc-body">
           <p class="hc-eyebrow">Software</p>
@@ -901,7 +962,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <h2>What I do</h2>
     <div class="arrangements">
       <a class="arr rise" href="mixing.html" style="--room:#C0722B">
-        <div class="arr-media"><img src="images/mixing-studio.jpg" alt="The studio: console, racks and monitors" loading="lazy"></div>
+        <div class="arr-media"><img src="images/mixing-studio.webp" alt="The studio: console, racks and monitors" loading="lazy"></div>
         <div class="arr-body">
           <span class="arr-tag">Studio</span>
           <h3>Mixing &amp; Mastering</h3>
@@ -910,7 +971,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </a>
       <a class="arr rise" href="blog.html" style="--room:#E8A33D">
-        <div class="arr-media"><img src="images/hero-mixing.jpg" alt="Directing from the keys" loading="lazy"></div>
+        <div class="arr-media"><img src="images/hero-mixing.webp" alt="Directing from the keys" loading="lazy"></div>
         <div class="arr-body">
           <span class="arr-tag">Writing</span>
           <h3>The Modern Musician</h3>
@@ -922,13 +983,13 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         <div class="arr-media apps">
           <span class="arr-float" aria-hidden="true">
             <span class="fa" style="--x:6%;--y:15%;--w:46%;--rot:-4deg;--z:3;--i:0">
-              <span class="fa-in"><img src="images/apps/banner-performlive.jpg" alt="" loading="lazy"><b>PerformLive</b></span></span>
+              <span class="fa-in"><img src="images/apps/banner-performlive.webp" alt="" loading="lazy"><b>PerformLive</b></span></span>
             <span class="fa" style="--x:53%;--y:9%;--w:40%;--rot:3deg;--z:2;--i:1">
-              <span class="fa-in"><img src="images/apps/banner-pulseroom.jpg" alt="" loading="lazy"><b>PulseRoom</b></span></span>
+              <span class="fa-in"><img src="images/apps/banner-pulseroom.webp" alt="" loading="lazy"><b>PulseRoom</b></span></span>
             <span class="fa" style="--x:9%;--y:50%;--w:45%;--rot:2.5deg;--z:4;--i:2">
-              <span class="fa-in"><img src="images/apps/banner-harmoniemd.jpg" alt="" loading="lazy"><b>HarmonieMD</b></span></span>
+              <span class="fa-in"><img src="images/apps/banner-harmoniemd.webp" alt="" loading="lazy"><b>HarmonieMD</b></span></span>
             <span class="fa" style="--x:56%;--y:45%;--w:38%;--rot:-3deg;--z:1;--i:3">
-              <span class="fa-in"><img src="images/apps/banner-nebulatide.jpg" alt="" loading="lazy"><b>Nebula Tide</b></span></span>
+              <span class="fa-in"><img src="images/apps/banner-nebulatide.webp" alt="" loading="lazy"><b>Nebula Tide</b></span></span>
           </span>
         </div>
         <div class="arr-body">
@@ -1080,31 +1141,31 @@ var CONFIG = {
 
   /* 6. PHOTOS -----------------------------------------------
      Drop files in the images folder. */
-  portrait: "images/portrait.jpg",
+  portrait: "images/portrait.webp",
 
   /* Big background photo behind the headline on each page.
      Landscape, wide, at least 2000px across. Leave "" to keep
      the generated waveform field instead. */
   hero: {
-    home:   "images/hero-home.jpg",
-    mixing: "images/mixing-studio.jpg",
-    live:   "images/hero-live.jpg",
-    piano:  "images/hero-mixing.jpg",
+    home:   "images/hero-home.webp",
+    mixing: "images/mixing-studio.webp",
+    live:   "images/hero-live.webp",
+    piano:  "images/hero-mixing.webp",
     apps:   ""
   },
 
   /* Full-width photo strips between sections. */
   band: {
-    home:   { src:"images/band-home.jpg",   cap:"The band" },
-    mixing: { src:"images/band-mixing.jpg", cap:"At the desk" },
-    live:   { src:"images/band-live.jpg",   cap:"Sunday, mid-service" },
-    piano:  { src:"images/band-piano.jpg",  cap:"Keys" }
+    home:   { src:"images/band-home.webp",   cap:"The band" },
+    mixing: { src:"images/band-mixing.webp", cap:"At the desk" },
+    live:   { src:"images/band-live.webp",   cap:"Sunday, mid-service" },
+    piano:  { src:"images/band-piano.webp",  cap:"Keys" }
   },
   gallery: {
-    home:   ["images/studio-01.jpg","images/live-01.jpg","images/session-01.jpg","images/live-02.jpg"],
-    mixing: ["images/desk-01.jpg","images/desk-02.jpg","images/session-02.jpg"],
-    live:   ["images/stream-01.jpg","images/stage-01.jpg"],
-    piano:  ["images/piano-01.jpg","images/piano-02.jpg","images/piano-03.jpg"]
+    home:   ["images/studio-01.webp","images/live-01.webp","images/session-01.webp","images/live-02.webp"],
+    mixing: ["images/desk-01.webp","images/desk-02.webp","images/session-02.webp"],
+    live:   ["images/stream-01.webp","images/stage-01.webp"],
+    piano:  ["images/piano-01.webp","images/piano-02.webp","images/piano-03.webp"]
   },
 
   email: "hello@amanorsac.studio"
@@ -1478,7 +1539,7 @@ var CONFIG = {
     var listEl  = document.getElementById('ytp-tracks');
     var scroll  = document.getElementById('ytp-scroll');
     var countEl = document.getElementById('ytp-count');
-    var player  = null, ready = false;
+    var player  = null, ready = false, booted = false, pending = -1;
     var total   = tracks.length;   // live count once the player reports in
 
     function esc(s){
@@ -1505,8 +1566,13 @@ var CONFIG = {
 
     listEl.addEventListener('click', function(e){
       var b = e.target.closest ? e.target.closest('.ytp-row') : null;
-      if(!b || !ready || !player) return;
-      player.playVideoAt(+b.getAttribute('data-i'));
+      if(!b) return;
+      var i = +b.getAttribute('data-i');
+      if(ready && player){ player.playVideoAt(i); return; }
+      // clicked before the player loaded: remember which one, and start
+      // loading now rather than swallowing the click
+      pending = i;
+      boot();
     });
 
     // oEmbed is public and needs no API key. One call per video, cached
@@ -1622,7 +1688,7 @@ var CONFIG = {
       slot.parentNode.replaceChild(f, slot);
       box.classList.add('noctl');
     }
-    var giveUp = setTimeout(fallback, 7000);
+    var giveUp = null;
 
     function make(){
       player = new YT.Player('yt-player', {
@@ -1631,14 +1697,29 @@ var CONFIG = {
         playerVars:{ listType:'playlist', list:L.playlist,
                      rel:0, modestbranding:1, playsinline:1 },
         events:{
-          onReady: function(){ clearTimeout(giveUp); ready = true; sync(0); },
+          onReady: function(){
+            clearTimeout(giveUp); ready = true; sync(0);
+            if(pending >= 0){ player.playVideoAt(pending); pending = -1; }
+          },
           onStateChange: paint
         }
       });
     }
 
-    if(window.YT && window.YT.Player){ make(); }
-    else {
+    /* The YouTube API is the better part of a megabyte of JavaScript, and
+       it used to load on every visit whether or not anyone ever reached
+       the player - which cost every page load a slower start for nothing.
+       It now waits until the section is nearly in view, or until someone
+       clicks a track. The tray above is drawn from CONFIG either way, so
+       the section reads properly the whole time. The give-up timer starts
+       here too: before, it was counting down during the wait and would
+       have swapped in the plain iframe before anyone had scrolled. */
+    function boot(){
+      if(booted) return;
+      booted = true;
+      giveUp = setTimeout(fallback, 7000);
+
+      if(window.YT && window.YT.Player){ make(); return; }
       var prev = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = function(){
         if(prev){ try { prev(); } catch(e){} }
@@ -1647,6 +1728,17 @@ var CONFIG = {
       var s = document.createElement('script');
       s.src = 'https://www.youtube.com/iframe_api';
       document.head.appendChild(s);
+    }
+
+    if(window.IntersectionObserver){
+      var io = new IntersectionObserver(function(entries){
+        for(var i = 0; i < entries.length; i++){
+          if(entries[i].isIntersecting){ io.disconnect(); boot(); return; }
+        }
+      }, { rootMargin: '600px 0px' });   // a screen's warning, so it is ready on arrival
+      io.observe(box);
+    } else {
+      boot();
     }
   })();
 

@@ -337,6 +337,52 @@ and you confirm it with one click (which also sends their receipt email).
 "I sent it" and "it arrived" are different events — nothing is marked
 paid until you say so.
 
+## 10 · The blog
+
+Posts live in the database and are written in the portal. There are no
+files to copy, nothing to rebuild, and nothing to remember to update.
+
+### a. Once — SQL Editor
+
+Paste the contents of **`supabase-blog.sql`** into the SQL Editor and Run.
+That makes the `posts` table, the rules about who may read what, and a
+public `blog` bucket for the pictures inside posts.
+
+### b. Writing
+
+Portal → **Writing** → **New post**.
+
+- The address writes itself from the title. Change it if you like, but
+  once a post is out there, leave it alone: it is the link people have.
+- The writing box is markdown, and the right-hand side is the post as it
+  will look. `##` starts a section, `**bold**`, `[words](address)` links,
+  `- ` makes a list, `> ` a pull quote.
+- Drag a picture into the writing box and it uploads itself and drops in
+  the line that displays it. Write a description in place of
+  "Describe the picture" — that is what a blind reader hears, and what
+  Google reads.
+- **Save draft** keeps it private. **Publish** puts it live immediately.
+  Put a future date in *Publication date* and it stays private until then.
+- The topic list in the editor has to match the chips on the blog page.
+  Both are near the top of the code: `TOPICS` in `portal/admin-post.html`
+  and `topics` in `blog.html`.
+
+### c. What happens when you publish
+
+A published post is at `amanorsac.studio/blog/<address>` straight away,
+appears on the blog page, and is added to `sitemap.xml` — which is built
+on request, so search engines see new posts without you touching it.
+
+Two pieces of the site do this work: `functions/blog/[slug].js` builds the
+page, and `functions/sitemap.xml.js` builds the sitemap. They run on
+Cloudflare rather than in the browser, which is what makes the title,
+description and preview picture correct in a Google result and in a link
+posted to WhatsApp — those readers never run JavaScript.
+
+`post-template.html` is the design of a post, not a post. Restyle it and
+every post changes. The only part the code depends on is the pairs of
+`<!--post:...-->` markers; leave those in place.
+
 ## Costs
 
 Supabase free, Cloudflare Pages free, GitHub free. Stripe takes 2.9% + 30¢ per payment.

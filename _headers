@@ -1,0 +1,51 @@
+# Response headers for Cloudflare Pages.
+# Rules are matched top to bottom; the most specific match wins.
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  # Never let a browser guess a file's type from its contents.
+  X-Content-Type-Options: nosniff
+
+  # Nobody may frame this site, which is what stops a clickjacking overlay.
+  # frame-ancestors is the modern rule; X-Frame-Options is the old one, kept
+  # for browsers that still only understand that.
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
+
+  # Send the origin to other sites, never the full path. A client portal URL
+  # should not travel in a referrer header.
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # HTTPS only, for a year, subdomains included.
+  # Deliberately without "preload": that would add the domain to a list baked
+  # into browsers, which is slow and awkward to undo. Add it once you are
+  # certain every subdomain will always be HTTPS.
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+  # Keep this site's window separate from anything that opens it.
+  # allow-popups rather than plain same-origin so a future sign-in popup
+  # can still talk back to the page that opened it.
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+
+  # None of these are used, so none of them are permitted.
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()
+
+# Photographs change rarely and are the bulk of what gets downloaded, so
+# they are cached hard. Editing one means giving it a new filename.
+/images/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+/audio/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+
+# Typefaces never change: a new version would be a new file. Cached for a
+# year and marked immutable, so a repeat visitor never asks for them again.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+# Shared CSS and JS do change, and there is no build step putting a hash in
+# their names. An hour of hard caching, then a week where the browser may
+# use the old copy once while it fetches the new one in the background.
+/assets/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=604800

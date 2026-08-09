@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Writing · Studio admin</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="icon" href="../images/logo.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F7F5F1">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AMANORSAC">
+<link rel="stylesheet" href="../assets/portal.css">
+<style>
+  .post{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;
+    padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+  .post:last-child{border-bottom:0}
+  .post:hover .pt{color:var(--accent)}
+  .thumb{width:64px;height:44px;border-radius:6px;object-fit:cover;background:var(--surface-2);display:block}
+  .thumb.none{display:grid;place-items:center;font-family:var(--mono);font-size:9px;color:var(--muted)}
+  .pt{font-weight:600;font-size:15.5px;margin:0 0 3px;line-height:1.3}
+  .pm{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin:0;display:flex;gap:10px;flex-wrap:wrap}
+  .newbtn{white-space:nowrap}
+  @media(max-width:560px){
+    .post{grid-template-columns:48px 1fr;gap:11px}
+    .thumb{width:48px;height:34px}
+    .post .pill{grid-column:2}
+  }
+</style>
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Studio admin</p>
+    <h1>Writing</h1>
+    <p class="sub">Everything on The Modern Musician. Drafts are visible only here; publishing one puts it on the blog and in the sitemap straight away.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>Posts</h2>
+      <a class="btn newbtn" href="admin-post.html">New post</a>
+    </div>
+    <div id="list"><div class="skeleton" style="width:50%"></div></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+(async () => {
+  const me = await requireAdmin(); if(!me) return;
+  await mountChrome('admin-blog');
+
+  const when = iso => {
+    if(!iso) return '';
+    const d = new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleDateString('en-GB',
+      { day:'numeric', month:'short', year:'numeric' });
+  };
+
+  async function load(){
+    /* Newest first, but by whichever date the post actually has: a draft
+       has no publication date, so ordering by that alone would bury every
+       unfinished piece at the bottom where it is easy to forget. */
+    const { data, error } = await sb.from('posts')
+      .select('id,slug,title,tag,cover,status,published_at,updated_at,read_minutes')
+      .order('updated_at', { ascending:false });
+
+    const el = $('#list');
+    if(error){
+      el.innerHTML = '<p class="empty">Could not load posts: '+esc(error.message)+'</p>';
+      return;
+    }
+    if(!data.length){
+      el.innerHTML = '<p class="empty">Nothing written yet. ' +
+        '<a href="admin-post.html">Start the first post</a>.</p>';
+      return;
+    }
+
+    const now = Date.now();
+    el.innerHTML = data.map(p => {
+      const scheduled = p.status === 'published' && p.published_at &&
+                        new Date(p.published_at).getTime() > now;
+      const state = p.status === 'draft' ? ['Draft','warn']
+                  : scheduled            ? ['Scheduled','warn']
+                  :                        ['Live','ok'];
+      const meta = [
+        p.tag || 'No topic',
+        p.status === 'draft' ? 'edited ' + when(p.updated_at) : when(p.published_at),
+        p.read_minutes ? p.read_minutes + ' min' : ''
+      ].filter(Boolean);
+
+      return '<a class="post" href="admin-post.html?id='+encodeURIComponent(p.id)+'">' +
+        (p.cover
+          ? '<img class="thumb" src="'+esc(p.cover)+'" alt="" loading="lazy">'
+          : '<span class="thumb none">no image</span>') +
+        '<span><p class="pt">'+esc(p.title || 'Untitled')+'</p>' +
+        '<p class="pm">'+meta.map(esc).join('<span>&middot;</span>')+'</p></span>' +
+        '<span class="pill '+state[1]+'">'+state[0]+'</span>' +
+      '</a>';
+    }).join('');
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

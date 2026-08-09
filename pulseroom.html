@@ -9,11 +9,72 @@
 <meta property="og:description" content="The free desktop toolkit that syncs delay, reverb, EQ and compression guidance to your song's BPM. Windows and macOS.">
 <meta property="og:image" content="https://amanorsac.studio/images/apps/S1-hero-delay-essentials.png">
 <meta property="og:url" content="https://amanorsac.studio/pulseroom.html">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="images/apps/pulseroom-logo.svg" type="image/svg+xml">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/sora-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/inter-latin.woff2">
 <style>
+/* ---------- fonts ----------
+   Served from this site rather than fonts.googleapis.com. That stylesheet
+   blocked the first paint on every visit while the browser opened a
+   connection to a third party and waited for an answer. These are the
+   same typefaces, variable-weight, latin only, and they come down the
+   connection the page is already using. Nothing about visitors is shared
+   with Google to render text any more. */
+/* latin-ext */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(fonts/inter-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(fonts/inter-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url(fonts/jetbrains-mono-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url(fonts/jetbrains-mono-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(fonts/sora-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(fonts/sora-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* =====================================================================
    PulseRoom product page. Same skeleton as the other product pages,
    wearing the app's own colour system: near-black panels, cyan as the
@@ -22,7 +83,7 @@
    ===================================================================== */
 :root{
   --bg:#0c0e12; --panel:#12151c; --panel-2:#171b24; --line:rgba(255,255,255,.08);
-  --text:#e9ebf1; --muted:#a2a9b8; --dim:#6d7488;
+  --text:#e9ebf1; --muted:#a2a9b8; --dim:#7f8596;   /* lifted: the old grey sat under 4.5:1 on this near-black */
   --accent:#3fd3e4; --accent-soft:#0e2229;
   --rv:#a48bfa; --eq:#f2b13c; --cp:#f25c7f; --ch:#4fd58f; --gd:#5f9dff; --rf:#d8a05f;
   --go:#4fd58f;
@@ -50,7 +111,7 @@ section{padding:clamp(64px,10vh,120px) 0}
   padding:14px clamp(18px,4vw,40px);background:color-mix(in srgb,var(--bg) 86%,transparent);
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .top .back{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--muted);text-decoration:none}
+  color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;min-height:24px}
 .top .back:hover{color:var(--text)}
 .top .name{margin-left:auto;display:flex;align-items:center;gap:9px;
   font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-.01em}
@@ -168,7 +229,9 @@ details div{padding:0 0 20px;color:var(--muted);max-width:64ch}
 footer{border-top:1px solid var(--line);padding:26px clamp(18px,4vw,40px);
   display:flex;gap:20px;flex-wrap:wrap;align-items:center}
 footer a{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--muted);text-decoration:none}
+  text-transform:uppercase;color:var(--muted);text-decoration:none;
+  /* 18px tall was under the 24px minimum for a touch target */
+  display:inline-flex;align-items:center;min-height:24px}
 footer a:hover{color:var(--text)}
 footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
@@ -231,7 +294,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   </div>
   <p class="fine">Around 2 MB · Works offline · No account, no ads</p>
   <div class="hero-shot rise">
-    <img src="images/apps/S1-hero-delay-essentials.png" alt="PulseRoom open on the Delay Calculator at 140 BPM, showing the eight essential note values" fetchpriority="high">
+    <img src="images/apps/S1-hero-delay-essentials.webp" alt="PulseRoom open on the Delay Calculator at 140 BPM, showing the eight essential note values" fetchpriority="high">
   </div>
 </header>
 
@@ -243,7 +306,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
     <p class="kicker">Tempo</p>
     <h3>One number, and the whole app follows.</h3>
     <p>Type your BPM, nudge it, or tap it in — the bar sits above every page like a DAW transport, with milliseconds per beat and per bar always in view. Delay and reverb recalculate as you go. You never enter the tempo twice.</p>
-    <div class="shot"><img src="images/apps/S2-tempo-bar.png" alt="The tempo bar: stepper, BPM field, TAP button, and the live readouts for milliseconds per beat, per bar, and hertz per beat" loading="lazy"></div>
+    <div class="shot"><img src="images/apps/S2-tempo-bar.webp" alt="The tempo bar: stepper, BPM field, TAP button, and the live readouts for milliseconds per beat, per bar, and hertz per beat" loading="lazy"></div>
   </div>
 
   <div class="feat rise" style="--k:var(--accent)">
@@ -252,7 +315,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
       <h3>The eight values you actually use, first.</h3>
       <p>PulseRoom opens on the ones that matter — 1/4, 1/8 dotted, 1/8 triplet and the rest — each with a note on what it’s for. Click a card and the millisecond value is on your clipboard. The full twenty-one-value grid is one toggle away when you need it.</p>
     </div>
-    <div class="shot"><img src="images/apps/S3-copy-toast.png" alt="A delay card hovered, with a toast confirming the copied millisecond value" loading="lazy"></div>
+    <div class="shot"><img src="images/apps/S3-copy-toast.webp" alt="A delay card hovered, with a toast confirming the copied millisecond value" loading="lazy"></div>
   </div>
 
   <div class="feat flip rise" style="--k:var(--rv)">
@@ -261,7 +324,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
       <h3>A tail that ends on the bar, not whenever.</h3>
       <p>Pick a space — tight ambience through cathedral — and the pre-delay and decay are sized to the grid, so the tail breathes with the song instead of smearing it. The send-EQ curve is drawn for you: the habit that separates clean mixes from muddy ones.</p>
     </div>
-    <div class="shot"><img src="images/apps/S4-reverb-designer.png" alt="The Reverb Designer with Concert Hall selected, showing pre-delay, decay, the decay envelope and the send-EQ curve" loading="lazy"></div>
+    <div class="shot"><img src="images/apps/S4-reverb-designer.webp" alt="The Reverb Designer with Concert Hall selected, showing pre-delay, decay, the decay envelope and the send-EQ curve" loading="lazy"></div>
   </div>
 
   <div class="feat rise" style="--k:var(--eq)">
@@ -270,7 +333,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
       <h3>See the spectrum the way engineers hear it.</h3>
       <p>Thirteen sources, from kick drum to mix bus. Pick one and the boost zones, cut zones and the ones worth listening to first are painted onto a real log-scale spectrum — with the reason underneath each band, in plain language.</p>
     </div>
-    <div class="shot"><img src="images/apps/S6-eq-cheat-sheet.png" alt="The EQ Cheat Sheet with Lead Vocal selected, boost and cut zones painted across the spectrum" loading="lazy"></div>
+    <div class="shot"><img src="images/apps/S6-eq-cheat-sheet.webp" alt="The EQ Cheat Sheet with Lead Vocal selected, boost and cut zones painted across the spectrum" loading="lazy"></div>
   </div>
 
   <div class="feat flip rise" style="--k:var(--cp)">
@@ -279,14 +342,14 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
       <h3>Attack and release, finally visible.</h3>
       <p>Fourteen sources, each with its gain-reduction envelope drawn: the hit lands, the reduction dives through the attack window, holds, then recovers through the release. The most misunderstood pair of knobs in mixing, shown instead of described.</p>
     </div>
-    <div class="shot"><img src="images/apps/S7-compression-envelope.png" alt="The Compression page showing a drawn gain-reduction envelope with ratio, attack, release and target reduction" loading="lazy"></div>
+    <div class="shot"><img src="images/apps/S7-compression-envelope.webp" alt="The Compression page showing a drawn gain-reduction envelope with ratio, attack, release and target reduction" loading="lazy"></div>
   </div>
 
   <div class="feat-wide rise" style="--k:var(--ch)">
     <p class="kicker">Mix chains</p>
     <h3>The right order, and the reasons for it.</h3>
     <p>Ten sources, lead vocal through the mastering chain, laid out as numbered steps with the settings for each. A de-esser after the compressor causes problems no EQ will fix — so every chain carries a card explaining why it runs the way it does.</p>
-    <div class="shot"><img src="images/apps/S8-mix-chains.png" alt="The Mix Chains page: a lead vocal chain from high-pass to sends, with a note explaining the order" loading="lazy"></div>
+    <div class="shot"><img src="images/apps/S8-mix-chains.webp" alt="The Mix Chains page: a lead vocal chain from high-pass to sends, with a note explaining the order" loading="lazy"></div>
   </div>
 
   <div class="trio">
@@ -313,9 +376,9 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
 <section class="wrap">
   <h2>The rest of the desk.</h2>
   <div class="shotrow">
-    <figure><div class="shot"><img src="images/apps/S9-mixing-guide.png" alt="" loading="lazy"></div>
+    <figure><div class="shot"><img src="images/apps/S9-mixing-guide.webp" alt="" loading="lazy"></div>
       <figcaption>The mixing guide: nine sections of habits, from gain staging to the mistakes everyone makes.</figcaption></figure>
-    <figure><div class="shot"><img src="images/apps/S10-reference.png" alt="" loading="lazy"></div>
+    <figure><div class="shot"><img src="images/apps/S10-reference.webp" alt="" loading="lazy"></div>
       <figcaption>Reference: LUFS targets per platform, the frequency map, and note-to-hertz for tuning 808s.</figcaption></figure>
   </div>
 </section>

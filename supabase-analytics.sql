@@ -24,6 +24,39 @@
 
 
 -- =====================================================================
+--  0 · CLEAR OUT ANY EARLIER VERSION OF THE FUNCTIONS
+--
+--  create-or-replace can change what a function does but not the shape
+--  of what it returns, so an older version with different columns has to
+--  be dropped rather than replaced. Argument lists have moved too, and a
+--  changed argument list creates a second overload instead of replacing
+--  the first - which then makes every call ambiguous.
+--
+--  So: drop every overload by name, whatever its arguments, and let the
+--  rest of this file put the current ones back. The tables and the data
+--  in them are never touched.
+-- =====================================================================
+do $$
+declare f record;
+begin
+  for f in
+    select p.oid::regprocedure::text as sig
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in (
+        'track_view', 'track_engagement', 'track_event',
+        'analytics_channel', 'analytics_sessions', 'analytics_summary',
+        'analytics_daily', 'analytics_top_pages', 'analytics_journey',
+        'analytics_acquisition', 'analytics_tech', 'analytics_events',
+        'analytics_speed', 'analytics_prune')
+  loop
+    execute 'drop function if exists ' || f.sig;
+  end loop;
+end $$;
+
+
+-- =====================================================================
 --  1 · TABLES
 -- =====================================================================
 
@@ -208,7 +241,7 @@ create or replace function public.analytics_sessions(p_days int default 30, p_of
 returns table (
   session_id text, visitor_id text, started timestamptz, views bigint,
   duration_ms bigint, channel text, ref_host text, country text,
-  device text, browser text, os text, returning boolean,
+  device text, browser text, os text, is_returning boolean,
   entry_path text, exit_path text, engaged boolean, converted boolean
 )
 language sql security definer stable set search_path = '' as $$
@@ -217,9 +250,9 @@ language sql security definer stable set search_path = '' as $$
     where at >  now() - make_interval(days => p_days * (p_offset + 1))
       and at <= now() - make_interval(days => p_days * p_offset)
   ),
-  ev as (select distinct session_id from public.site_events
-          where at >  now() - make_interval(days => p_days * (p_offset + 1))
-            and at <= now() - make_interval(days => p_days * p_offset))
+  ev as (select distinct e.session_id from public.site_events e
+          where e.at >  now() - make_interval(days => p_days * (p_offset + 1))
+            and e.at <= now() - make_interval(days => p_days * p_offset))
   select
     w.session_id,
     (array_agg(w.visitor_id) filter (where w.visitor_id is not null))[1],
@@ -238,8 +271,8 @@ language sql security definer stable set search_path = '' as $$
     bool_or(coalesce(w.is_returning,false)),
     (array_agg(w.path order by w.at))[1],
     (array_agg(w.path order by w.at desc))[1],
-    count(*) > 1 or coalesce(sum(w.duration_ms),0) >= 10000 or w.session_id in (select session_id from ev),
-    w.session_id in (select session_id from ev)
+    count(*) > 1 or coalesce(sum(w.duration_ms),0) >= 10000 or w.session_id in (select ev.session_id from ev),
+    w.session_id in (select ev.session_id from ev)
   from w group by w.session_id;
 $$;
 
@@ -264,21 +297,21 @@ language sql security definer stable set search_path = '' as $$
   select
     (select count(*) from pv),
     (select count(*) from cur),
-    (select count(distinct coalesce(visitor_id, session_id)) from cur),
-    (select count(*) from cur where not returning),
-    (select round(100.0 * count(*) filter (where not engaged) / nullif(count(*),0), 1) from cur),
-    (select round(avg(duration_ms)/1000.0, 1) from cur where duration_ms > 0),
-    (select round(avg(duration_ms)/1000.0, 1) from pv  where duration_ms > 0),
-    (select round(avg(views), 1) from cur),
-    (select count(*) filter (where converted) from cur),
-    (select round(100.0 * count(*) filter (where converted) / nullif(count(*),0), 1) from cur),
+    (select count(distinct coalesce(cur.visitor_id, cur.session_id)) from cur),
+    (select count(*) from cur where not cur.is_returning),
+    (select round(100.0 * count(*) filter (where not cur.engaged) / nullif(count(*),0), 1) from cur),
+    (select round(avg(cur.duration_ms)/1000.0, 1) from cur where cur.duration_ms > 0),
+    (select round(avg(pv.duration_ms)/1000.0, 1) from pv  where pv.duration_ms > 0),
+    (select round(avg(cur.views), 1) from cur),
+    (select count(*) filter (where cur.converted) from cur),
+    (select round(100.0 * count(*) filter (where cur.converted) / nullif(count(*),0), 1) from cur),
     (select count(*) from public.page_views
        where at <= now() - make_interval(days => p_days)
          and at >  now() - make_interval(days => p_days * 2)),
     (select count(*) from prev),
-    (select round(100.0 * count(*) filter (where not engaged) / nullif(count(*),0), 1) from prev),
-    (select round(avg(duration_ms)/1000.0, 1) from prev where duration_ms > 0),
-    (select round(100.0 * count(*) filter (where converted) / nullif(count(*),0), 1) from prev)
+    (select round(100.0 * count(*) filter (where not prev.engaged) / nullif(count(*),0), 1) from prev),
+    (select round(avg(prev.duration_ms)/1000.0, 1) from prev where prev.duration_ms > 0),
+    (select round(100.0 * count(*) filter (where prev.converted) / nullif(count(*),0), 1) from prev)
   where public.is_admin();
 $$;
 
@@ -305,7 +338,7 @@ language sql security definer stable set search_path = '' as $$
          round(avg(pv.duration_ms) filter (where pv.duration_ms > 0)/1000.0, 1),
          round(avg(pv.max_scroll)  filter (where pv.max_scroll is not null), 0),
          round(100.0 * count(distinct pv.session_id)
-                 filter (where pv.session_id in (select session_id from s where not engaged))
+                 filter (where pv.session_id in (select s.session_id from s where not s.engaged))
                / nullif(count(distinct pv.session_id),0), 1)
   from pv where public.is_admin()
   group by pv.path order by 3 desc limit p_limit;
@@ -317,14 +350,14 @@ returns table (kind text, path text, visits bigint, bounce_pct numeric)
 language sql security definer stable set search_path = '' as $$
   with s as (select * from public.analytics_sessions(p_days, 0))
   select * from (
-    select 'landing'::text, entry_path, count(*),
-           round(100.0 * count(*) filter (where not engaged) / nullif(count(*),0), 1)
-    from s where public.is_admin() group by entry_path order by 3 desc limit p_limit
+    select 'landing'::text, s.entry_path, count(*),
+           round(100.0 * count(*) filter (where not s.engaged) / nullif(count(*),0), 1)
+    from s where public.is_admin() group by s.entry_path order by 3 desc limit p_limit
   ) a
   union all
   select * from (
-    select 'exit'::text, exit_path, count(*), null::numeric
-    from s where public.is_admin() group by exit_path order by 3 desc limit p_limit
+    select 'exit'::text, s.exit_path, count(*), null::numeric
+    from s where public.is_admin() group by s.exit_path order by 3 desc limit p_limit
   ) b;
 $$;
 
@@ -336,39 +369,39 @@ returns table (kind text, label text, visits bigint,
 language sql security definer stable set search_path = '' as $$
   with s as (select * from public.analytics_sessions(p_days, 0)),
   agg as (
-    select 'channel'::text as kind, channel as label, * from s
+    select 'channel'::text as k, s.channel as l, s.engaged, s.converted, s.duration_ms from s
     union all
-    select 'referrer', coalesce(ref_host,'Direct'), * from s
+    select 'referrer', coalesce(s.ref_host,'Direct'), s.engaged, s.converted, s.duration_ms from s
   )
-  select kind, label, count(*),
-         round(100.0 * count(*) filter (where not engaged) / nullif(count(*),0), 1),
-         round(avg(duration_ms)/1000.0, 1) filter (where duration_ms > 0),
-         round(100.0 * count(*) filter (where converted) / nullif(count(*),0), 1)
+  select agg.k, agg.l, count(*),
+         round(100.0 * count(*) filter (where not agg.engaged) / nullif(count(*),0), 1),
+         round(avg(agg.duration_ms) filter (where agg.duration_ms > 0)/1000.0, 1),
+         round(100.0 * count(*) filter (where agg.converted) / nullif(count(*),0), 1)
   from agg where public.is_admin()
-  group by kind, label order by kind, 3 desc;
+  group by agg.k, agg.l order by agg.k, 3 desc;
 $$;
 
 create or replace function public.analytics_tech(p_days int default 30)
 returns table (kind text, label text, visits bigint)
 language sql security definer stable set search_path = '' as $$
   with s as (select * from public.analytics_sessions(p_days, 0))
-  select 'device',  coalesce(device,'unknown'),  count(*) from s where public.is_admin() group by 2
+  select 'device'::text,  coalesce(s.device,'unknown'),  count(*) from s where public.is_admin() group by 2
   union all
-  select 'browser', coalesce(browser,'unknown'), count(*) from s where public.is_admin() group by 2
+  select 'browser',       coalesce(s.browser,'unknown'), count(*) from s where public.is_admin() group by 2
   union all
-  select 'os',      coalesce(os,'unknown'),      count(*) from s where public.is_admin() group by 2
+  select 'os',            coalesce(s.os,'unknown'),      count(*) from s where public.is_admin() group by 2
   union all
-  select 'country', coalesce(country,'??'),      count(*) from s where public.is_admin() group by 2
+  select 'country',       coalesce(s.country,'??'),      count(*) from s where public.is_admin() group by 2
   order by 1, 3 desc;
 $$;
 
 create or replace function public.analytics_events(p_days int default 30)
 returns table (name text, label text, count bigint, visits bigint)
 language sql security definer stable set search_path = '' as $$
-  select name, label, count(*), count(distinct session_id)
-  from public.site_events
-  where public.is_admin() and at > now() - make_interval(days => p_days)
-  group by name, label order by 3 desc limit 30;
+  select e.name, e.label, count(*), count(distinct e.session_id)
+  from public.site_events e
+  where public.is_admin() and e.at > now() - make_interval(days => p_days)
+  group by e.name, e.label order by 3 desc limit 30;
 $$;
 
 -- How fast the site actually feels, which is itself a ranking factor.
@@ -379,8 +412,10 @@ language sql security definer stable set search_path = '' as $$
          percentile_cont(0.75) within group (order by load_ms)::numeric,
          count(*)
   from public.page_views
-  where public.is_admin() and at > now() - make_interval(days => p_days)
-    and load_ms is not null;
+  where at > now() - make_interval(days => p_days) and load_ms is not null
+  -- an aggregate with no GROUP BY returns one row even when WHERE matches
+  -- nothing, so the admin check belongs in HAVING: no admin, no row at all
+  having public.is_admin();
 $$;
 
 grant execute on function public.analytics_sessions(int,int)     to authenticated;

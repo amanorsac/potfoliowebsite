@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Write · Studio admin</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="icon" href="../images/logo.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F7F5F1">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AMANORSAC">
+<link rel="stylesheet" href="../assets/portal.css">
+<style>
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .bar .msg{margin-left:auto;min-width:120px;text-align:right}
+  .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+  .btn.danger{background:none;color:var(--warn);border:1px solid var(--line)}
+  .urlline{font-family:var(--mono);font-size:11px;color:var(--muted);word-break:break-all}
+  .urlline b{color:var(--ink);font-weight:600}
+
+  /* the writing surface: a full-height box, and the same thing rendered */
+  .editwrap{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);
+    border-radius:var(--r);overflow:hidden}
+  .editwrap textarea{border:0;border-radius:0;border-right:1px solid var(--line);
+    min-height:62vh;font-family:var(--mono);font-size:13.5px;line-height:1.75;resize:none}
+  .editwrap textarea:focus{border-right-color:var(--line)}
+  .preview{padding:20px 22px;overflow:auto;max-height:74vh;background:var(--surface)}
+  .preview > :first-child{margin-top:0}
+  .preview h2{font-size:21px;margin:26px 0 10px;line-height:1.2}
+  .preview h3{font-size:17px;margin:22px 0 8px}
+  .preview p{margin:0 0 14px;line-height:1.75}
+  .preview img{max-width:100%;height:auto;border-radius:8px;display:block}
+  .preview figure{margin:20px 0}
+  .preview figcaption{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .preview blockquote{margin:20px 0;padding-left:16px;border-left:2px solid var(--accent);
+    color:var(--muted);font-style:italic}
+  .preview pre{background:var(--surface-2);padding:12px 14px;border-radius:8px;overflow:auto;
+    font-size:12.5px}
+  .preview code{font-family:var(--mono);font-size:.92em;background:var(--surface-2);
+    padding:1px 5px;border-radius:4px}
+  .preview pre code{background:none;padding:0}
+  .preview hr{border:0;border-top:1px solid var(--line);margin:26px 0}
+  .preview ul,.preview ol{margin:0 0 14px;padding-left:22px;line-height:1.75}
+
+  .cheats{font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:2;margin:10px 0 0}
+  .cheats b{color:var(--ink);font-weight:600}
+  .cover-now{display:flex;gap:12px;align-items:center;margin-top:8px}
+  .cover-now img{width:120px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .count{font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .count.over{color:var(--warn)}
+  @media(max-width:820px){
+    .two{grid-template-columns:1fr}
+    .editwrap{grid-template-columns:1fr}
+    .editwrap textarea{border-right:0;border-bottom:1px solid var(--line);min-height:44vh}
+    .preview{max-height:50vh}
+  }
+</style>
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow"><a href="admin-blog.html">&larr; Writing</a></p>
+    <h1 id="pagetitle">New post</h1>
+    <p class="sub" id="pagesub">Write it, look at it on the right, publish when it reads right.</p>
+  </div>
+
+  <div class="bar">
+    <button class="btn" id="save">Save draft</button>
+    <button class="btn ghost" id="publish">Publish</button>
+    <a class="btn ghost" id="view" href="#" target="_blank" rel="noopener" hidden>View</a>
+    <button class="btn danger" id="del" hidden>Delete</button>
+    <p class="msg" id="msg"></p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>The post</h2><span class="pill" id="state">Draft</span></div>
+
+    <div class="field">
+      <label for="title">Title</label>
+      <input id="title" maxlength="140" placeholder="Why I stopped teaching notes at rehearsal">
+    </div>
+
+    <div class="two" style="margin-top:14px">
+      <div class="field">
+        <label for="slug">Address</label>
+        <input id="slug" maxlength="90" placeholder="why-i-stopped-teaching-notes">
+        <p class="urlline">amanorsac.studio/blog/<b id="slugecho">…</b></p>
+      </div>
+      <div class="field">
+        <label for="tag">Topic</label>
+        <select id="tag"></select>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:14px">
+      <label for="blurb">One sentence <span class="count" id="blurbcount"></span></label>
+      <textarea id="blurb" rows="2" maxlength="300"
+        placeholder="This is the card on the blog page and the line under the title in Google."></textarea>
+    </div>
+
+    <div class="field" style="margin-top:14px">
+      <label for="coverfile">Header image</label>
+      <input type="file" id="coverfile" accept="image/*">
+      <div class="cover-now" id="covernow" hidden>
+        <img id="coverimg" alt="">
+        <button class="linkbtn" id="coverclear" type="button">Remove</button>
+      </div>
+      <input id="cover" placeholder="or paste an image address" style="margin-top:8px">
+      <input id="coveralt" placeholder="Describe the picture, for anyone who cannot see it" style="margin-top:8px">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>The writing</h2>
+      <span class="hint" id="readtime"></span>
+    </div>
+    <div class="editwrap">
+      <textarea id="body" spellcheck="true"
+        placeholder="Open with the moment, not the thesis.&#10;&#10;## A section heading&#10;&#10;Then the point of the piece, plainly."></textarea>
+      <div class="preview" id="preview"></div>
+    </div>
+    <p class="cheats">
+      <b>## </b>section heading &nbsp; <b>**bold**</b> &nbsp; <b>*italic*</b> &nbsp;
+      <b>[words](address)</b> link &nbsp; <b>- </b>list &nbsp; <b>&gt; </b>pull quote &nbsp;
+      <b>![description](address "caption")</b> picture &nbsp; <b>---</b> divider
+    </p>
+    <p class="hint" style="margin-top:10px">Drop an image straight into the writing box and it uploads itself.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>When</h2></div>
+    <div class="two">
+      <div class="field">
+        <label for="when">Publication date</label>
+        <input type="datetime-local" id="when">
+        <p class="hint">Leave empty and publishing stamps it now. Set it ahead and the post stays private until then.</p>
+      </div>
+      <div class="field">
+        <label for="mins">Reading time, minutes</label>
+        <input type="number" id="mins" min="1" max="90">
+        <p class="hint">Worked out from the length as you write. Change it if you disagree.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script src="../assets/markdown.js"></script>
+<script>
+(async () => {
+  const me = await requireAdmin(); if(!me) return;
+  await mountChrome('admin-blog');
+
+  /* Must match the topics on blog.html, or a post gets a tag its own
+     blog page cannot filter by. */
+  const TOPICS = ["Music direction","Piano","Mixing","Worship","Software"];
+
+  const id  = new URLSearchParams(location.search).get('id');
+  const el  = s => document.querySelector(s);
+  let post  = { status:'draft' };
+  let slugTouched = false;
+  let dirty = false;
+
+  $('#tag').innerHTML = '<option value="">Choose a topic</option>' +
+    TOPICS.map(t => '<option>'+esc(t)+'</option>').join('');
+
+  // ---- loading an existing post ---------------------------------------
+  if(id){
+    const { data, error } = await sb.from('posts').select('*').eq('id', id).single();
+    if(error || !data){
+      say($('#msg'), 'That post could not be found.', 'err');
+      return;
+    }
+    post = data;
+    slugTouched = true;
+    el('#title').value   = data.title || '';
+    el('#slug').value    = data.slug || '';
+    el('#tag').value     = data.tag || '';
+    el('#blurb').value   = data.blurb || '';
+    el('#cover').value   = data.cover || '';
+    el('#coveralt').value= data.cover_alt || '';
+    el('#body').value    = data.body_md || '';
+    el('#mins').value    = data.read_minutes || '';
+    if(data.published_at){
+      // datetime-local wants local wall time with no zone on the end
+      const d = new Date(data.published_at);
+      const pad = n => String(n).padStart(2,'0');
+      el('#when').value = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+
+                          'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+    }
+    el('#pagetitle').textContent = 'Edit post';
+    el('#del').hidden = false;
+    el('#pagesub').textContent = 'Changes go live the moment you save a published post.';
+  }
+
+  // ---- the live half --------------------------------------------------
+  function paint(){
+    const md = el('#body').value;
+    el('#preview').innerHTML = mdToHtml(md);
+    const m = readMinutes(md);
+    el('#readtime').textContent = m + ' min read, about ' +
+      md.split(/\s+/).filter(Boolean).length + ' words';
+    if(!el('#mins').value || !dirty) el('#mins').value = m;
+
+    const b = el('#blurb').value.length;
+    const c = el('#blurbcount');
+    c.textContent = b + '/155';
+    c.classList.toggle('over', b > 155);
+
+    el('#slugecho').textContent = el('#slug').value || '…';
+
+    const live = post.status === 'published';
+    el('#state').textContent = live ? 'Published' : 'Draft';
+    el('#state').className = 'pill ' + (live ? 'ok' : 'warn');
+    el('#publish').textContent = live ? 'Update' : 'Publish';
+    if(live && post.slug){
+      el('#view').hidden = false;
+      el('#view').href = '/blog/' + post.slug;
+    }
+  }
+
+  el('#body').addEventListener('input', () => { dirty = true; paint(); });
+  el('#blurb').addEventListener('input', paint);
+  el('#slug').addEventListener('input', () => { slugTouched = true; paint(); });
+  el('#mins').addEventListener('input', () => { dirty = true; });
+
+  /* The address writes itself from the title until you touch it, at which
+     point it is yours. Changing the address of a post that is already out
+     there breaks every link to it, so an existing post never re-slugs. */
+  el('#title').addEventListener('input', () => {
+    if(!slugTouched) el('#slug').value = slugify(el('#title').value);
+    paint();
+  });
+
+  el('#cover').addEventListener('input', showCover);
+  function showCover(){
+    const u = el('#cover').value.trim();
+    el('#covernow').hidden = !u;
+    if(u) el('#coverimg').src = u;
+  }
+  el('#coverclear').addEventListener('click', () => {
+    el('#cover').value = ''; showCover();
+  });
+  showCover();
+
+  // ---- pictures --------------------------------------------------------
+  /* Uploaded under a folder named for the year so the bucket stays
+     browsable, with the time in the filename so re-uploading a picture
+     called cover.jpg never overwrites last year's. */
+  async function upload(file){
+    if(!file || !/^image\//.test(file.type)) return null;
+    const safe = file.name.toLowerCase().replace(/[^a-z0-9.]+/g,'-').replace(/^-+|-+$/g,'');
+    const path = new Date().getFullYear() + '/' + Date.now() + '-' + safe;
+    const { error } = await sb.storage.from('blog').upload(path, file, {
+      cacheControl: '31536000', upsert: false
+    });
+    if(error){ say($('#msg'), 'Upload failed: ' + error.message, 'err'); return null; }
+    return sb.storage.from('blog').getPublicUrl(path).data.publicUrl;
+  }
+
+  el('#coverfile').addEventListener('change', async e => {
+    const f = e.target.files[0]; if(!f) return;
+    say($('#msg'), 'Uploading…');
+    const url = await upload(f);
+    e.target.value = '';
+    if(!url) return;
+    el('#cover').value = url; showCover(); say($('#msg'), 'Image added.', 'ok');
+  });
+
+  // drop a picture into the writing and it lands where the cursor is
+  const body = el('#body');
+  ['dragover','drop'].forEach(t => body.addEventListener(t, e => e.preventDefault()));
+  body.addEventListener('drop', async e => {
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(!f) return;
+    say($('#msg'), 'Uploading…');
+    const url = await upload(f);
+    if(!url) return;
+    const at = body.selectionStart;
+    const md = '\n\n![Describe the picture]('+url+' "Caption")\n\n';
+    body.value = body.value.slice(0,at) + md + body.value.slice(at);
+    dirty = true; paint(); say($('#msg'), 'Image added — write its description.', 'ok');
+  });
+
+  // ---- saving ----------------------------------------------------------
+  function gather(status){
+    const md = el('#body').value;
+    const when = el('#when').value;
+    return {
+      slug:      el('#slug').value.trim(),
+      title:     el('#title').value.trim(),
+      blurb:     el('#blurb').value.trim() || null,
+      tag:       el('#tag').value || null,
+      cover:     el('#cover').value.trim() || null,
+      cover_alt: el('#coveralt').value.trim() || null,
+      body_md:   md,
+      body_html: mdToHtml(md),
+      read_minutes: parseInt(el('#mins').value, 10) || readMinutes(md),
+      status:    status,
+      // an empty box means "now", which the database fills in on publish
+      published_at: when ? new Date(when).toISOString() : (post.published_at || null)
+    };
+  }
+
+  function problems(row){
+    if(!row.title) return 'It needs a title.';
+    if(!row.slug)  return 'It needs an address.';
+    if(!/^[a-z0-9][a-z0-9-]*$/.test(row.slug))
+      return 'The address can only use lower-case letters, numbers and hyphens.';
+    return null;
+  }
+
+  async function store(status){
+    const row = gather(status);
+    const bad = problems(row);
+    if(bad){ say($('#msg'), bad, 'err'); return; }
+
+    say($('#msg'), 'Saving…');
+    let res;
+    if(post.id){
+      res = await sb.from('posts').update(row).eq('id', post.id).select().single();
+    } else {
+      res = await sb.from('posts').insert(row).select().single();
+    }
+    if(res.error){
+      const dup = /duplicate key|unique/i.test(res.error.message);
+      say($('#msg'), dup ? 'Another post already uses that address.'
+                         : 'Could not save: ' + res.error.message, 'err');
+      return;
+    }
+    post = res.data;
+    dirty = false;
+    if(!id){
+      // keep the address bar honest, without reloading what was just typed
+      history.replaceState(null, '', 'admin-post.html?id=' + post.id);
+    }
+    el('#del').hidden = false;
+    el('#pagetitle').textContent = 'Edit post';
+    paint();
+    say($('#msg'), status === 'published' ? 'Published.' : 'Draft saved.', 'ok');
+  }
+
+  el('#save').addEventListener('click', () => store('draft'));
+  el('#publish').addEventListener('click', () => store('published'));
+
+  el('#del').addEventListener('click', async () => {
+    if(!post.id) return;
+    if(!confirm('Delete this post? Anyone holding a link to it will get a not-found page.')) return;
+    const { error } = await sb.from('posts').delete().eq('id', post.id);
+    if(error){ say($('#msg'), 'Could not delete: ' + error.message, 'err'); return; }
+    location.href = 'admin-blog.html';
+  });
+
+  /* Closing the tab mid-sentence should cost a confirmation, not the
+     paragraph. */
+  addEventListener('beforeunload', e => {
+    if(dirty){ e.preventDefault(); e.returnValue = ''; }
+  });
+
+  paint();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# ads.txt — who is allowed to sell advertising on amanorsac.studio.
+#
+# An open standard, not a Google thing. Buyers check this file before
+# bidding; if a domain has no ads.txt, or the seller is not listed in it,
+# a lot of demand simply refuses to bid, and the space earns less. It is
+# also how a fraudster pretending to be this site gets refused.
+#
+# The last field is Google's own identifier and is the same for everyone.
+# Only the pub- number is ours.
+google.com, pub-6190327414594776, DIRECT, f08c47fec0942fa0

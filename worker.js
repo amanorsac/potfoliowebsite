@@ -142,6 +142,9 @@ async function postPage(slug, env, request, diag) {
   };
 
   const head =
+    // AdSense checks for this on the pages adverts run on, and a post page
+    // builds its whole head here, so it goes in here too
+    '<meta name="google-adsense-account" content="ca-pub-6190327414594776">\n' +
     '<title>' + esc(post.title) + ' | The Modern Musician</title>\n' +
     '<meta name="description" content="' + esc(desc) + '">\n' +
     '<link rel="canonical" href="' + esc(url) + '">\n' +

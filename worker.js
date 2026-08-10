@@ -47,7 +47,18 @@ export default {
     } catch (e) {
       // fall through: a broken blog is not a reason for a broken site
     }
-    return env.ASSETS.fetch(request);
+
+    /* Everything else is a file, or is nothing. The asset layer is no
+       longer allowed to answer for "nothing" - that setting is what kept
+       this Worker from ever running - so the 404 page is served here
+       instead, with the status to match. */
+    try {
+      const res = await env.ASSETS.fetch(request);
+      if (res && res.status === 404) return await notFound(env, request);
+      return res;
+    } catch (e) {
+      return new Response('Not found', { status: 404 });
+    }
   }
 };
 

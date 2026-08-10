@@ -41,7 +41,8 @@ export default {
         if (path === '/sitemap.xml') return await sitemap();
 
         const m = path.match(/^\/blog\/([^/]+)\/?$/);
-        if (m) return await postPage(decodeURIComponent(m[1]), env, request);
+        if (m) return await postPage(decodeURIComponent(m[1]), env, request,
+                                     new URL(request.url).searchParams.has('diag'));
       }
     } catch (e) {
       // fall through: a broken blog is not a reason for a broken site
@@ -55,14 +56,26 @@ export default {
    one post
    --------------------------------------------------------------------- */
 
-const FIELDS = 'slug,title,blurb,tag,cover,cover_alt,body_html,read_minutes,' +
-               'published_at,updated_at,author_name,og_image';
+/* Every column, rather than a list of names. Naming a column the table
+   does not have is a 400 from PostgREST, and a 400 here is dangerously
+   indistinguishable from "no such post" - the reader sees the same 404
+   either way. A post row is small; asking for all of it costs nothing. */
+const FIELDS = '*';
 
-async function postPage(slug, env, request) {
+async function postPage(slug, env, request, diag) {
   slug = String(slug || '').toLowerCase();
+  /* Adding ?diag to a post address reports which step failed instead of
+     rendering. Nothing secret passes through it - the key it uses is the
+     publishable one and can only read published posts - and when a post
+     will not appear it turns an afternoon of guessing into one line. */
+  const note = [];
 
   // not a plausible address: not worth a database round trip
-  if (!/^[a-z0-9][a-z0-9-]{0,90}$/.test(slug)) return notFound(env, request);
+  note.push('slug: ' + JSON.stringify(slug) + ' (' + slug.length + ' chars)');
+  if (!/^[a-z0-9][a-z0-9-]{0,90}$/.test(slug)) {
+    note.push('REJECTED: not a plausible slug');
+    return diag ? report(note) : notFound(env, request);
+  }
 
   let post = null;
   try {
@@ -71,14 +84,27 @@ async function postPage(slug, env, request) {
       '&select=' + FIELDS + '&limit=1',
       { headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY } }
     );
-    if (r.ok) post = (await r.json())[0] || null;
-  } catch (e) { /* treated as not found */ }
+    const body = await r.text();
+    note.push('database: HTTP ' + r.status);
+    note.push('database said: ' + body.slice(0, 400));
+    if (r.ok) {
+      try { post = JSON.parse(body)[0] || null; }
+      catch (e) { note.push('could not read that as JSON: ' + e.message); }
+    }
+  } catch (e) {
+    note.push('database call threw: ' + e.message);
+  }
+  note.push('post found: ' + (post ? 'yes' : 'NO'));
 
-  if (!post) return notFound(env, request);
+  if (!post) return diag ? report(note) : notFound(env, request);
 
   const tplRes = await env.ASSETS.fetch(new URL('/post-template.html', request.url));
-  if (!tplRes || !tplRes.ok) return notFound(env, request);
+  note.push('template: HTTP ' + (tplRes ? tplRes.status : 'no response'));
+  if (!tplRes || !tplRes.ok) return diag ? report(note) : notFound(env, request);
   const tpl = await tplRes.text();
+  note.push('template: ' + tpl.length + ' bytes, ' +
+            (tpl.match(/<!--post:[a-z]+-->/g) || []).length + ' markers');
+  if (diag) return report(note);
 
   const url    = SITE + '/blog/' + post.slug;
   const cover  = absolute(post.cover);
@@ -270,6 +296,12 @@ function longDate(iso) {
 function day(iso) {
   const d = iso ? new Date(iso) : new Date();
   return (isNaN(d) ? new Date() : d).toISOString().slice(0, 10);
+}
+
+function report(lines) {
+  return new Response(lines.join('\n') + '\n',
+    { headers: { 'content-type': 'text/plain; charset=utf-8',
+                 'cache-control': 'no-store' } });
 }
 
 /* An address that is not a post gets the site's own 404 page, with the

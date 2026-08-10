@@ -133,7 +133,10 @@ a{color:inherit}
 .top .name{margin-left:auto}
 
 /* ---------- the head of the post ---------- */
-.posthead{padding:clamp(36px,7vh,72px) 0 0}
+/* The shorthand here used to zero the left and right padding that
+   .wrap sets, which put the title about forty pixels left of the
+   body text below it. Only the top is set now. */
+.posthead{padding-top:clamp(36px,7vh,72px)}
 .tagline{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
   text-transform:uppercase;color:var(--accent);margin:0 0 18px}
 h1{font-family:var(--display);font-weight:800;letter-spacing:-.032em;line-height:1.06;
@@ -188,6 +191,56 @@ footer a{text-decoration:none;display:inline-flex;align-items:center;min-height:
 footer{align-items:center}   /* the links are 24px tall now; keep the rows centred */
 footer a:hover{color:var(--paper)}
 footer .who{margin-left:auto}
+/* ---------- the two rails ----------
+   The reading column stays 720px, because that is the width people
+   actually read at; the rails use the room either side of it rather than
+   widening the text. Below 1180px there is not enough room for a rail
+   that does not crowd the words, so they go: the contents disappears and
+   the studio card drops in under the post, where it reads as a footer
+   rather than as clutter. */
+.postgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,720px) minmax(0,1fr);
+  gap:clamp(20px,3vw,48px);max-width:1440px;margin:0 auto;align-items:start}
+.postgrid > article{grid-column:2}
+.rail{font-size:14px;line-height:1.6}
+.rail-l{grid-column:1;justify-self:end;width:100%;max-width:250px}
+.rail-r{grid-column:3;justify-self:start;width:100%;max-width:320px}
+.rail .stick{position:sticky;top:88px}
+
+/* contents, built from the post's own headings */
+.toc-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim,#8A8698);margin:0 0 12px}
+.toc a{display:block;padding:6px 0 6px 13px;margin-left:-1px;color:var(--muted,#A9A5B5);
+  text-decoration:none;border-left:2px solid rgba(255,255,255,.12);
+  transition:color .2s,border-color .2s}
+.toc a:hover{color:var(--paper)}
+.toc a.on{color:var(--accent);border-left-color:var(--accent)}
+.toc a.sub{padding-left:24px;font-size:13px}
+
+/* the studio card, and the slot an advert sits in */
+.card-r{border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+.card-r h4{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim,#8A8698);margin:0 0 10px;font-weight:400}
+.card-r p{margin:0 0 12px;color:var(--muted,#A9A5B5);font-size:13.5px;line-height:1.65}
+.card-r a.go{color:var(--accent);text-decoration:none;font-weight:600}
+.card-r a.go:hover{text-decoration:underline}
+.applist{list-style:none;margin:0;padding:0}
+.applist li{margin:0 0 9px}
+.applist a{color:var(--paper);text-decoration:none;display:block}
+.applist a:hover{color:var(--accent)}
+.applist small{display:block;color:var(--dim,#8A8698);font-size:12px}
+/* Reserved height, so nothing on the page jumps when an advert arrives
+   or fails to. An empty box is never shown: if there is no advert the
+   studio card takes the space instead. */
+.adslot{min-height:280px;display:none}
+.adslot.on{display:block}
+@media (max-width:1180px){
+  .postgrid{display:block}
+  .rail-l{display:none}
+  .rail-r{max-width:720px;margin:36px auto 0;
+    padding-left:clamp(20px,5vw,40px);padding-right:clamp(20px,5vw,40px)}
+  .rail .stick{position:static}
+}
+
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{transition:none!important;animation:none!important}
@@ -215,6 +268,12 @@ footer .who{margin-left:auto}
   <div class="cover"><img src="images/hero-piano.webp" alt="" fetchpriority="high"></div>
 </div>
 <!--/post:cover-->
+
+<div class="postgrid">
+
+<aside class="rail rail-l" aria-label="On this page">
+  <div class="stick"><nav class="toc" id="toc" hidden></nav></div>
+</aside>
 
 <article class="wrap">
 <!--post:body-->
@@ -251,11 +310,49 @@ footer .who{margin-left:auto}
   </div>
 
   <div class="backrow">
-    <a class="cta" href="blog.html">More posts</a>
-    <a class="cta ghost" href="about.html#contact">Start a project</a>
+    <a class="cta" href="/blog">More posts</a>
+    <a class="cta ghost" href="/about#contact">Start a project</a>
   </div>
 
 </article>
+
+<!-- The right-hand rail.
+     Put your AdSense details in the two attributes below and an advert
+     appears here. Leave them empty and it stays as it is - the studio
+     card and the apps - which is what also happens whenever Google has
+     no advert to show, so this space is never blank.
+       data-ad-client : your publisher id, ca-pub-0000000000000000
+       data-ad-slot   : the id of a display unit you made in AdSense -->
+<aside class="rail rail-r" id="rail" data-ad-client="" data-ad-slot="">
+  <div class="stick">
+
+    <div class="adslot" id="adslot"></div>
+
+    <div class="card-r" id="house-studio">
+      <h4>The studio</h4>
+      <p>Mixing and mastering for close harmony, gospel and live worship records. Remote, worldwide.</p>
+      <a class="go" href="/mixing">See the work &rarr;</a>
+    </div>
+
+    <div class="card-r">
+      <h4>Free apps</h4>
+      <ul class="applist">
+        <li><a href="/pulseroom">PulseRoom<small>Tempo, delays, reverb and EQ in one place</small></a></li>
+        <li><a href="/performlive">PerformLive<small>Stems, clips and pads for the stand</small></a></li>
+        <li><a href="/harmoniemd">HarmonieMD<small>Setlists and charts for music directors</small></a></li>
+      </ul>
+    </div>
+
+    <div class="card-r">
+      <h4>Work together</h4>
+      <p>Sending a record out this year? Tell me about it.</p>
+      <a class="go" href="/about#contact">Start a project &rarr;</a>
+    </div>
+
+  </div>
+</aside>
+
+</div><!-- /postgrid -->
 
 <footer>
   <a href="blog.html">Blog</a>
@@ -265,5 +362,96 @@ footer .who{margin-left:auto}
   <span class="who">Amanorsac Studio</span>
 </footer>
 
+
+<script>
+/* ---------- the contents list ----------
+   Built from the post's own headings, because the post is poured into
+   this page at request time and nothing here knows in advance what its
+   sections are. No headings, no list: a short post does not need one. */
+(function(){
+  var art = document.querySelector('.postgrid > article');
+  var nav = document.getElementById('toc');
+  if(!art || !nav) return;
+
+  var heads = [].slice.call(art.querySelectorAll('h2, h3'));
+  if(heads.length < 2) return;
+
+  var links = heads.map(function(h, i){
+    if(!h.id){
+      h.id = (h.textContent || 'section').toLowerCase()
+        .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,50) || ('section-' + i);
+    }
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    if(h.tagName === 'H3') a.className = 'sub';
+    nav.appendChild(a);
+    return a;
+  });
+
+  nav.insertAdjacentHTML('afterbegin', '<p class="toc-h">On this page</p>');
+  nav.hidden = false;
+
+  /* Mark whichever section the reader is in. The rootMargin pins the
+     line of interest near the top of the window rather than the middle,
+     which is where the eye actually is when reading down a page. */
+  if(!('IntersectionObserver' in window)) return;
+  var seen = {};
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ seen[e.target.id] = e.isIntersecting; });
+    var current = null;
+    heads.forEach(function(h){ if(seen[h.id]) current = current || h.id; });
+    links.forEach(function(a){
+      a.classList.toggle('on', a.getAttribute('href') === '#' + current);
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+  heads.forEach(function(h){ io.observe(h); });
+})();
+
+/* ---------- the advert ----------
+   Loads only when both AdSense values are filled in on the rail, so an
+   unconfigured site never fetches Google's script at all. If the advert
+   comes back unfilled - which is common, and normal - the slot is left
+   hidden and the studio card keeps the space, so the rail is never a
+   blank rectangle. */
+(function(){
+  var rail = document.getElementById('rail');
+  var slot = document.getElementById('adslot');
+  if(!rail || !slot) return;
+
+  var client = (rail.getAttribute('data-ad-client') || '').trim();
+  var unit   = (rail.getAttribute('data-ad-slot')   || '').trim();
+  if(!/^ca-pub-\d+$/.test(client) || !/^\d+$/.test(unit)) return;
+
+  var ins = document.createElement('ins');
+  ins.className = 'adsbygoogle';
+  ins.style.display = 'block';
+  ins.setAttribute('data-ad-client', client);
+  ins.setAttribute('data-ad-slot', unit);
+  ins.setAttribute('data-ad-format', 'auto');
+  ins.setAttribute('data-full-width-responsive', 'true');
+  slot.appendChild(ins);
+  slot.classList.add('on');
+
+  var js = document.createElement('script');
+  js.async = true;
+  js.crossOrigin = 'anonymous';
+  js.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
+           encodeURIComponent(client);
+  js.onload = function(){
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
+  };
+  js.onerror = function(){ slot.classList.remove('on'); };
+  document.head.appendChild(js);
+
+  /* Google marks the element "unfilled" when it has nothing to show.
+     Take the space back rather than leaving a hole. */
+  setTimeout(function(){
+    if(ins.getAttribute('data-ad-status') === 'unfilled' || !ins.offsetHeight){
+      slot.classList.remove('on');
+    }
+  }, 4000);
+})();
+</script>
 </body>
 </html>

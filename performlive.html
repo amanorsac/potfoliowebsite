@@ -135,6 +135,17 @@ h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:
   border-radius:var(--r-lg);overflow:hidden;
   box-shadow:0 24px 80px rgba(0,0,0,.5)}
 
+/* ---------- the walkthrough ----------
+   Screen recordings, no sound. They start when they come into view and
+   stop when they leave, so nothing plays to an empty room, and they do
+   not start at all for anyone who has asked for less motion. Controls
+   are there either way. */
+.vid{margin:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.55);background:#000}
+.vid video{display:block;width:100%;height:auto;aspect-ratio:1280/840}
+.vidcap{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim);margin:14px 0 0}
+
 /* ---------- section headings ---------- */
 h2{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.1;
   font-size:clamp(26px,3.4vw,40px);margin:0 0 14px}
@@ -328,6 +339,17 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
 </section>
 
 <section class="wrap">
+  <h2>Fifty seconds on the stand.</h2>
+  <p class="lede">Stems in, clips marked, pads and FX under the fingers, the set running. No sound &mdash; this is the screen, not the show.</p>
+  <figure class="vid rise">
+    <video src="/video/performlive-walkthrough.mp4" width="1280" height="840"
+           muted loop playsinline controls preload="metadata" data-inview
+           aria-label="A screen recording of PerformLive: loading stems, marking clips in the editor, triggering pads and effects, and running a set"></video>
+  </figure>
+  <p class="vidcap">PerformLive, recorded in one take &middot; 54 seconds &middot; no sound</p>
+</section>
+
+<section class="wrap">
   <h2>Around the instrument.</h2>
   <div class="shotrow">
     <figure><div class="shot"><img src="images/PL-03-library.webp" alt="" loading="lazy"></div>
@@ -424,6 +446,24 @@ if('IntersectionObserver' in window &&
 }else{
   document.querySelectorAll('.rise').forEach(function(el){ el.classList.add('in'); });
 }
+
+/* Play a walkthrough while it is on screen, pause it when it is not.
+   Muted and silent, so it cannot startle anyone; skipped entirely for a
+   visitor who has asked for reduced motion, who gets a still first frame
+   and the controls. */
+(function(){
+  var vids = document.querySelectorAll('video[data-inview]');
+  if(!vids.length) return;
+  if(!('IntersectionObserver' in window) ||
+     matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var vo = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){ var p = e.target.play(); if(p) p.catch(function(){}); }
+      else e.target.pause();
+    });
+  }, { threshold:.35 });
+  vids.forEach(function(v){ vo.observe(v); });
+})();
 </script>
 <script src="assets/track.js" defer></script>
 </body>

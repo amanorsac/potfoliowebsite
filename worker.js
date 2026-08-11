@@ -44,6 +44,11 @@ export default {
         if (m) return await postPage(decodeURIComponent(m[1]), env, request,
                                      new URL(request.url).searchParams.has('diag'));
       }
+
+      // the only thing on this site that accepts a POST
+      if (request.method === 'POST' && new URL(request.url).pathname === '/api/download') {
+        return await handoutDownload(request, env);
+      }
     } catch (e) {
       // fall through: a broken blog is not a reason for a broken site
     }
@@ -61,6 +66,106 @@ export default {
     }
   }
 };
+
+
+/* ---------------------------------------------------------------------
+   handing out an installer
+
+   The files sit in a private bucket. There is no address for them, so
+   there is nothing to skip the form and go straight to - which is what
+   makes asking for an email worth doing rather than a gesture.
+
+   In exchange for an address this mints a signed link good for five
+   minutes. Long enough to download, short enough that a link passed on
+   to a friend has already expired.
+
+   Signing needs the service key, which can do anything in the project.
+   It is read from the environment and set as a secret in Cloudflare - it
+   is never in this repository and never reaches a browser. With no key
+   configured this endpoint refuses rather than falling back to something
+   less careful.
+   --------------------------------------------------------------------- */
+
+/* What may be asked for, and where it lives. A map rather than a path
+   from the request, so no amount of creativity in the "app" field can
+   reach a file that is not on this list. */
+const INSTALLERS = {
+  'pulseroom:windows': 'pulseroom/PulseRoom-Setup.exe',
+  'pulseroom:mac':     'pulseroom/PulseRoom.dmg'
+};
+
+/* Deliberately loose. The job is to catch a typo and an empty box, not
+   to adjudicate what a valid address is - every strict pattern ever
+   written rejects somebody's real email. */
+function looksLikeEmail(v) {
+  return typeof v === 'string' && v.length <= 254 &&
+         /^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(v.trim());
+}
+
+async function handoutDownload(request, env) {
+  const say = (obj, status) => new Response(JSON.stringify(obj), {
+    status: status || 200,
+    headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
+  });
+
+  const key = env.SUPABASE_SERVICE_KEY;
+  if (!key) return say({ error: 'Downloads are not set up yet.' }, 503);
+
+  let body = {};
+  try { body = await request.json(); } catch (e) {}
+
+  const email    = String(body.email || '').trim();
+  const app      = String(body.app || '').toLowerCase().slice(0, 40);
+  const platform = String(body.platform || '').toLowerCase().slice(0, 20);
+  const source   = String(body.source || '').slice(0, 200);
+
+  if (!looksLikeEmail(email)) return say({ error: 'That does not look like an email address.' }, 400);
+  if (!body.consent)          return say({ error: 'Please tick the box to continue.' }, 400);
+
+  const object = INSTALLERS[app + ':' + platform];
+  if (!object) return say({ error: 'No such download.' }, 404);
+
+  const country = (request.cf && request.cf.country) || null;
+  const admin = {
+    apikey: key, Authorization: 'Bearer ' + key, 'content-type': 'application/json'
+  };
+
+  /* Record the person before handing anything over. If this fails the
+     download still goes ahead - someone who gave their address should
+     not be punished for a database having a bad moment - but it is
+     tried first so a success is a success. */
+  try {
+    await fetch(SUPABASE_URL + '/rest/v1/subscribers?on_conflict=email', {
+      method: 'POST',
+      headers: Object.assign({}, admin, { Prefer: 'resolution=merge-duplicates' }),
+      body: JSON.stringify({
+        email: email, app: app, source: source, country: country,
+        consented: true, consented_at: new Date().toISOString(),
+        last_seen_at: new Date().toISOString()
+      })
+    });
+    await fetch(SUPABASE_URL + '/rest/v1/download_events', {
+      method: 'POST', headers: admin,
+      body: JSON.stringify({ app: app, platform: platform, email: email, country: country })
+    });
+  } catch (e) { /* see above */ }
+
+  // the signed link, good for five minutes
+  let url = '';
+  try {
+    const r = await fetch(
+      SUPABASE_URL + '/storage/v1/object/sign/downloads/' + object,
+      { method: 'POST', headers: admin, body: JSON.stringify({ expiresIn: 300 }) }
+    );
+    if (r.ok) {
+      const j = await r.json();
+      if (j && j.signedURL) url = SUPABASE_URL + '/storage/v1' + j.signedURL;
+    }
+  } catch (e) {}
+
+  if (!url) return say({ error: 'That download is not available right now.' }, 502);
+  return say({ url: url });
+}
 
 
 /* ---------------------------------------------------------------------

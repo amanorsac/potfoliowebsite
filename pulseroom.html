@@ -152,6 +152,35 @@ h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:
 .vidcap{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--dim);margin:14px 0 0}
 
+/* ---------- the download gate ---------- */
+.dlg{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px}
+.dlg[hidden]{display:none}
+.dlg-back{position:absolute;inset:0;background:rgba(4,5,9,.72);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.dlg-box{position:relative;width:min(430px,100%);background:var(--panel,#12151C);
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:26px 24px 22px;
+  box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.dlg-x{position:absolute;top:10px;right:12px;background:none;border:0;color:var(--muted);
+  font-size:24px;line-height:1;cursor:pointer;padding:6px 8px;min-width:32px;min-height:32px}
+.dlg-x:hover{color:var(--text)}
+.dlg-eyebrow{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--dim,#8A8698);margin:0 0 8px}
+.dlg-box h2{font-size:24px;margin:0 0 8px}
+.dlg-sub{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 18px}
+.dlg-box label{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim,#8A8698);margin:0 0 6px}
+.dlg-box input[type=email]{width:100%;background:var(--bg,#0C0E12);border:1px solid var(--line);
+  border-radius:9px;padding:11px 13px;color:var(--text);font:inherit;font-size:15px}
+.dlg-box input[type=email]:focus{outline:none;border-color:var(--accent)}
+.dlg-check{display:flex;gap:10px;align-items:flex-start;margin:14px 0 18px;
+  font-family:var(--body);font-size:12.5px;letter-spacing:0;text-transform:none;
+  color:var(--muted);line-height:1.55;cursor:pointer}
+.dlg-check input{margin:2px 0 0;width:16px;height:16px;flex:0 0 auto;accent-color:var(--accent)}
+.dlg-go{width:100%;justify-content:center;text-align:center}
+.dlg-go[disabled]{opacity:.6;cursor:default}
+.dlg-msg{font-size:13px;color:var(--muted);margin:12px 0 0;min-height:1.2em;text-align:center}
+.dlg-msg.bad{color:#E08A7A}
+
 /* ---------- section headings ---------- */
 h2{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.12;
   font-size:clamp(25px,3.2vw,38px);margin:0 0 14px}
@@ -289,7 +318,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
 }
 </script>
 </head>
-<body>
+<body data-app="pulseroom">
 
 <div class="top">
   <a class="back" href="apps.html">← App Store</a>
@@ -485,10 +514,16 @@ var CONFIG = {
 
 /* ---------- wiring ---------- */
 (function(){
+  /* The download buttons are handled by assets/download-gate.js: the
+     installer lives in a private bucket with no address of its own, and
+     the gate trades an email for a link that works for five minutes.
+     CONFIG.downloadWin and downloadMac are only a way out - fill either
+     in and that button becomes an ordinary link to that file, no email
+     asked. Left empty, the gate does its job. */
   var map = { win: CONFIG.downloadWin, mac: CONFIG.downloadMac };
   document.querySelectorAll('[data-dl]').forEach(function(a){
     var url = map[a.getAttribute('data-dl')];
-    if(url){ a.href = url; a.setAttribute('download',''); }
+    if(url){ a.href = url; a.setAttribute('download',''); a.removeAttribute('data-dl'); }
   });
   /* Mac first if that's what they're on - the package asks for it. */
   if(/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)){
@@ -530,6 +565,7 @@ var CONFIG = {
     vids.forEach(function(v){ vo.observe(v); });
   })();
 </script>
+<script src="/assets/download-gate.js" defer></script>
 <script src="assets/track.js" defer></script>
 </body>
 </html>

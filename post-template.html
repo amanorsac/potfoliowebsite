@@ -232,6 +232,11 @@ footer .who{margin-left:auto}
    or fails to. An empty box is never shown: if there is no advert the
    studio card takes the space instead. */
 .adslot{min-height:280px;display:none}
+/* the one inside the reading column */
+.ad-article{margin:clamp(30px,5vh,46px) 0;text-align:center;display:none}
+.ad-article.on{display:block}
+.ad-article > p{font-family:var(--mono);font-size:9px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim,#8A8698);margin:0 0 8px}
 .adslot.on{display:block}
 @media (max-width:1180px){
   .postgrid{display:block}
@@ -316,14 +321,18 @@ footer .who{margin-left:auto}
 
 </article>
 
-<!-- The right-hand rail.
-     Put your AdSense details in the two attributes below and an advert
-     appears here. Leave them empty and it stays as it is - the studio
-     card and the apps - which is what also happens whenever Google has
-     no advert to show, so this space is never blank.
-       data-ad-client : your publisher id, ca-pub-0000000000000000
-       data-ad-slot   : the id of a display unit you made in AdSense -->
-<aside class="rail rail-r" id="rail" data-ad-client="ca-pub-6190327414594776" data-ad-slot="1492710876">
+<!-- The right-hand rail, and the AdSense settings for the whole page.
+     Blank out any of these and that advert simply does not appear - and
+     with no client id, Google's script is never fetched at all.
+       data-ad-client          : the publisher id
+       data-ad-slot            : the display unit shown here in the rail
+       data-ad-slot-inarticle  : the in-article unit, placed a few
+                                 paragraphs into the post by the script
+                                 at the foot of this file -->
+<aside class="rail rail-r" id="rail"
+       data-ad-client="ca-pub-6190327414594776"
+       data-ad-slot="1492710876"
+       data-ad-slot-inarticle="2701850762">
   <div class="stick">
 
     <div class="adslot" id="adslot"></div>
@@ -408,49 +417,100 @@ footer .who{margin-left:auto}
   heads.forEach(function(h){ io.observe(h); });
 })();
 
-/* ---------- the advert ----------
-   Loads only when both AdSense values are filled in on the rail, so an
-   unconfigured site never fetches Google's script at all. If the advert
-   comes back unfilled - which is common, and normal - the slot is left
-   hidden and the studio card keeps the space, so the rail is never a
-   blank rectangle. */
+/* ---------- the adverts ----------
+   Two of them: one in the rail, one a few paragraphs into the post.
+   Nothing loads unless the ids are filled in on the rail, so an
+   unconfigured copy of this site never fetches Google's script at all.
+
+   Both behave the same way when Google has nothing to show, which is
+   common and normal: the slot hides itself. In the rail the studio card
+   takes the space back; in the post the paragraphs simply close up. A
+   reader never meets an empty grey rectangle either way. */
 (function(){
   var rail = document.getElementById('rail');
-  var slot = document.getElementById('adslot');
-  if(!rail || !slot) return;
+  var art  = document.querySelector('.postgrid > article');
+  if(!rail) return;
 
-  var client = (rail.getAttribute('data-ad-client') || '').trim();
-  var unit   = (rail.getAttribute('data-ad-slot')   || '').trim();
-  if(!/^ca-pub-\d+$/.test(client) || !/^\d+$/.test(unit)) return;
+  var client   = (rail.getAttribute('data-ad-client') || '').trim();
+  var railSlot = (rail.getAttribute('data-ad-slot') || '').trim();
+  var artSlot  = (rail.getAttribute('data-ad-slot-inarticle') || '').trim();
+  var ok = function(v){ return /^\d+$/.test(v); };
+  if(!/^ca-pub-\d+$/.test(client) || (!ok(railSlot) && !ok(artSlot))) return;
 
-  var ins = document.createElement('ins');
-  ins.className = 'adsbygoogle';
-  ins.style.display = 'block';
-  ins.setAttribute('data-ad-client', client);
-  ins.setAttribute('data-ad-slot', unit);
-  ins.setAttribute('data-ad-format', 'auto');
-  ins.setAttribute('data-full-width-responsive', 'true');
-  slot.appendChild(ins);
-  slot.classList.add('on');
+  /* One copy of Google's script, however many units are on the page. */
+  var loading = false;
+  function loader(){
+    if(loading) return;
+    loading = true;
+    var js = document.createElement('script');
+    js.async = true;
+    js.crossOrigin = 'anonymous';
+    js.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
+             encodeURIComponent(client);
+    document.head.appendChild(js);
+  }
 
-  var js = document.createElement('script');
-  js.async = true;
-  js.crossOrigin = 'anonymous';
-  js.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
-           encodeURIComponent(client);
-  js.onload = function(){
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
-  };
-  js.onerror = function(){ slot.classList.remove('on'); };
-  document.head.appendChild(js);
+  /* Google marks the element "unfilled" when it has nothing. Watch for
+     that and take the space back rather than leaving a hole. */
+  function watch(box, ins){
+    setTimeout(function(){
+      if(ins.getAttribute('data-ad-status') === 'unfilled' || !ins.offsetHeight){
+        box.classList.remove('on');
+      }
+    }, 4000);
+  }
 
-  /* Google marks the element "unfilled" when it has nothing to show.
-     Take the space back rather than leaving a hole. */
-  setTimeout(function(){
-    if(ins.getAttribute('data-ad-status') === 'unfilled' || !ins.offsetHeight){
-      slot.classList.remove('on');
+  function place(box, slot, inArticle){
+    var ins = document.createElement('ins');
+    ins.className = 'adsbygoogle';
+    ins.setAttribute('data-ad-client', client);
+    ins.setAttribute('data-ad-slot', slot);
+    if(inArticle){
+      ins.style.cssText = 'display:block;text-align:center';
+      ins.setAttribute('data-ad-layout', 'in-article');
+      ins.setAttribute('data-ad-format', 'fluid');
+    } else {
+      ins.style.display = 'block';
+      ins.setAttribute('data-ad-format', 'auto');
+      ins.setAttribute('data-full-width-responsive', 'true');
     }
-  }, 4000);
+    box.appendChild(ins);
+    box.classList.add('on');
+    loader();
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
+    watch(box, ins);
+  }
+
+  // the rail
+  if(ok(railSlot)){
+    var slot = document.getElementById('adslot');
+    if(slot) place(slot, railSlot, false);
+  }
+
+  /* In the post itself. Placed after the third paragraph, and only when
+     there are at least six - an advert a third of the way into a short
+     post is most of the post. Never straight after a heading, which
+     would cut a section off from its own first sentence, and never in
+     the last two blocks, where it would crowd the ending. */
+  if(ok(artSlot) && art){
+    var kids = [].slice.call(art.children);
+    var paras = kids.filter(function(el){ return el.tagName === 'P'; });
+    if(paras.length >= 6){
+      var after = paras[2];
+      var guard = 0;
+      while(after && /^H[1-6]$/.test((after.previousElementSibling || {}).tagName || '') && guard++ < 3){
+        after = after.nextElementSibling;
+      }
+      var last = kids[kids.length - 1];
+      if(after && after !== last && after !== kids[kids.length - 2]){
+        var box = document.createElement('div');
+        box.className = 'ad-article';
+        box.innerHTML = '<p>Advertisement</p>';
+        after.parentNode.insertBefore(box, after.nextSibling);
+        place(box, artSlot, true);
+      }
+    }
+  }
 })();
 </script>
 </body>

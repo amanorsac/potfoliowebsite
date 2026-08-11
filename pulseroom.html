@@ -186,6 +186,16 @@ h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:
 .dlg-go[disabled]{opacity:.6;cursor:default}
 .dlg-msg{font-size:13px;color:var(--muted);margin:12px 0 0;min-height:1.2em;text-align:center}
 .dlg-msg.bad{color:#E08A7A}
+/* the half that replaces the form once the letter is away */
+.dlg-done{text-align:center;padding:6px 0 4px}
+.dlg-done[hidden]{display:none}
+.dlg-tick{width:46px;height:46px;margin:0 auto 16px;border-radius:50%;
+  display:grid;place-items:center;font-size:21px;color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.dlg-done h3{font-size:20px;margin:0 0 9px}
+.dlg-done p{color:var(--muted);font-size:14px;line-height:1.65;margin:0 0 14px}
+.dlg-done b{color:var(--text);font-weight:600;word-break:break-all}
+.dlg-small{font-size:12.5px !important;color:var(--dim,#8A8698) !important;margin:0 !important}
 
 /* ---------- section headings ---------- */
 h2{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.12;

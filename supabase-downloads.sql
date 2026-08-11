@@ -137,8 +137,8 @@ begin
         -- coming back is as good as re-subscribing
         unsubscribed_at = null;
 
-  insert into public.download_events (app, platform, email)
-  values (left(nullif(trim(coalesce(p_app,'')),''), 40), null, v_email);
+  -- No download is logged here. Asking for one is not getting one; the
+  -- event is written when the link in the email is used.
 end;
 $$;
 
@@ -148,12 +148,53 @@ grant execute on function public.record_subscriber(text,text,text,boolean)
 
 
 -- =====================================================================
---  5 · WHAT THE STUDIO SEES
+--  5 · CONFIRMING AN ADDRESS
+--
+--  Nobody gets the file until they have clicked the link in their inbox,
+--  so an address on this list is one that exists and whose owner asked
+--  for it. That is what makes it worth writing to: made-up addresses
+--  bounce, and bounces are what stop the real ones arriving.
+-- =====================================================================
+
+alter table public.subscribers add column if not exists confirmed_at timestamptz;
+create index if not exists subscribers_confirmed_idx
+  on public.subscribers (confirmed_at) where confirmed_at is not null;
+
+create or replace function public.confirm_subscriber(
+  p_email text, p_app text default null, p_platform text default null
+) returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare v_email text;
+begin
+  v_email := lower(trim(coalesce(p_email, '')));
+  if v_email = '' then return; end if;
+
+  update public.subscribers
+     set confirmed_at   = coalesce(confirmed_at, now()),   -- the first time counts
+         last_seen_at   = now(),
+         unsubscribed_at = null
+   where lower(email) = v_email;
+
+  -- a download only counts once it has actually been handed over
+  insert into public.download_events (app, platform, email)
+  values (left(nullif(trim(coalesce(p_app,'')),''), 40),
+          left(nullif(trim(coalesce(p_platform,'')),''), 20),
+          v_email);
+end;
+$$;
+
+revoke all on function public.confirm_subscriber(text,text,text) from public;
+grant execute on function public.confirm_subscriber(text,text,text) to anon, authenticated;
+
+
+-- =====================================================================
+--  6 · WHAT THE STUDIO SEES
 -- =====================================================================
 
 create or replace function public.subscriber_stats()
 returns table (
-  total bigint, this_week bigint, consented bigint,
+  total bigint, this_week bigint, confirmed bigint,
   downloads bigint, downloads_week bigint
 )
 language sql security definer stable set search_path = '' as $$
@@ -162,7 +203,7 @@ language sql security definer stable set search_path = '' as $$
     (select count(*) from public.subscribers
        where unsubscribed_at is null and created_at > now() - interval '7 days'),
     (select count(*) from public.subscribers
-       where unsubscribed_at is null and consented),
+       where unsubscribed_at is null and confirmed_at is not null),
     (select count(*) from public.download_events),
     (select count(*) from public.download_events where at > now() - interval '7 days')
   where public.is_admin();

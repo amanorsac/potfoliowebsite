@@ -37,6 +37,15 @@
   "observability": {
     "enabled": true
   },
+  /* The app installers. Too big for Supabase's free plan at 78 MB and
+     171 MB, and R2 costs nothing to serve however often they are taken.
+     A binding rather than a key: the Worker reaches the bucket because
+     Cloudflare hands it the bucket, so there is no credential anywhere
+     to leak or rotate. */
+  "r2_buckets": [
+    { "binding": "DOWNLOADS", "bucket_name": "amanorsac-downloads" }
+  ],
+
   "assets": {
     "directory": ".",
     // worker.js reaches the files through this name

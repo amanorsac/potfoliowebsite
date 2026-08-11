@@ -14,6 +14,39 @@
 
 
 -- =====================================================================
+--  0 · CLEAR OUT ANY EARLIER VERSION OF THE FUNCTIONS
+--
+--  create-or-replace can change what a function does but not the shape
+--  of what it returns. subscriber_stats gained a "confirmed" column when
+--  confirming an address became part of the arrangement, so the older
+--  one has to be dropped rather than replaced - which is exactly what
+--  "42P13: cannot change return type of existing function" is saying.
+--
+--  A changed argument list has the opposite problem: it makes a second
+--  overload instead of replacing the first, and then every call is
+--  ambiguous. Dropping by name, whatever the arguments, avoids both.
+--
+--  The tables and everything in them are untouched. Only the functions
+--  go, and the rest of this file puts them straight back.
+-- =====================================================================
+
+do $$
+declare f record;
+begin
+  for f in
+    select p.oid::regprocedure::text as sig
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in (
+        'record_subscriber', 'confirm_subscriber', 'subscriber_stats')
+  loop
+    execute 'drop function if exists ' || f.sig;
+  end loop;
+end $$;
+
+
+-- =====================================================================
 --  1 · WHO ASKED FOR WHAT
 -- =====================================================================
 

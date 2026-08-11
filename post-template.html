@@ -450,13 +450,29 @@ footer .who{margin-left:auto}
     document.head.appendChild(js);
   }
 
+  /* Adding ?ads to a post address keeps the slots visible whatever
+     happens and prints what each one did. Without it there is no way to
+     tell "Google had nothing to show" from "the code never ran" - both
+     look like empty space. */
+  var show = /(^|[?&])ads(=|&|$)/.test(location.search);
+
   /* Google marks the element "unfilled" when it has nothing. Watch for
      that and take the space back rather than leaving a hole. */
-  function watch(box, ins){
+  function watch(box, ins, what){
     setTimeout(function(){
-      if(ins.getAttribute('data-ad-status') === 'unfilled' || !ins.offsetHeight){
-        box.classList.remove('on');
+      var status = ins.getAttribute('data-ad-status') || '(nothing said)';
+      var tall   = ins.offsetHeight;
+      if(show){
+        var p = document.createElement('p');
+        p.style.cssText = 'font:11px/1.6 monospace;color:#9aa;text-align:left;' +
+                          'border:1px dashed #556;padding:8px;margin:8px 0';
+        p.textContent = what + ' - google says: ' + status +
+                        ' - height: ' + tall + 'px' +
+                        ' - script: ' + (window.adsbygoogle ? 'loaded' : 'DID NOT LOAD');
+        box.appendChild(p);
+        return;                       // keep it on screen while diagnosing
       }
+      if(status === 'unfilled' || !tall) box.classList.remove('on');
     }, 4000);
   }
 
@@ -478,7 +494,7 @@ footer .who{margin-left:auto}
     box.classList.add('on');
     loader();
     try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
-    watch(box, ins);
+    watch(box, ins, inArticle ? 'in-article' : 'rail');
   }
 
   // the rail

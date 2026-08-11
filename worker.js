@@ -147,8 +147,17 @@ async function handoutDownload(request, env) {
     headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
   });
 
-  if (!env.DOWNLOADS)       return say({ error: 'Downloads are not set up yet.' }, 503);
-  if (!env.DOWNLOAD_SECRET) return say({ error: 'Downloads are not set up yet.' }, 503);
+  /* A reader gets the same sentence either way. The studio, opening this
+     with ?setup, is told which of the two pieces is missing - because
+     "not set up yet" is true of both and useful for neither. */
+  const setup = new URL(request.url).searchParams.has('setup');
+  const missing = [];
+  if (!env.DOWNLOADS)       missing.push('the R2 bucket is not bound (wrangler.jsonc names it amanorsac-downloads)');
+  if (!env.DOWNLOAD_SECRET) missing.push('DOWNLOAD_SECRET is not set as a secret on the Worker');
+  if (missing.length) {
+    return say({ error: setup ? ('Missing: ' + missing.join('; ') + '.')
+                              : 'Downloads are not set up yet.' }, 503);
+  }
 
   let body = {};
   try { body = await request.json(); } catch (e) {}

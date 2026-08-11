@@ -165,17 +165,23 @@ h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:
 .dlg-x:hover{color:var(--text)}
 .dlg-eyebrow{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;
   text-transform:uppercase;color:var(--dim,#8A8698);margin:0 0 8px}
-.dlg-box h2{font-size:24px;margin:0 0 8px}
-.dlg-sub{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 18px}
-.dlg-box label{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--dim,#8A8698);margin:0 0 6px}
+.dlg-box h2{font-size:25px;margin:0 0 10px;letter-spacing:-.01em}
+.dlg-sub{color:var(--muted);font-size:14px;line-height:1.65;margin:0 0 20px}
+.dlg-size{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim,#8A8698);margin:10px 0 0;text-align:center}
+/* Only the field labels. Written as .dlg-field so it cannot reach the
+   consent line below it - as .dlg-box label it did, and set a sentence
+   somebody has to read in shouting mono at nine and a half pixels. */
+.dlg-box label.dlg-field{display:block;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim,#8A8698);margin:0 0 7px}
 .dlg-box input[type=email]{width:100%;background:var(--bg,#0C0E12);border:1px solid var(--line);
   border-radius:9px;padding:11px 13px;color:var(--text);font:inherit;font-size:15px}
 .dlg-box input[type=email]:focus{outline:none;border-color:var(--accent)}
-.dlg-check{display:flex;gap:10px;align-items:flex-start;margin:14px 0 18px;
-  font-family:var(--body);font-size:12.5px;letter-spacing:0;text-transform:none;
-  color:var(--muted);line-height:1.55;cursor:pointer}
-.dlg-check input{margin:2px 0 0;width:16px;height:16px;flex:0 0 auto;accent-color:var(--accent)}
+.dlg-box label.dlg-check{display:flex;gap:11px;align-items:flex-start;margin:16px 0 20px;
+  font-family:var(--body);font-size:13px;letter-spacing:0;text-transform:none;
+  color:var(--muted);line-height:1.6;cursor:pointer}
+.dlg-check input{margin:1px 0 0;width:17px;height:17px;flex:0 0 auto;accent-color:var(--accent);cursor:pointer}
+.dlg-check:hover span{color:var(--text)}
 .dlg-go{width:100%;justify-content:center;text-align:center}
 .dlg-go[disabled]{opacity:.6;cursor:default}
 .dlg-msg{font-size:13px;color:var(--muted);margin:12px 0 0;min-height:1.2em;text-align:center}
@@ -330,8 +336,8 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   <h1>Every mixing answer. One tempo.</h1>
   <p class="sub">Drop the song in and PulseRoom finds the tempo, then turns it into delay times, reverb tails, EQ moves and compression settings — in one desktop app that opens faster than the browser tab it replaces.</p>
   <div class="cta-row">
-    <a class="cta" data-dl="win" href="apps.html#access">Download free for Windows</a>
-    <a class="cta ghost" data-dl="mac" href="apps.html#access">Download for Mac</a>
+    <a class="cta" data-dl-size="78 MB" data-dl="win" href="apps.html#access">Download free for Windows</a>
+    <a class="cta ghost" data-dl-size="171 MB" data-dl="mac" href="apps.html#access">Download for Mac</a>
   </div>
   <p class="fine">78 MB for Windows, 171 MB for Mac · Works offline · No account, no ads</p>
   <div class="hero-shot rise">
@@ -490,8 +496,8 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   <h2>Your next session starts at your tempo.</h2>
   <p class="lede">Free, offline, no account. Close six browser tabs on the way in.</p>
   <div class="cta-row">
-    <a class="cta" data-dl="win" href="apps.html#access">Download free for Windows</a>
-    <a class="cta ghost" data-dl="mac" href="apps.html#access">Download for Mac</a>
+    <a class="cta" data-dl-size="78 MB" data-dl="win" href="apps.html#access">Download free for Windows</a>
+    <a class="cta ghost" data-dl-size="171 MB" data-dl="mac" href="apps.html#access">Download for Mac</a>
   </div>
   <p class="fine">Values are starting points — trust your ears first.</p>
 </section>

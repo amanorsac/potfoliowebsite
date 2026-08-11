@@ -43,7 +43,7 @@
       '<p class="dlg-sub">Your download starts as soon as you continue. ' +
         'The address is so I can tell you when the app is updated.</p>' +
       '<form novalidate>' +
-        '<label for="dlg-email">Email</label>' +
+        '<label class="dlg-field" for="dlg-email">Email</label>' +
         '<input id="dlg-email" type="email" autocomplete="email" ' +
                'placeholder="you@example.com" required>' +
         '<label class="dlg-check">' +
@@ -52,6 +52,7 @@
                 'writing and releases. One click to stop, any time.</span>' +
         '</label>' +
         '<button class="cta dlg-go" type="submit">Download</button>' +
+        '<p class="dlg-size" id="dlg-size"></p>' +
         '<p class="dlg-msg" role="status"></p>' +
       '</form>' +
     '</div>';
@@ -64,13 +65,16 @@
   var msg   = el.querySelector('.dlg-msg');
   var go    = el.querySelector('.dlg-go');
   var appEl = el.querySelector('#dlg-app');
+  var sizeEl = el.querySelector('#dlg-size');
 
   var pending = null;      // {app, platform}
   var lastFocus = null;
 
-  function open(app, platform, label) {
+  function open(app, platform, label, size) {
     pending = { app: app, platform: platform };
     appEl.textContent = label || '';
+    // 171 MB is worth knowing before the download starts, not after
+    sizeEl.textContent = size || '';
     msg.textContent = '';
     msg.className = 'dlg-msg';
     email.value = remembered;
@@ -114,7 +118,7 @@
       var platform = PLATFORM[a.getAttribute('data-dl')] || '';
       if (!app || !platform) return;          // not configured: leave the link alone
       e.preventDefault();
-      open(app, platform, (a.textContent || '').trim());
+      open(app, platform, (a.textContent || '').trim(), a.getAttribute('data-dl-size') || '');
     });
   }
 

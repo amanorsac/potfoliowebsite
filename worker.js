@@ -107,11 +107,16 @@ export default {
    --------------------------------------------------------------------- */
 
 /* What may be asked for. A fixed map, so no amount of creativity in the
-   request can name a file that is not on this list. */
+   request can name a file that is not on this list.
+
+   Two keys each, tried in order: in a pulseroom/ folder, or loose at the
+   top of the bucket. Uploading a 179 MB file a second time because the
+   Worker wanted a folder in front of the name is not a good reason to
+   upload a 179 MB file a second time. */
 const INSTALLERS = {
-  'pulseroom:windows': { key: 'pulseroom/PulseRoom-Windows.zip',
+  'pulseroom:windows': { keys: ['pulseroom/PulseRoom-Windows.zip', 'PulseRoom-Windows.zip'],
                          as: 'PulseRoom-Windows.zip', title: 'PulseRoom for Windows' },
-  'pulseroom:mac':     { key: 'pulseroom/PulseRoom-macOS.zip',
+  'pulseroom:mac':     { keys: ['pulseroom/PulseRoom-macOS.zip', 'PulseRoom-macOS.zip'],
                          as: 'PulseRoom-macOS.zip',   title: 'PulseRoom for Mac' }
 };
 
@@ -288,7 +293,7 @@ async function confirmDownload(url, env) {
     item.title + ' is downloading now. If nothing happens, use the button.', ticket);
 }
 
-function confirmPage(heading, note, ticket) {
+function confirmPage(heading, note, ticket, status) {
   const page =
 '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
 '<meta name="viewport" content="width=device-width, initial-scale=1">' +
@@ -309,7 +314,7 @@ function confirmPage(heading, note, ticket) {
 '<a class="s" href="' + SITE + '">amanorsac.studio</a>' +
 '</main></body></html>';
   return new Response(page, {
-    status: ticket ? 200 : 410,
+    status: status || (ticket ? 200 : 410),
     headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }
   });
 }
@@ -325,9 +330,20 @@ async function serveInstaller(app, platform, url, env, request) {
   const want = await sign(env.DOWNLOAD_SECRET, url.pathname + ':' + expires);
   if (!sameString(sig, want)) return null;
 
-  const object = await env.DOWNLOADS.get(item.key,
-    { range: request.headers, onlyIf: request.headers });
-  if (!object) return null;
+  let object = null;
+  for (const key of item.keys) {
+    object = await env.DOWNLOADS.get(key, { range: request.headers, onlyIf: request.headers });
+    if (object) break;
+  }
+  /* The ticket was good and the file is not in the bucket. That is the
+     studio's mistake, not the visitor's, and answering it with the same
+     blank 404 that a forged ticket gets means nobody ever finds out
+     which of the two happened. */
+  if (!object) {
+    return confirmPage('That file is not where it should be.',
+      'The link was good - the installer is missing from storage. It should be at ' +
+      item.keys[0] + ' in the amanorsac-downloads bucket. Try again shortly.', null, 503);
+  }
 
   const headers = new Headers();
   object.writeHttpMetadata(headers);

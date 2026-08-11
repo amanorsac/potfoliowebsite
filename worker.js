@@ -43,6 +43,14 @@ export default {
         const m = path.match(/^\/blog\/([^/]+)\/?$/);
         if (m) return await postPage(decodeURIComponent(m[1]), env, request,
                                      new URL(request.url).searchParams.has('diag'));
+
+        // a ticketed installer. A bad or stale ticket falls through to
+        // the 404 below, so there is nothing here to probe at.
+        const d = path.match(/^\/download\/([a-z0-9-]+)\/([a-z0-9-]+)$/);
+        if (d) {
+          const file = await serveInstaller(d[1], d[2], new URL(request.url), env, request);
+          if (file) return file;
+        }
       }
 
       // the only thing on this site that accepts a POST
@@ -71,28 +79,36 @@ export default {
 /* ---------------------------------------------------------------------
    handing out an installer
 
-   The files sit in a private bucket. There is no address for them, so
-   there is nothing to skip the form and go straight to - which is what
-   makes asking for an email worth doing rather than a gesture.
+   Two halves, on purpose.
 
-   In exchange for an address this mints a signed link good for five
-   minutes. Long enough to download, short enough that a link passed on
-   to a friend has already expired.
+   POST /api/download   an email goes in, the person is recorded, and a
+                        ticket comes back: a path with a signature on it,
+                        good for fifteen minutes.
+   GET  /download/...   checks the signature and streams the file out of
+                        R2. Without a valid ticket it is a 404, so there
+                        is no address to pass around and no way past the
+                        form.
 
-   Signing needs the service key, which can do anything in the project.
-   It is read from the environment and set as a secret in Cloudflare - it
-   is never in this repository and never reaches a browser. With no key
-   configured this endpoint refuses rather than falling back to something
-   less careful.
+   It is split because these files are 78 MB and 171 MB. Sending one back
+   as the answer to a form submission would mean holding it in memory
+   before saving it; a normal GET hands it to the browser's own download
+   manager, which shows progress and can resume.
+
+   Nothing here holds a key to anything. The bucket arrives as a binding,
+   and the mailing list is written through a function that can only
+   write. The one secret is the string the ticket is signed with, and the
+   worst it could do in the wrong hands is let somebody download a free
+   app without leaving an address.
    --------------------------------------------------------------------- */
 
-/* What may be asked for, and where it lives. A map rather than a path
-   from the request, so no amount of creativity in the "app" field can
-   reach a file that is not on this list. */
+/* What may be asked for. A fixed map, so no amount of creativity in the
+   request can name a file that is not on this list. */
 const INSTALLERS = {
-  'pulseroom:windows': 'pulseroom/PulseRoom-Setup.exe',
-  'pulseroom:mac':     'pulseroom/PulseRoom.dmg'
+  'pulseroom:windows': { key: 'pulseroom/PulseRoom-Windows.zip', as: 'PulseRoom-Windows.zip' },
+  'pulseroom:mac':     { key: 'pulseroom/PulseRoom-macOS.zip',   as: 'PulseRoom-macOS.zip' }
 };
+
+const TICKET_MINUTES = 15;
 
 /* Deliberately loose. The job is to catch a typo and an empty box, not
    to adjudicate what a valid address is - every strict pattern ever
@@ -102,14 +118,37 @@ function looksLikeEmail(v) {
          /^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(v.trim());
 }
 
+function b64url(bytes) {
+  let s = '';
+  const a = new Uint8Array(bytes);
+  for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function sign(secret, message) {
+  const enc = new TextEncoder();
+  const k = await crypto.subtle.importKey('raw', enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return b64url(await crypto.subtle.sign('HMAC', k, enc.encode(message)));
+}
+
+/* Compared a character at a time with no early exit, so how long the
+   comparison takes says nothing about how much of the guess was right. */
+function sameString(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 async function handoutDownload(request, env) {
   const say = (obj, status) => new Response(JSON.stringify(obj), {
     status: status || 200,
     headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
   });
 
-  const key = env.SUPABASE_SERVICE_KEY;
-  if (!key) return say({ error: 'Downloads are not set up yet.' }, 503);
+  if (!env.DOWNLOADS)       return say({ error: 'Downloads are not set up yet.' }, 503);
+  if (!env.DOWNLOAD_SECRET) return say({ error: 'Downloads are not set up yet.' }, 503);
 
   let body = {};
   try { body = await request.json(); } catch (e) {}
@@ -121,50 +160,54 @@ async function handoutDownload(request, env) {
 
   if (!looksLikeEmail(email)) return say({ error: 'That does not look like an email address.' }, 400);
   if (!body.consent)          return say({ error: 'Please tick the box to continue.' }, 400);
+  if (!INSTALLERS[app + ':' + platform]) return say({ error: 'No such download.' }, 404);
 
-  const object = INSTALLERS[app + ':' + platform];
-  if (!object) return say({ error: 'No such download.' }, 404);
-
-  const country = (request.cf && request.cf.country) || null;
-  const admin = {
-    apikey: key, Authorization: 'Bearer ' + key, 'content-type': 'application/json'
-  };
-
-  /* Record the person before handing anything over. If this fails the
-     download still goes ahead - someone who gave their address should
-     not be punished for a database having a bad moment - but it is
-     tried first so a success is a success. */
+  /* Record the person first, so a success really is one. If the database
+     is having a bad moment the download still goes ahead - somebody who
+     just gave their address should not be turned away for it. */
   try {
-    await fetch(SUPABASE_URL + '/rest/v1/subscribers?on_conflict=email', {
+    await fetch(SUPABASE_URL + '/rest/v1/rpc/record_subscriber', {
       method: 'POST',
-      headers: Object.assign({}, admin, { Prefer: 'resolution=merge-duplicates' }),
-      body: JSON.stringify({
-        email: email, app: app, source: source, country: country,
-        consented: true, consented_at: new Date().toISOString(),
-        last_seen_at: new Date().toISOString()
-      })
+      headers: { 'content-type': 'application/json',
+                 apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
+      body: JSON.stringify({ p_email: email, p_app: app, p_source: source, p_consent: true })
     });
-    await fetch(SUPABASE_URL + '/rest/v1/download_events', {
-      method: 'POST', headers: admin,
-      body: JSON.stringify({ app: app, platform: platform, email: email, country: country })
-    });
-  } catch (e) { /* see above */ }
-
-  // the signed link, good for five minutes
-  let url = '';
-  try {
-    const r = await fetch(
-      SUPABASE_URL + '/storage/v1/object/sign/downloads/' + object,
-      { method: 'POST', headers: admin, body: JSON.stringify({ expiresIn: 300 }) }
-    );
-    if (r.ok) {
-      const j = await r.json();
-      if (j && j.signedURL) url = SUPABASE_URL + '/storage/v1' + j.signedURL;
-    }
   } catch (e) {}
 
-  if (!url) return say({ error: 'That download is not available right now.' }, 502);
-  return say({ url: url });
+  const expires = Date.now() + TICKET_MINUTES * 60 * 1000;
+  const path = '/download/' + app + '/' + platform;
+  const sig = await sign(env.DOWNLOAD_SECRET, path + ':' + expires);
+  return say({ url: path + '?e=' + expires + '&s=' + sig });
+}
+
+async function serveInstaller(app, platform, url, env, request) {
+  const item = INSTALLERS[app + ':' + platform];
+  if (!item || !env.DOWNLOADS || !env.DOWNLOAD_SECRET) return null;
+
+  const expires = parseInt(url.searchParams.get('e') || '0', 10);
+  const sig = url.searchParams.get('s') || '';
+  if (!expires || Date.now() > expires) return null;
+
+  const want = await sign(env.DOWNLOAD_SECRET, url.pathname + ':' + expires);
+  if (!sameString(sig, want)) return null;
+
+  const object = await env.DOWNLOADS.get(item.key,
+    { range: request.headers, onlyIf: request.headers });
+  if (!object) return null;
+
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set('etag', object.httpEtag);
+  headers.set('content-type', 'application/zip');
+  headers.set('content-disposition', 'attachment; filename="' + item.as + '"');
+  // a ticket is personal and short-lived; nothing in between should keep this
+  headers.set('cache-control', 'private, no-store');
+  headers.set('accept-ranges', 'bytes');
+
+  // a range request - a resumed download - comes back as a partial
+  const partial = object.range && ('body' in object);
+  return new Response(object.body,
+    { status: partial && request.headers.has('range') ? 206 : 200, headers: headers });
 }
 
 

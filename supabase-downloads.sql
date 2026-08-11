@@ -2,15 +2,14 @@
 --  APP DOWNLOADS AND THE MAILING LIST
 --  Run in Supabase → SQL Editor → New query → Run. Safe to re-run.
 --
---  The installers live in a PRIVATE bucket. Nothing in it is reachable by
---  address, guessed or shared: the only way to a file is a signed link
---  that the site mints after an email is given, and which expires in
---  minutes. That is what makes asking for the email meaningful rather
---  than a form anyone can walk around.
+--  This file is the mailing list. The installers themselves are not here
+--  - they live in Cloudflare R2, because they are 78 MB and 171 MB and
+--  Supabase's free plan refuses anything over 50 MB. The Worker hands
+--  them out; see worker.js.
 --
---  The list itself is nobody's business but the studio's. Visitors can
---  add themselves - that is the whole point - and can never read the
---  table back, so an address given here cannot be harvested from here.
+--  The list is nobody's business but the studio's. Visitors can add
+--  themselves - that is the whole point - and can never read the table
+--  back, so an address given here cannot be harvested from here.
 -- =====================================================================
 
 
@@ -57,8 +56,9 @@ create index if not exists download_events_at_idx on public.download_events (at 
 -- =====================================================================
 --  2 · WHO MAY SEE IT
 --  Both tables: RLS on, and no policy for anon. That denies everything.
---  Nothing writes here from a browser - the Worker does it with a key
---  the browser never sees - so no visitor needs any access at all.
+--  Adding yourself happens through the one write-only function in part 4,
+--  which runs as its owner - so a visitor needs no access to the tables
+--  themselves, and has none.
 -- =====================================================================
 
 alter table public.subscribers     enable row level security;
@@ -81,26 +81,74 @@ grant usage, select on sequence public.download_events_id_seq  to authenticated;
 
 
 -- =====================================================================
---  3 · THE FILES
---  Private, and staying that way. No select policy for anon or for
---  authenticated: not even a signed-in client can list or fetch these.
---  Only the service key, which lives in Cloudflare and never reaches a
---  browser, can sign a link.
+--  3 · THE FILES ARE NOT HERE
+--
+--  The installers are 78 MB and 171 MB. Supabase's free plan caps an
+--  upload at 50 MB, so they live in Cloudflare R2 instead: 10 GB free,
+--  no egress charges, and the Worker reaches the bucket through a
+--  binding rather than a key - so there is no credential to leak,
+--  rotate, or accidentally commit.
+--
+--  Nothing to run here. The bucket is made in the Cloudflare dashboard.
 -- =====================================================================
-
-insert into storage.buckets (id, name, public)
-values ('downloads', 'downloads', false)
-on conflict (id) do update set public = false;
-
-drop policy if exists "admin manages downloads" on storage.objects;
-create policy "admin manages downloads" on storage.objects
-  for all to authenticated
-  using      ( bucket_id = 'downloads' and (select public.is_admin()) )
-  with check ( bucket_id = 'downloads' and (select public.is_admin()) );
 
 
 -- =====================================================================
---  4 · WHAT THE STUDIO SEES
+--  4 · THE ONLY DOOR IN
+--
+--  The site has to be able to add someone to the list without holding a
+--  key that could do anything else. Same arrangement as the analytics:
+--  one function that can only write, callable with the publishable key,
+--  and no read access of any kind behind it. An address can be given
+--  here and never read back out.
+-- =====================================================================
+
+create or replace function public.record_subscriber(
+  p_email   text,
+  p_app     text default null,
+  p_source  text default null,
+  p_consent boolean default false
+) returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare v_email text;
+begin
+  v_email := lower(trim(coalesce(p_email, '')));
+  -- loose on purpose: catching a typo, not adjudicating what an address is
+  if v_email !~ '^[^@[:space:]]+@[^@[:space:].]+\.[^@[:space:]]+$' then return; end if;
+  if length(v_email) > 254 then return; end if;
+
+  insert into public.subscribers
+    (email, app, source, consented, consented_at, last_seen_at)
+  values
+    (v_email,
+     left(nullif(trim(coalesce(p_app,'')),''), 40),
+     left(nullif(trim(coalesce(p_source,'')),''), 200),
+     coalesce(p_consent, false),
+     case when p_consent then now() end,
+     now())
+  on conflict (lower(email)) do update
+    set last_seen_at = now(),
+        app          = coalesce(excluded.app, public.subscribers.app),
+        -- consent, once given, keeps its original date rather than being
+        -- restamped every time somebody downloads something
+        consented    = public.subscribers.consented or excluded.consented,
+        consented_at = coalesce(public.subscribers.consented_at, excluded.consented_at),
+        -- coming back is as good as re-subscribing
+        unsubscribed_at = null;
+
+  insert into public.download_events (app, platform, email)
+  values (left(nullif(trim(coalesce(p_app,'')),''), 40), null, v_email);
+end;
+$$;
+
+revoke all on function public.record_subscriber(text,text,text,boolean) from public;
+grant execute on function public.record_subscriber(text,text,text,boolean)
+  to anon, authenticated;
+
+
+-- =====================================================================
+--  5 · WHAT THE STUDIO SEES
 -- =====================================================================
 
 create or replace function public.subscriber_stats()

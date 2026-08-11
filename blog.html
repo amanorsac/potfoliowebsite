@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-adsense-account" content="ca-pub-6190327414594776">
 <title>The Modern Musician — Music Production &amp; Music Direction Blog | Amanorsac Studio</title>
 <meta name="description" content="Writing on music direction, piano, mixing, worship production, and building audio software from inside the work.">
 <meta property="og:title" content="The Modern Musician — Amanorsac Studio">
@@ -756,30 +757,12 @@ var CONFIG = {
      top, and the editor offers exactly these, so a topic added here has
      to be added in portal/admin-post.html too.
 
-     The posts below are the fallback. They appear only if the database
-     cannot be reached, or before the first real post is written, so the
-     page is never blank. Leave url empty and a card reads "Coming soon"
-     and is not clickable. */
+     The empty list below used to hold three placeholder cards. They were
+     written into this file, which meant they could not be edited,
+     reordered or removed from the portal - so they are gone. An empty
+     blog now says so, and says it once there is something to say. */
   topics: ["Music direction","Piano","Mixing","Worship","Software"],
-  posts: [
-    { title: "Why I stopped teaching notes at rehearsal",
-      blurb: "Forty minutes of every rehearsal went to parts people could have learned at home. What I did about it, and what it turned into.",
-      tag:   "Music direction",
-      img:   "images/piano-01.webp",
-      date:  "", read: "", url: "" },
-
-    { title: "Directing a band from behind the keys",
-      blurb: "Cues, dynamics, arrangement on the fly, and how to end a song that has no ending.",
-      tag:   "Piano",
-      img:   "images/hero-piano.webp",
-      date:  "", read: "", url: "" },
-
-    { title: "What actually happens to your song in the mix",
-      blurb: "Where the result really lives, and why most of it is editing rather than plugins.",
-      tag:   "Mixing",
-      img:   "images/mixing-studio.webp",
-      date:  "", read: "", url: "" }
-  ],
+  posts: [],
 
   /* the face on every post card */
   author: { name: "Stephen Amanor Sackey", avatar: "images/portrait.webp" },
@@ -909,7 +892,7 @@ var CONFIG = {
   (function(){
     var shelf=$('#shelf'); if(!shelf) return;
     var chipsEl=$('#chips'), leadEl=$('#lead'), noneEl=$('#nothing');
-    var posts=[], author=CONFIG.author||{}, filter='All';
+    var posts=[], author=CONFIG.author||{}, filter='All', failed=false;
 
     function esc(t){ var d=document.createElement('div'); d.textContent=t==null?'':t; return d.innerHTML; }
 
@@ -985,8 +968,11 @@ var CONFIG = {
       });
       if(!posts.length){
         chipsEl.hidden = true;
-        noneEl.innerHTML = '<div class="nothing"><h3>The first posts are on their way</h3>'
-          + '<p>Writing about music direction, mixing, and the software behind them.</p></div>';
+        noneEl.innerHTML = failed
+          ? '<div class="nothing"><h3>The posts are taking a moment</h3>'
+            + '<p>They could not be loaded just now. Refreshing usually does it.</p></div>'
+          : '<div class="nothing"><h3>The first posts are on their way</h3>'
+            + '<p>Writing about music direction, mixing, and the software behind them.</p></div>';
         return;
       }
       chipsEl.hidden = false;
@@ -1026,7 +1012,13 @@ var CONFIG = {
       .then(function(r){ return r.ok ? r.json() : null; })
       .catch(function(){ return null; })
       .then(function(rows){
-        posts = (rows && rows.length) ? rows.map(shape) : (CONFIG.posts || []);
+        /* Three outcomes, and they are not the same thing. Posts: show
+           them. An empty answer: nothing is published yet, and saying so
+           is honest. No answer at all: the database is unreachable, which
+           is a different message, because "nothing written yet" would be
+           a lie and the posts are still there. */
+        if(rows === null){ failed = true; posts = []; }
+        else { posts = rows.map(shape); }
         build();
       });
   })();

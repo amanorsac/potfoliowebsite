@@ -40,9 +40,18 @@
   "assets": {
     "directory": ".",
     // worker.js reaches the files through this name
-    "binding": "ASSETS",
-    // an address that is neither a file nor a post gets the site's own
-    // 404 page, instead of the blank one the browser draws itself
-    "not_found_handling": "404-page"
+    "binding": "ASSETS"
+
+    /* There is deliberately no "not_found_handling" here.
+       Setting it to "404-page" makes the asset layer answer every request
+       that does not match a file - and answer it *instead of* running the
+       Worker. That is what stopped /blog/<post> and /sitemap.xml from
+       ever reaching worker.js: the 404 page they returned was Cloudflare
+       serving 404.html directly, which looked exactly like the Worker
+       working and was not.
+       Left unset, an unmatched request goes to the Worker, which is the
+       whole point of having one. worker.js serves 404.html itself for
+       anything it does not recognise, so the page a visitor sees is the
+       same either way. */
   }
 }

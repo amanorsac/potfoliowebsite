@@ -39,10 +39,14 @@
     '<div class="dlg-box">' +
       '<button class="dlg-x" type="button" data-close aria-label="Close">&times;</button>' +
       '<p class="dlg-eyebrow" id="dlg-app"></p>' +
-      '<h2 id="dlg-h">Where should it go?</h2>' +
-      '<p class="dlg-sub">I will send a link to confirm the address, and ' +
-        'that link starts your download. It keeps the list to people who ' +
-        'actually asked to be on it.</p>' +
+      '<h2 id="dlg-h">Verify your email</h2>' +
+      /* Say what the button does before it is pressed. The old wording
+         promised the download started "as soon as you continue", which
+         was not what happened next, and being surprised by a website is
+         how people decide it is broken. */
+      '<p class="dlg-sub">PulseRoom is free. Enter your email and I will send ' +
+        'a verification link &mdash; opening it verifies the address and starts ' +
+        'the download.</p>' +
       '<form novalidate>' +
         '<label class="dlg-field" for="dlg-email">Email</label>' +
         '<input id="dlg-email" type="email" autocomplete="email" ' +
@@ -52,17 +56,29 @@
           '<span>Email me about updates to this app, and occasionally about new ' +
                 'writing and releases. One click to stop, any time.</span>' +
         '</label>' +
-        '<button class="cta dlg-go" type="submit">Send me the link</button>' +
+        '<button class="cta dlg-go" type="submit">Send verification link</button>' +
         '<p class="dlg-size" id="dlg-size"></p>' +
         '<p class="dlg-msg" role="status"></p>' +
       '</form>' +
       '<div class="dlg-done" hidden>' +
-        '<p class="dlg-tick" aria-hidden="true">&#10003;</p>' +
-        '<h3>Check your email</h3>' +
-        '<p>A link is on its way to <b class="dlg-addr"></b>. Clicking it ' +
-          'confirms the address and starts the download.</p>' +
-        '<p class="dlg-small">Nothing in the junk folder either? Give it a minute, ' +
-          'then try again &mdash; a typo in the address is the usual reason.</p>' +
+        '<p class="dlg-tick" aria-hidden="true">&#9993;</p>' +
+        /* No heading of its own. The one at the top of the panel changes
+           instead - two headings stacked up, one of them still asking
+           for an address that has just been given, is how a panel starts
+           reading like a form that failed. */
+        '<p>A verification link is on its way to <b class="dlg-addr"></b>. ' +
+          'Opening it verifies your email and the download begins.</p>' +
+        '<p class="dlg-small">No sign of it? Look in spam or promotions first.</p>' +
+        /* The two things anyone actually needs at this point: send it
+           again, or admit the address was wrong. Without them the only
+           way out of this panel is to close it and start over, which is
+           where people give up. */
+        '<div class="dlg-again">' +
+          '<button class="dlg-link dlg-resend" type="button">Resend link</button>' +
+          '<span class="dlg-dot" aria-hidden="true">&middot;</span>' +
+          '<button class="dlg-link dlg-edit" type="button">Use a different address</button>' +
+        '</div>' +
+        '<p class="dlg-msg dlg-msg2" role="status"></p>' +
       '</div>' +
     '</div>';
   document.body.appendChild(el);
@@ -77,6 +93,13 @@
   var sizeEl = el.querySelector('#dlg-size');
   var done   = el.querySelector('.dlg-done');
   var doneAddr = el.querySelector('.dlg-addr');
+  var head   = el.querySelector('#dlg-h');
+  var sub    = el.querySelector('.dlg-sub');
+  var resend = el.querySelector('.dlg-resend');
+  var editBtn = el.querySelector('.dlg-edit');
+  var msg2   = el.querySelector('.dlg-msg2');
+  var cooldown = 0;      // seconds left before another letter may be sent
+  var ticking = null;
 
   var pending = null;      // {app, platform}
   var lastFocus = null;
@@ -91,9 +114,8 @@
     email.value = remembered;
     okBox.checked = !!remembered;   // already agreed once; do not re-ask
     go.disabled = false;
-    go.textContent = 'Send me the link';
-    form.hidden = false;
-    done.hidden = true;
+    go.textContent = 'Send verification link';
+    showForm();
     lastFocus = document.activeElement;
     el.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -136,6 +158,18 @@
   }
 
   // ---- asking for it --------------------------------------------------
+  function ask(address) {
+    return fetch('/api/download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: address, app: pending.app, platform: pending.platform,
+        consent: true, source: location.pathname
+      })
+    })
+    .then(function (r) { return r.json().catch(function(){ return {}; }); });
+  }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (!pending) return;
@@ -149,19 +183,10 @@
     go.disabled = true; go.textContent = 'Sending';
     say('');
 
-    fetch('/api/download', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: address, app: pending.app, platform: pending.platform,
-        consent: true, source: location.pathname
-      })
-    })
-    .then(function (r) { return r.json().catch(function(){ return {}; }); })
-    .then(function (j) {
+    ask(address).then(function (j) {
       if (!j || !j.sent) {
-        say((j && j.error) || 'Something went wrong. Try again in a moment.', true);
-        go.disabled = false; go.textContent = 'Send me the link';
+        say((j && j.error) || 'The link would not send. Try again in a moment.', true);
+        go.disabled = false; go.textContent = 'Send verification link';
         return;
       }
       remembered = address;
@@ -171,18 +196,88 @@
       /* The form goes and the instruction takes its place. Leaving the
          form on screen invites a second submission from someone who is
          not sure anything happened. */
-      form.hidden = true;
-      done.hidden = false;
       doneAddr.textContent = address;
+      showDone();
+      startClock();
     })
     .catch(function () {
       say('Could not reach the studio. Check your connection and try again.', true);
-      go.disabled = false; go.textContent = 'Send me the link';
+      go.disabled = false; go.textContent = 'Send verification link';
     });
   });
+
+  /* Sending again is the first thing anyone reaches for when a letter is
+     slow, and the second is sending it four more times. The wait is
+     there so the fourth press does not turn one person into four
+     identical letters that all arrive at once. */
+  resend.addEventListener('click', function () {
+    if (cooldown > 0 || !pending) return;
+    var address = doneAddr.textContent;
+    resend.disabled = true;
+    note('Sending');
+    ask(address).then(function (j) {
+      note(j && j.sent ? 'Sent again. It can take a minute.'
+                       : ((j && j.error) || 'That did not send. Try again shortly.'),
+           !(j && j.sent));
+      if (j && j.sent) startClock(); else resend.disabled = false;
+    }).catch(function () {
+      note('Could not reach the studio.', true);
+      resend.disabled = false;
+    });
+  });
+
+  // wrong address typed: back to the form with it loaded, ready to fix
+  editBtn.addEventListener('click', function () {
+    note('');
+    email.value = doneAddr.textContent;
+    showForm();
+    email.focus();
+    email.select();
+  });
+
+  /* The heading carries the state, so the panel reads as one step that
+     moved on rather than two panels fighting over the same box. */
+  function showForm() {
+    stopClock();
+    head.textContent = 'Verify your email';
+    sub.hidden = false;
+    done.hidden = true;
+    form.hidden = false;
+    go.disabled = false;
+    go.textContent = 'Send verification link';
+  }
+  function showDone() {
+    head.textContent = 'Check your inbox';
+    sub.hidden = true;
+    form.hidden = true;
+    done.hidden = false;
+  }
+
+  function startClock() {
+    cooldown = 30;
+    stopClock(true);
+    tick();
+    ticking = setInterval(tick, 1000);
+  }
+  function tick() {
+    if (cooldown <= 0) { stopClock(); return; }
+    resend.disabled = true;
+    resend.textContent = 'Resend link in ' + cooldown + 's';
+    cooldown--;
+  }
+  function stopClock(keepCount) {
+    if (ticking) { clearInterval(ticking); ticking = null; }
+    if (!keepCount) cooldown = 0;
+    resend.disabled = false;
+    resend.textContent = 'Resend link';
+  }
 
   function say(text, bad) {
     msg.textContent = text;
     msg.className = 'dlg-msg' + (bad ? ' bad' : '');
+  }
+  function note(text, bad) {
+    msg2.textContent = text;
+    msg2.className = 'dlg-msg dlg-msg2' + (bad ? ' bad' : '');
   }
 })();

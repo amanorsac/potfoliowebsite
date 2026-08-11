@@ -46,6 +46,11 @@ export default {
 
         // a ticketed installer. A bad or stale ticket falls through to
         // the 404 below, so there is nothing here to probe at.
+        if (path === '/download/confirm') {
+          const page = await confirmDownload(new URL(request.url), env);
+          if (page) return page;
+        }
+
         const d = path.match(/^\/download\/([a-z0-9-]+)\/([a-z0-9-]+)$/);
         if (d) {
           const file = await serveInstaller(d[1], d[2], new URL(request.url), env, request);
@@ -104,8 +109,10 @@ export default {
 /* What may be asked for. A fixed map, so no amount of creativity in the
    request can name a file that is not on this list. */
 const INSTALLERS = {
-  'pulseroom:windows': { key: 'pulseroom/PulseRoom-Windows.zip', as: 'PulseRoom-Windows.zip' },
-  'pulseroom:mac':     { key: 'pulseroom/PulseRoom-macOS.zip',   as: 'PulseRoom-macOS.zip' }
+  'pulseroom:windows': { key: 'pulseroom/PulseRoom-Windows.zip',
+                         as: 'PulseRoom-Windows.zip', title: 'PulseRoom for Windows' },
+  'pulseroom:mac':     { key: 'pulseroom/PulseRoom-macOS.zip',
+                         as: 'PulseRoom-macOS.zip',   title: 'PulseRoom for Mac' }
 };
 
 const TICKET_MINUTES = 15;
@@ -147,24 +154,35 @@ async function handoutDownload(request, env) {
     headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
   });
 
-  if (!env.DOWNLOADS)       return say({ error: 'Downloads are not set up yet.' }, 503);
-  if (!env.DOWNLOAD_SECRET) return say({ error: 'Downloads are not set up yet.' }, 503);
+  /* A reader gets the same sentence either way. The studio, opening this
+     with ?setup, is told which piece is missing - because "not set up
+     yet" is true of all of them and useful for none. */
+  const setup = new URL(request.url).searchParams.has('setup');
+  const missing = [];
+  if (!env.DOWNLOADS)       missing.push('the R2 bucket is not bound (wrangler.jsonc names it amanorsac-downloads)');
+  if (!env.DOWNLOAD_SECRET) missing.push('DOWNLOAD_SECRET is not set as a secret on the Worker');
+  if (!env.RESEND_API_KEY)  missing.push('RESEND_API_KEY is not set as a secret on the Worker');
+  if (missing.length) {
+    return say({ error: setup ? ('Missing: ' + missing.join('; ') + '.')
+                              : 'Downloads are not set up yet.' }, 503);
+  }
 
   let body = {};
   try { body = await request.json(); } catch (e) {}
 
-  const email    = String(body.email || '').trim();
+  const email    = String(body.email || '').trim().toLowerCase();
   const app      = String(body.app || '').toLowerCase().slice(0, 40);
   const platform = String(body.platform || '').toLowerCase().slice(0, 20);
   const source   = String(body.source || '').slice(0, 200);
 
   if (!looksLikeEmail(email)) return say({ error: 'That does not look like an email address.' }, 400);
   if (!body.consent)          return say({ error: 'Please tick the box to continue.' }, 400);
-  if (!INSTALLERS[app + ':' + platform]) return say({ error: 'No such download.' }, 404);
+  const item = INSTALLERS[app + ':' + platform];
+  if (!item) return say({ error: 'No such download.' }, 404);
 
-  /* Record the person first, so a success really is one. If the database
-     is having a bad moment the download still goes ahead - somebody who
-     just gave their address should not be turned away for it. */
+  /* Recorded now, but not yet confirmed. An address that never gets
+     clicked stays in the list marked unconfirmed and is never written
+     to - which is the point of doing it this way. */
   try {
     await fetch(SUPABASE_URL + '/rest/v1/rpc/record_subscriber', {
       method: 'POST',
@@ -174,10 +192,126 @@ async function handoutDownload(request, env) {
     });
   } catch (e) {}
 
-  const expires = Date.now() + TICKET_MINUTES * 60 * 1000;
+  /* The letter carries a signed link. Signed over the address as well as
+     the file, so it opens the download for that person and nobody else,
+     and cannot be edited into a link for the other app. A day to use it:
+     long enough for someone who reads their email in the evening. */
+  const expires = Date.now() + 24 * 60 * 60 * 1000;
+  const claim = ['confirm', email, app, platform, expires].join(':');
+  const sig = await sign(env.DOWNLOAD_SECRET, claim);
+  const link = SITE + '/download/confirm?a=' + encodeURIComponent(app) +
+               '&p=' + encodeURIComponent(platform) +
+               '&m=' + encodeURIComponent(email) +
+               '&x=' + expires + '&s=' + sig;
+
+  const sent = await sendConfirmation(env, email, item, link);
+  if (!sent) return say({ error: 'The confirmation email would not send. Try again shortly.' }, 502);
+
+  return say({ sent: true, email: email });
+}
+
+/* The letter. Plain, short, and it says what it is for in the first line,
+   because a message that buries its purpose reads like a trap. */
+async function sendConfirmation(env, email, item, link) {
+  const text =
+    'Confirm your email to download ' + item.title + '.\n\n' +
+    link + '\n\n' +
+    'The link works for 24 hours. If you did not ask for this, ignore it - ' +
+    'nothing is sent to an address that is never confirmed.\n\n' +
+    'Amanorsac Studio\n' + SITE + '\n';
+
+  const html =
+    '<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;' +
+    'line-height:1.6;color:#1C1916;max-width:520px">' +
+    '<p style="margin:0 0 18px">Confirm your email and your download of <b>' +
+      esc(item.title) + '</b> starts.</p>' +
+    '<p style="margin:0 0 22px"><a href="' + esc(link) + '" ' +
+      'style="display:inline-block;background:#1C1916;color:#fff;text-decoration:none;' +
+      'padding:13px 22px;border-radius:9px;font-weight:600">Confirm and download</a></p>' +
+    '<p style="margin:0 0 18px;color:#6B655C;font-size:14px">' +
+      'The link works for 24 hours. If you did not ask for this, ignore it &mdash; ' +
+      'nothing is ever sent to an address that is not confirmed.</p>' +
+    '<p style="margin:0;color:#6B655C;font-size:13px">Amanorsac Studio &middot; ' +
+      '<a href="' + SITE + '" style="color:#6B655C">amanorsac.studio</a></p></div>';
+
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json',
+                 Authorization: 'Bearer ' + env.RESEND_API_KEY },
+      body: JSON.stringify({
+        from: env.NOTIFY_FROM || 'Amanorsac Studio <hello@amanorsac.studio>',
+        to: [email],
+        subject: 'Confirm your email to download ' + item.title,
+        text: text, html: html
+      })
+    });
+    return r.ok;
+  } catch (e) { return false; }
+}
+
+/* The link in the letter. Checks the signature, marks the address
+   confirmed, and hands over a short ticket for the file itself - so the
+   long-lived link in an inbox is only ever an introduction, never the
+   file. */
+async function confirmDownload(url, env) {
+  if (!env.DOWNLOAD_SECRET) return null;
+
+  const app = (url.searchParams.get('a') || '').toLowerCase();
+  const platform = (url.searchParams.get('p') || '').toLowerCase();
+  const email = (url.searchParams.get('m') || '').toLowerCase();
+  const expires = parseInt(url.searchParams.get('x') || '0', 10);
+  const sig = url.searchParams.get('s') || '';
+
+  const item = INSTALLERS[app + ':' + platform];
+  if (!item || !expires) return confirmPage('That link is not one of ours.', null, null);
+  if (Date.now() > expires) {
+    return confirmPage('That link has expired.',
+      'Links last a day. Ask for the download again and a fresh one is on its way.', null);
+  }
+  const want = await sign(env.DOWNLOAD_SECRET, ['confirm', email, app, platform, expires].join(':'));
+  if (!sameString(sig, want)) return confirmPage('That link is not one of ours.', null, null);
+
+  try {
+    await fetch(SUPABASE_URL + '/rest/v1/rpc/confirm_subscriber', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json',
+                 apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
+      body: JSON.stringify({ p_email: email, p_app: app, p_platform: platform })
+    });
+  } catch (e) {}
+
+  const t = Date.now() + TICKET_MINUTES * 60 * 1000;
   const path = '/download/' + app + '/' + platform;
-  const sig = await sign(env.DOWNLOAD_SECRET, path + ':' + expires);
-  return say({ url: path + '?e=' + expires + '&s=' + sig });
+  const ticket = path + '?e=' + t + '&s=' + (await sign(env.DOWNLOAD_SECRET, path + ':' + t));
+  return confirmPage('Thank you — that’s confirmed.',
+    item.title + ' is downloading now. If nothing happens, use the button.', ticket);
+}
+
+function confirmPage(heading, note, ticket) {
+  const page =
+'<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
+'<meta name="viewport" content="width=device-width, initial-scale=1">' +
+'<meta name="robots" content="noindex">' +
+'<title>' + esc(heading) + ' &middot; Amanorsac Studio</title>' +
+'<style>body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px;' +
+'background:#0C0E12;color:#e9ebf1;font-family:-apple-system,Segoe UI,Roboto,sans-serif;' +
+'text-align:center}main{max-width:430px}h1{font-size:27px;line-height:1.2;margin:0 0 12px}' +
+'p{color:#a2a9b8;line-height:1.65;margin:0 0 24px}' +
+'a.b{display:inline-block;background:#3fd3e4;color:#06131a;text-decoration:none;' +
+'padding:13px 26px;border-radius:999px;font-weight:700}' +
+'a.s{display:block;margin-top:22px;color:#6d7488;font-size:13px}</style></head><body><main>' +
+'<h1>' + esc(heading) + '</h1>' +
+(note ? '<p>' + esc(note) + '</p>' : '') +
+(ticket ? '<a class="b" href="' + esc(ticket) + '" download>Download now</a>' +
+          '<script>setTimeout(function(){location.href=' + JSON.stringify(ticket) + ';},700);<\/script>'
+        : '<a class="b" href="' + SITE + '/pulseroom">Back to PulseRoom</a>') +
+'<a class="s" href="' + SITE + '">amanorsac.studio</a>' +
+'</main></body></html>';
+  return new Response(page, {
+    status: ticket ? 200 : 410,
+    headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }
+  });
 }
 
 async function serveInstaller(app, platform, url, env, request) {

@@ -1,4 +1,4 @@
-# ads.txt — who is allowed to sell advertising on amanorsac.studio.
+# ads.txt - who is allowed to sell advertising on amanorsac.studio.
 #
 # An open standard, not a Google thing. Buyers check this file before
 # bidding; if a domain has no ads.txt, or the seller is not listed in it,

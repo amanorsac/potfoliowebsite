@@ -106,6 +106,44 @@ export default {
    app without leaving an address.
    --------------------------------------------------------------------- */
 
+/* The same policy _headers puts on every file served off disk. Pages this
+   Worker builds itself - a post, the confirm page, the 404 - never touch
+   that file, so without this they would be the one set of pages on the
+   site with no policy at all. Kept identical on purpose: two policies
+   that drift apart are worse than one, because the weaker one is the one
+   nobody remembers.
+
+   Change one, change the other. */
+const CSP = "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
+  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.youtube.com " +
+  "https://s.ytimg.com https://pagead2.googlesyndication.com https://tpc.googlesyndication.com " +
+  "https://googleads.g.doubleclick.net https://adservice.google.com https://www.google.com " +
+  "https://fundingchoicesmessages.google.com https://ep2.adtrafficquality.google; " +
+  "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; " +
+  "media-src 'self' blob:; " +
+  "connect-src 'self' https://kdxckigyhpnwhwgjdgqq.supabase.co " +
+  "wss://kdxckigyhpnwhwgjdgqq.supabase.co https://formspree.io https://www.youtube.com " +
+  "https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net " +
+  "https://tpc.googlesyndication.com https://ep1.adtrafficquality.google " +
+  "https://ep2.adtrafficquality.google https://csi.gstatic.com; " +
+  "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://open.spotify.com " +
+  "https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com " +
+  "https://ep2.adtrafficquality.google; worker-src 'self' blob:; " +
+  "form-action 'self' https://formspree.io; upgrade-insecure-requests";
+
+/* Everything a page from here should carry. */
+function pageHeaders(extra) {
+  return Object.assign({
+    'content-type': 'text/html; charset=utf-8',
+    'content-security-policy': CSP,
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains'
+  }, extra || {});
+}
+
+
 /* What may be asked for. A fixed map, so no amount of creativity in the
    request can name a file that is not on this list.
 
@@ -315,7 +353,7 @@ function confirmPage(heading, note, ticket, status) {
 '</main></body></html>';
   return new Response(page, {
     status: status || (ticket ? 200 : 410),
-    headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }
+    headers: pageHeaders({ 'cache-control': 'no-store' })
   });
 }
 
@@ -485,18 +523,11 @@ async function postPage(slug, env, request, diag) {
   html = html.replace('<head>', '<head>\n<base href="' + SITE + '/">');
 
   return new Response(html, {
-    headers: {
-      'content-type': 'text/html; charset=utf-8',
-      // long enough to be worth having, short enough that a correction
-      // published now is live in a minute rather than tomorrow
-      'cache-control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
-      // _headers covers files served off disk; this page is not one
-      'x-content-type-options': 'nosniff',
-      'content-security-policy': "frame-ancestors 'none'",
-      'x-frame-options': 'DENY',
-      'referrer-policy': 'strict-origin-when-cross-origin',
-      'strict-transport-security': 'max-age=31536000; includeSubDomains'
-    }
+    // long enough to be worth having, short enough that a correction
+    // published now is live in a minute rather than tomorrow
+    headers: pageHeaders({
+      'cache-control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600'
+    })
   });
 }
 
@@ -622,10 +653,7 @@ function report(lines) {
 async function notFound(env, request) {
   try {
     const r = await env.ASSETS.fetch(new URL('/404.html', request.url));
-    return new Response(await r.text(), {
-      status: 404,
-      headers: { 'content-type': 'text/html; charset=utf-8' }
-    });
+    return new Response(await r.text(), { status: 404, headers: pageHeaders() });
   } catch (e) {
     return new Response('Not found', { status: 404 });
   }

@@ -9,7 +9,34 @@
   # Nobody may frame this site, which is what stops a clickjacking overlay.
   # frame-ancestors is the modern rule; X-Frame-Options is the old one, kept
   # for browsers that still only understand that.
-  Content-Security-Policy: frame-ancestors 'none'
+  #
+  # The rest of the policy is a list of the places this site is allowed to
+  # fetch from, and it is worth being straight about what it is and is not
+  # worth. script-src has to keep 'unsafe-inline', because nearly every
+  # page here carries its own <script> block, and a policy that forbids
+  # them would take the site down. That means an injected inline script
+  # would still run: this policy does not stop cross-site scripting.
+  #
+  # What it does stop is worth having anyway. An injected <script src>
+  # pointing anywhere but the handful of hosts below is refused. Stolen
+  # data cannot be posted out, because connect-src and form-action name
+  # every destination allowed. A <base> tag cannot be slipped in to
+  # re-point every relative URL on the page. No plugin content can load
+  # at all.
+  #
+  # Anything added to the site that talks to a new company has to be
+  # added here too, or it will silently not work. That is the cost, and
+  # it is also the point: nothing reaches out of these pages without
+  # being written down first.
+  #
+  #   jsdelivr        the Supabase client library, used by the portal
+  #   supabase        the database itself, and its realtime socket
+  #   formspree       where the contact forms post
+  #   youtube/ytimg   the player and its thumbnails
+  #   spotify         embedded players in posts
+  #   google*         AdSense, which loads through several of its own
+  #                   hosts and is refused by any policy that misses one
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.youtube.com https://s.ytimg.com https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://googleads.g.doubleclick.net https://adservice.google.com https://www.google.com https://fundingchoicesmessages.google.com https://ep2.adtrafficquality.google; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://kdxckigyhpnwhwgjdgqq.supabase.co wss://kdxckigyhpnwhwgjdgqq.supabase.co https://formspree.io https://www.youtube.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://csi.gstatic.com; frame-src https://www.youtube-nocookie.com https://www.youtube.com https://open.spotify.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://ep2.adtrafficquality.google; worker-src 'self' blob:; form-action 'self' https://formspree.io; upgrade-insecure-requests
   X-Frame-Options: DENY
 
   # Send the origin to other sites, never the full path. A client portal URL

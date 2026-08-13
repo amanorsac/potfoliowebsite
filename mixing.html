@@ -348,6 +348,9 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .artists li{font-family:var(--display);font-weight:600;font-size:clamp(17px,2vw,22px);
   letter-spacing:-.02em;background:var(--panel);border:1px solid var(--line);
   border-radius:var(--r-pill);padding:11px 22px}
+.artists li.more{font-family:var(--body);font-weight:400;font-size:clamp(15px,1.6vw,17px);
+  background:none;border-color:transparent;color:var(--muted);padding-left:6px;
+  display:flex;align-items:center}
 /* ---------- Listen: playlist player with a clickable tray ----------
    The YouTube watch-page shape: player on the left, the playlist beside
    it. The tray is ours, not YouTube's, so it can wear the site's type
@@ -704,6 +707,14 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
       <li>Kingsley Anyenor</li>
       <li>Viv Adjei</li>
       <li>Blossom 3io</li>
+      <li>Isaac Narh</li>
+      <li>Godwin Asaph</li>
+      <li>Brian Kuffour</li>
+      <li>Siisi Baidoo</li>
+      <li>Diana Hamilton</li>
+      <!-- Not a name, so it does not get a name's chip. It reads as the
+           end of the list rather than as one more artist. -->
+      <li class="more">and many more</li>
     </ul>
   </section>
 

@@ -106,12 +106,55 @@ export default {
    app without leaving an address.
    --------------------------------------------------------------------- */
 
+/* The same policy _headers puts on every file served off disk. Pages this
+   Worker builds itself - a post, the confirm page, the 404 - never touch
+   that file, so without this they would be the one set of pages on the
+   site with no policy at all. Kept identical on purpose: two policies
+   that drift apart are worse than one, because the weaker one is the one
+   nobody remembers.
+
+   Change one, change the other. */
+const CSP = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; " +
+  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.youtube.com " +
+  "https://s.ytimg.com https://pagead2.googlesyndication.com https://tpc.googlesyndication.com " +
+  "https://googleads.g.doubleclick.net https://adservice.google.com https://www.google.com " +
+  "https://fundingchoicesmessages.google.com https://ep2.adtrafficquality.google; " +
+  "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; " +
+  "media-src 'self' blob:; " +
+  "connect-src 'self' https://kdxckigyhpnwhwgjdgqq.supabase.co " +
+  "wss://kdxckigyhpnwhwgjdgqq.supabase.co https://formspree.io https://www.youtube.com " +
+  "https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net " +
+  "https://tpc.googlesyndication.com https://ep1.adtrafficquality.google " +
+  "https://ep2.adtrafficquality.google https://csi.gstatic.com; " +
+  "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://open.spotify.com " +
+  "https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com " +
+  "https://ep2.adtrafficquality.google; worker-src 'self' blob:; " +
+  "form-action 'self' https://formspree.io; upgrade-insecure-requests";
+
+/* Everything a page from here should carry. */
+function pageHeaders(extra) {
+  return Object.assign({
+    'content-type': 'text/html; charset=utf-8',
+    'content-security-policy': CSP,
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains'
+  }, extra || {});
+}
+
+
 /* What may be asked for. A fixed map, so no amount of creativity in the
-   request can name a file that is not on this list. */
+   request can name a file that is not on this list.
+
+   Two keys each, tried in order: in a pulseroom/ folder, or loose at the
+   top of the bucket. Uploading a 179 MB file a second time because the
+   Worker wanted a folder in front of the name is not a good reason to
+   upload a 179 MB file a second time. */
 const INSTALLERS = {
-  'pulseroom:windows': { key: 'pulseroom/PulseRoom-Windows.zip',
+  'pulseroom:windows': { keys: ['pulseroom/PulseRoom-Windows.zip', 'PulseRoom-Windows.zip'],
                          as: 'PulseRoom-Windows.zip', title: 'PulseRoom for Windows' },
-  'pulseroom:mac':     { key: 'pulseroom/PulseRoom-macOS.zip',
+  'pulseroom:mac':     { keys: ['pulseroom/PulseRoom-macOS.zip', 'PulseRoom-macOS.zip'],
                          as: 'PulseRoom-macOS.zip',   title: 'PulseRoom for Mac' }
 };
 
@@ -288,7 +331,7 @@ async function confirmDownload(url, env) {
     item.title + ' is downloading now. If nothing happens, use the button.', ticket);
 }
 
-function confirmPage(heading, note, ticket) {
+function confirmPage(heading, note, ticket, status) {
   const page =
 '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
 '<meta name="viewport" content="width=device-width, initial-scale=1">' +
@@ -309,8 +352,8 @@ function confirmPage(heading, note, ticket) {
 '<a class="s" href="' + SITE + '">amanorsac.studio</a>' +
 '</main></body></html>';
   return new Response(page, {
-    status: ticket ? 200 : 410,
-    headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }
+    status: status || (ticket ? 200 : 410),
+    headers: pageHeaders({ 'cache-control': 'no-store' })
   });
 }
 
@@ -325,9 +368,20 @@ async function serveInstaller(app, platform, url, env, request) {
   const want = await sign(env.DOWNLOAD_SECRET, url.pathname + ':' + expires);
   if (!sameString(sig, want)) return null;
 
-  const object = await env.DOWNLOADS.get(item.key,
-    { range: request.headers, onlyIf: request.headers });
-  if (!object) return null;
+  let object = null;
+  for (const key of item.keys) {
+    object = await env.DOWNLOADS.get(key, { range: request.headers, onlyIf: request.headers });
+    if (object) break;
+  }
+  /* The ticket was good and the file is not in the bucket. That is the
+     studio's mistake, not the visitor's, and answering it with the same
+     blank 404 that a forged ticket gets means nobody ever finds out
+     which of the two happened. */
+  if (!object) {
+    return confirmPage('That file is not where it should be.',
+      'The link was good - the installer is missing from storage. It should be at ' +
+      item.keys[0] + ' in the amanorsac-downloads bucket. Try again shortly.', null, 503);
+  }
 
   const headers = new Headers();
   object.writeHttpMetadata(headers);
@@ -469,18 +523,11 @@ async function postPage(slug, env, request, diag) {
   html = html.replace('<head>', '<head>\n<base href="' + SITE + '/">');
 
   return new Response(html, {
-    headers: {
-      'content-type': 'text/html; charset=utf-8',
-      // long enough to be worth having, short enough that a correction
-      // published now is live in a minute rather than tomorrow
-      'cache-control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
-      // _headers covers files served off disk; this page is not one
-      'x-content-type-options': 'nosniff',
-      'content-security-policy': "frame-ancestors 'none'",
-      'x-frame-options': 'DENY',
-      'referrer-policy': 'strict-origin-when-cross-origin',
-      'strict-transport-security': 'max-age=31536000; includeSubDomains'
-    }
+    // long enough to be worth having, short enough that a correction
+    // published now is live in a minute rather than tomorrow
+    headers: pageHeaders({
+      'cache-control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600'
+    })
   });
 }
 
@@ -606,10 +653,7 @@ function report(lines) {
 async function notFound(env, request) {
   try {
     const r = await env.ASSETS.fetch(new URL('/404.html', request.url));
-    return new Response(await r.text(), {
-      status: 404,
-      headers: { 'content-type': 'text/html; charset=utf-8' }
-    });
+    return new Response(await r.text(), { status: 404, headers: pageHeaders() });
   } catch (e) {
     return new Response('Not found', { status: 404 });
   }

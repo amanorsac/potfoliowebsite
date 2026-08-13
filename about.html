@@ -106,7 +106,19 @@ body[data-room="mixing"]{ --accent:#C0722B; --ink:#F2E6D2; --panel:#FBF4E6; --pa
 body[data-room="live"]  { --accent:#C24A3E; --ink:#F6E3DC; --panel:#FDF0EB; --panel-2:#EFD3CA; --line:#E4C1B6; }  /* on-air blush */
 body[data-room="apps"]  { --accent:#2E8B6E; --ink:#E1EDE6; --panel:#F2F9F5; --panel-2:#D1E4D9; --line:#C2DACC; --muted:#5C6B64; }  /* cool software mint */
 body[data-room="piano"] { --accent:#9A7B3F; --ink:#F0E7D2; --panel:#FAF4E5; --panel-2:#E7D9BD; --line:#D9C8A4; }  /* parchment gold */
-body[data-room="about"] { --accent:#4A4287; --ink:#F3F2F8; --panel:#FFFFFF; --panel-2:#E8E6F2; --line:#D8D4E8; --muted:#615C7A; }  /* the person, not a room */
+/* Dark, in blue rather than the apps page's violet - the two are next
+   to each other in the nav and a room should not be mistaken for its
+   neighbour. The indigo is lifted a long way, from #4A4287 to #8FA8F2:
+   the original scores 2.25:1 on this ground, which is a colour you
+   cannot read, and the lift takes it to 8.40:1. */
+body[data-room="about"] { --accent:#8FA8F2; --signal:#B9A8FF;
+  --ink:#0A0C16; --paper:#EDEEF6; --panel:#121626; --panel-2:#1A1F33;
+  --line:#242B44; --muted:#939CB6;
+  /* The label on an accent button. A lifted accent is a lighter
+     accent, and white on it stops being readable - white on the lifted blue is 2.32:1; this is 8.14:1. */
+  --on-accent:#0A1024;
+  --shadow-1:0 1px 2px rgba(0,0,0,.42), 0 12px 28px -14px rgba(0,0,0,.7);
+  --shadow-2:0 2px 6px rgba(0,0,0,.5), 0 26px 54px -18px rgba(0,0,0,.8); }  /* the person, not a room */
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -159,11 +171,11 @@ img{display:block;max-width:100%}
 .sitehead-name:hover{color:var(--paper)}
 /* the wordmark only stands in for the name on a phone */
 .sh-mark{display:none}
-.sitehead-actions{display:flex;align-items:center;gap:15px;background:var(--accent);color:#fff;
+.sitehead-actions{display:flex;align-items:center;gap:15px;background:var(--accent);color:var(--on-accent,#fff);
   border-radius:var(--r-pill);padding:10px clamp(16px,2.4vw,22px);margin-right:var(--gut);
   box-shadow:var(--shadow-1);transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
 .sitehead-actions:hover{transform:translateY(-1px);box-shadow:var(--shadow-2)}
-.sitehead-actions a{color:#fff;text-decoration:none;display:inline-flex;align-items:center}
+.sitehead-actions a{color:var(--on-accent,#fff);text-decoration:none;display:inline-flex;align-items:center}
 .sh-login{font-family:var(--body);font-size:14px;font-weight:600;letter-spacing:0;opacity:.97;
   min-height:24px;transition:opacity var(--dur) var(--ease-out)}
 .sh-login:hover{opacity:1}
@@ -196,7 +208,7 @@ img{display:block;max-width:100%}
   .sh-social a{opacity:.82}
   /* one thing here is a destination rather than a link out, so it keeps
      its name and its colour */
-  .sh-login{order:2;background:var(--accent);color:#fff;border-radius:var(--r-pill);
+  .sh-login{order:2;background:var(--accent);color:var(--on-accent,#fff);border-radius:var(--r-pill);
     padding:8px 15px;font-size:13.5px;font-weight:600;line-height:1}
   .sh-login:active{transform:scale(.96)}
 }
@@ -236,7 +248,7 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 
 /* ---------- pill call to action ---------- */
 .cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--body);font-size:15.5px;font-weight:600;
-  text-decoration:none;background:var(--accent);color:#fff;border:0;border-radius:var(--r-pill);
+  text-decoration:none;background:var(--accent);color:var(--on-accent,#fff);border:0;border-radius:var(--r-pill);
   padding:16px 28px;cursor:pointer;box-shadow:var(--shadow-1);
   transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out),filter var(--dur) var(--ease-out)}
 .cta:hover{transform:translateY(-2px);box-shadow:var(--shadow-2);filter:saturate(1.06)}
@@ -405,7 +417,7 @@ input,select,textarea{background:var(--panel);border:1.5px solid var(--line);bor
   font-family:var(--body);font-size:15px;padding:12px 14px;transition:border-color .2s}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none}
 textarea{resize:vertical;min-height:118px}
-button.send{background:var(--accent);color:#fff;border:0;border-radius:var(--r-pill);font-family:var(--body);font-size:15.5px;
+button.send{background:var(--accent);color:var(--on-accent,#fff);border:0;border-radius:var(--r-pill);font-family:var(--body);font-size:15.5px;
   font-weight:600;padding:16px 30px;cursor:pointer;box-shadow:var(--shadow-1);align-self:flex-start;
   transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
 button.send:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
@@ -585,7 +597,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 <a class="skip" href="#main">Skip to content</a>
 
 <nav class="rack" aria-label="Rooms">
-  <a class="rack-brand" href="index.html" aria-label="Studio Amanorsac — home"><img src="images/logo.svg" alt="Studio Amanorsac"></a>
+  <a class="rack-brand" href="index.html" aria-label="Studio Amanorsac — home"><img src="images/logo-onDark.svg" alt="Studio Amanorsac"></a>
   <div class="rack-nav">
     <a class="strip" href="index.html"><span class="strip-name">Home</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="mixing.html"><span class="strip-name">Mixing</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
@@ -599,7 +611,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
 <div class="sitehead">
   <a class="sitehead-name" href="index.html">
-    <img class="sh-mark" src="images/logo.svg" alt="Amanorsac Studio">
+    <img class="sh-mark" src="images/logo-onDark.svg" alt="Amanorsac Studio">
     <span class="txt">Stephen Amanor Sackey</span>
   </a>
   <div class="sitehead-actions">

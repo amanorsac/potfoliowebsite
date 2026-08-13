@@ -22,3 +22,8 @@ SETUP.md
 .agents/
 .claude/
 skills-lock.json
+
+# the untouched camera files behind the gallery. Kept in the repository
+# so a picture can be redone at a different size later; 31 MB of HEIC
+# nobody's browser can display is not something to serve.
+images/gallery/originals/

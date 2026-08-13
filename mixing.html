@@ -348,6 +348,15 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .artists li{font-family:var(--display);font-weight:600;font-size:clamp(17px,2vw,22px);
   letter-spacing:-.02em;background:var(--panel);border:1px solid var(--line);
   border-radius:var(--r-pill);padding:11px 22px}
+/* The whole pill is the link, not just the words inside it - a target
+   the size of a name is a target most people miss on a phone. Done with
+   a class rather than :has(), which a browser two years old ignores -
+   and ignoring it here would leave the padding doubled. */
+.artists li.who{padding:0}
+.artists li.who a{display:block;padding:11px 22px;color:inherit;text-decoration:none}
+.artists li.who:hover{border-color:var(--accent)}
+.artists li.who a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;
+  border-radius:var(--r-pill)}
 .artists li.more{font-family:var(--body);font-weight:400;font-size:clamp(15px,1.6vw,17px);
   background:none;border-color:transparent;color:var(--muted);padding-left:6px;
   display:flex;align-items:center}
@@ -704,14 +713,20 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <h2>Some of the artists I&rsquo;ve worked with</h2>
     <p class="lede">This list is the short version.</p>
     <ul class="artists">
-      <li>Kingsley Anyenor</li>
-      <li>Viv Adjei</li>
-      <li>Blossom 3io</li>
-      <li>Isaac Narh</li>
-      <li>Godwin Asaph</li>
-      <li>Brian Kuffour</li>
-      <li>Siisi Baidoo</li>
-      <li>Diana Hamilton</li>
+      <li class="who"><a href="https://www.instagram.com/kingsleyanyenor/" target="_blank" rel="noopener"
+             aria-label="Kingsley Anyenor on Instagram">Kingsley Anyenor</a></li>
+      <li class="who"><a href="https://www.instagram.com/vivi_adjei/" target="_blank" rel="noopener"
+             aria-label="Viv Adjei on Instagram">Viv Adjei</a></li>
+      <li class="who"><a href="https://www.instagram.com/maamle_music/" target="_blank" rel="noopener"
+             aria-label="Blossom 3io on Instagram">Blossom 3io</a></li>
+      <li class="who"><a href="https://www.instagram.com/isaacnarhofficial/" target="_blank" rel="noopener"
+             aria-label="Isaac Narh on Instagram">Isaac Narh</a></li>
+      <li class="who"><a href="https://www.instagram.com/briankuffour/" target="_blank" rel="noopener"
+             aria-label="Brian Kuffour on Instagram">Brian Kuffour</a></li>
+      <li class="who"><a href="https://www.instagram.com/siisibaidoo/" target="_blank" rel="noopener"
+             aria-label="Siisi Baidoo on Instagram">Siisi Baidoo</a></li>
+      <li class="who"><a href="https://www.instagram.com/dianaantwihamilton/" target="_blank" rel="noopener"
+             aria-label="Diana Hamilton on Instagram">Diana Hamilton</a></li>
       <!-- Not a name, so it does not get a name's chip. It reads as the
            end of the list rather than as one more artist. -->
       <li class="more">and many more</li>

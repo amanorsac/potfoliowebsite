@@ -52,6 +52,48 @@
   .preview hr{border:0;border-top:1px solid var(--line);margin:26px 0}
   .preview ul,.preview ol{margin:0 0 14px;padding-left:22px;line-height:1.75}
 
+  /* The editor proper. It sits where the markdown box was and the box
+     goes under it, so the layout either side is unchanged. */
+  .rte-wrap{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line)}
+  .rte-bar{display:flex;flex-wrap:wrap;align-items:center;gap:2px;padding:6px 8px;
+    background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+  .rte-btn{min-width:28px;height:28px;padding:0 6px;border:1px solid transparent;border-radius:6px;
+    background:none;color:var(--muted);font:inherit;font-size:12.5px;line-height:1;cursor:pointer}
+  .rte-btn:hover{background:var(--surface-2);color:var(--ink)}
+  .rte-btn.on{background:var(--surface-2);color:var(--ink);border-color:var(--line)}
+  .rte-btn[disabled]{opacity:.35;cursor:default}
+  .rte-b{font-weight:800}
+  .rte-i{font-style:italic;font-family:Georgia,serif}
+  .rte-src{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.05em;
+    text-transform:uppercase;padding:0 7px}
+  .rte-sep{width:1px;height:18px;background:var(--line);margin:0 4px}
+  /* The writing itself, sized to read like writing rather than like code. */
+  .rte{padding:20px 22px;min-height:56vh;max-height:74vh;overflow:auto;outline:none;
+    font-size:15px;line-height:1.75}
+  .rte:focus{outline:none}
+  .rte > :first-child{margin-top:0}
+  .rte h2{font-size:21px;margin:26px 0 10px;line-height:1.2}
+  .rte h3{font-size:17px;margin:22px 0 8px}
+  .rte p{margin:0 0 14px}
+  .rte ul,.rte ol{margin:0 0 14px;padding-left:22px}
+  .rte img{max-width:100%;height:auto;border-radius:8px;display:block}
+  .rte figure{margin:20px 0}
+  .rte figcaption{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);margin-top:8px}
+  .rte blockquote{margin:20px 0;padding-left:16px;border-left:2px solid var(--accent);
+    color:var(--muted);font-style:italic}
+  .rte pre{background:var(--surface-2);padding:12px 14px;border-radius:8px;overflow:auto;
+    font-family:var(--mono);font-size:12.5px}
+  .rte code{font-family:var(--mono);font-size:.92em;background:var(--surface-2);
+    padding:1px 5px;border-radius:4px}
+  .rte pre code{background:none;padding:0}
+  .rte hr{border:0;border-top:1px solid var(--line);margin:26px 0}
+  .rte a{color:var(--accent)}
+  /* the raw markdown, when it is asked for */
+  .rte-wrap textarea.rte-source{border:0;border-radius:0;min-height:56vh;
+    font-family:var(--mono);font-size:13.5px;line-height:1.75;resize:none}
+  .rte-drop{outline:2px dashed var(--accent);outline-offset:-6px}
+
   .cheats{font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:2;margin:10px 0 0}
   .cheats b{color:var(--ink);font-weight:600}
   .cover-now{display:flex;gap:12px;align-items:center;margin-top:8px}
@@ -62,6 +104,8 @@
     .two{grid-template-columns:1fr}
     .editwrap{grid-template-columns:1fr}
     .editwrap textarea{border-right:0;border-bottom:1px solid var(--line);min-height:44vh}
+    .rte-wrap{border-right:0;border-bottom:1px solid var(--line)}
+    .rte,.rte-wrap textarea.rte-source{min-height:44vh;max-height:56vh}
     .preview{max-height:50vh}
   }
 </style>
@@ -131,12 +175,14 @@
         placeholder="Open with the moment, not the thesis.&#10;&#10;## A section heading&#10;&#10;Then the point of the piece, plainly."></textarea>
       <div class="preview" id="preview"></div>
     </div>
+    <input type="file" id="bodyfile" accept="image/*" hidden>
     <p class="cheats">
       <b>## </b>section heading &nbsp; <b>**bold**</b> &nbsp; <b>*italic*</b> &nbsp;
       <b>[words](address)</b> link &nbsp; <b>- </b>list &nbsp; <b>&gt; </b>pull quote &nbsp;
       <b>![description](address "caption")</b> picture &nbsp; <b>---</b> divider
     </p>
-    <p class="hint" style="margin-top:10px">Drop an image straight into the writing box and it uploads itself.</p>
+    <p class="hint" style="margin-top:10px">Drop a picture straight onto the writing and it uploads itself. The
+      buttons above do the formatting; <b>Markdown</b> shows the plain text underneath if you would rather work there.</p>
   </div>
 
   <div class="card">
@@ -159,6 +205,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/portal.js"></script>
 <script src="../assets/markdown.js"></script>
+<script src="../assets/editor.js"></script>
 <script>
 (async () => {
   const me = await requireAdmin(); if(!me) return;
@@ -205,6 +252,15 @@
     el('#del').hidden = false;
     el('#pagesub').textContent = 'Changes go live the moment you save a published post.';
   }
+
+  /* The editor goes over the markdown box, not instead of it. It writes
+     back to that box after every keystroke and fires the same input event,
+     so everything below - the preview, the reading time, the save, the
+     warning about leaving - carries on unchanged. Started after the post
+     is loaded, so it opens with the writing already in it. */
+  const editor = window.richEditor ? window.richEditor(el('#body'), {
+    onPickImage: () => el('#bodyfile').click()
+  }) : null;
 
   // ---- the live half --------------------------------------------------
   function paint(){
@@ -280,20 +336,38 @@
     el('#cover').value = url; showCover(); say($('#msg'), 'Image added.', 'ok');
   });
 
-  // drop a picture into the writing and it lands where the cursor is
+  /* Drop a picture on the writing and it lands where the cursor is. The
+     target is whichever surface is actually on screen: the editor
+     normally, the markdown box if that is what is showing. */
   const body = el('#body');
-  ['dragover','drop'].forEach(t => body.addEventListener(t, e => e.preventDefault()));
-  body.addEventListener('drop', async e => {
-    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  const dropOn = editor ? editor.element : body;
+  ['dragenter','dragover'].forEach(t => dropOn.addEventListener(t, e => {
+    e.preventDefault(); dropOn.classList.add('rte-drop');
+  }));
+  ['dragleave','drop'].forEach(t => dropOn.addEventListener(t, () => dropOn.classList.remove('rte-drop')));
+  dropOn.addEventListener('drop', e => { e.preventDefault(); addPicture(e.dataTransfer && e.dataTransfer.files[0]); });
+  body.addEventListener('dragover', e => e.preventDefault());
+  body.addEventListener('drop', e => { e.preventDefault(); addPicture(e.dataTransfer && e.dataTransfer.files[0]); });
+
+  el('#bodyfile').addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = ''; addPicture(f);
+  });
+
+  async function addPicture(f){
     if(!f) return;
     say($('#msg'), 'Uploading…');
     const url = await upload(f);
     if(!url) return;
-    const at = body.selectionStart;
-    const md = '\n\n![Describe the picture]('+url+' "Caption")\n\n';
-    body.value = body.value.slice(0,at) + md + body.value.slice(at);
-    dirty = true; paint(); say($('#msg'), 'Image added — write its description.', 'ok');
-  });
+    if(editor && el('#body').hidden){
+      editor.insertImage(url, 'Describe the picture', 'Caption');
+    } else {
+      const at = body.selectionStart;
+      const md = '\n\n![Describe the picture]('+url+' "Caption")\n\n';
+      body.value = body.value.slice(0,at) + md + body.value.slice(at);
+      body.dispatchEvent(new Event('input', { bubbles:true }));
+    }
+    dirty = true; paint(); say($('#msg'), 'Picture added — write its description.', 'ok');
+  }
 
   // ---- saving ----------------------------------------------------------
   function gather(status){

@@ -102,7 +102,21 @@
   --ease-in-out:cubic-bezier(.77,0,.175,1);
   --dur-fast:160ms; --dur:240ms; --dur-slow:520ms;
 }
-body[data-room="mixing"]{ --accent:#C0722B; --ink:#F2E6D2; --panel:#FBF4E6; --panel-2:#EAD9BF; --line:#DDC9A8; }  /* warm copper console */
+/* Dark, with the copper still in it. The apps page went dark first and
+   set the pattern: the ground carries the room's own hue rather than
+   every room sharing one neutral black, so a page still announces which
+   room you are standing in before a word is read.
+   The copper itself is lifted from #C0722B to #E08B3A. The original was
+   chosen to sit on cream and manages 5.23:1 here; the lifted one reads
+   at 7.28:1 without becoming a different colour. */
+body[data-room="mixing"]{ --accent:#E08B3A; --signal:#C9A227;
+  --ink:#120D0A; --paper:#F5EFE8; --panel:#1C1512; --panel-2:#261D18;
+  --line:#33281F; --muted:#AB998A;
+  /* The label on an accent button. A lifted accent is a lighter
+     accent, and white on it stops being readable - white on the lifted copper is 2.65:1; this is 7.05:1. */
+  --on-accent:#1B1006;
+  --shadow-1:0 1px 2px rgba(0,0,0,.42), 0 12px 28px -14px rgba(0,0,0,.7);
+  --shadow-2:0 2px 6px rgba(0,0,0,.5), 0 26px 54px -18px rgba(0,0,0,.8); }  /* warm copper console, after dark */
 body[data-room="live"]  { --accent:#C24A3E; --ink:#F6E3DC; --panel:#FDF0EB; --panel-2:#EFD3CA; --line:#E4C1B6; }  /* on-air blush */
 body[data-room="apps"]  { --accent:#2E8B6E; --ink:#E1EDE6; --panel:#F2F9F5; --panel-2:#D1E4D9; --line:#C2DACC; --muted:#5C6B64; }  /* cool software mint */
 body[data-room="piano"] { --accent:#9A7B3F; --ink:#F0E7D2; --panel:#FAF4E5; --panel-2:#E7D9BD; --line:#D9C8A4; }  /* parchment gold */
@@ -158,11 +172,11 @@ img{display:block;max-width:100%}
 .sitehead-name:hover{color:var(--paper)}
 /* the wordmark only stands in for the name on a phone */
 .sh-mark{display:none}
-.sitehead-actions{display:flex;align-items:center;gap:15px;background:var(--accent);color:#fff;
+.sitehead-actions{display:flex;align-items:center;gap:15px;background:var(--accent);color:var(--on-accent,#fff);
   border-radius:var(--r-pill);padding:10px clamp(16px,2.4vw,22px);margin-right:var(--gut);
   box-shadow:var(--shadow-1);transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
 .sitehead-actions:hover{transform:translateY(-1px);box-shadow:var(--shadow-2)}
-.sitehead-actions a{color:#fff;text-decoration:none;display:inline-flex;align-items:center}
+.sitehead-actions a{color:var(--on-accent,#fff);text-decoration:none;display:inline-flex;align-items:center}
 .sh-login{font-family:var(--body);font-size:14px;font-weight:600;letter-spacing:0;opacity:.97;
   min-height:24px;transition:opacity var(--dur) var(--ease-out)}
 .sh-login:hover{opacity:1}
@@ -195,7 +209,7 @@ img{display:block;max-width:100%}
   .sh-social a{opacity:.82}
   /* one thing here is a destination rather than a link out, so it keeps
      its name and its colour */
-  .sh-login{order:2;background:var(--accent);color:#fff;border-radius:var(--r-pill);
+  .sh-login{order:2;background:var(--accent);color:var(--on-accent,#fff);border-radius:var(--r-pill);
     padding:8px 15px;font-size:13.5px;font-weight:600;line-height:1}
   .sh-login:active{transform:scale(.96)}
 }
@@ -225,7 +239,10 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(44px,8.4vw,104px);
   margin:0 0 30px;letter-spacing:-.042em}
 h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .hero.short h1{font-size:clamp(40px,7.4vw,86px)}
-.hero-thesis{font-size:clamp(18px,2.2vw,24px);line-height:1.6;max-width:36ch;margin:0 0 38px;letter-spacing:-.008em}
+.hero-thesis{font-size:clamp(18px,2.2vw,24px);line-height:1.6;max-width:36ch;margin:0 0 14px;letter-spacing:-.008em}
+/* Where the studio is, under the promise rather than inside it. */
+.hero-where{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 38px}
 .roles{display:flex;flex-wrap:wrap;gap:8px 10px;list-style:none;padding:0;margin:0 0 38px}
 .roles li{font-family:var(--body);font-size:13.5px;font-weight:500;color:var(--muted);
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r-pill);padding:8px 16px}
@@ -237,7 +254,7 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 
 /* ---------- pill call to action ---------- */
 .cta{display:inline-flex;align-items:center;gap:9px;font-family:var(--body);font-size:15.5px;font-weight:600;
-  text-decoration:none;background:var(--accent);color:#fff;border:0;border-radius:var(--r-pill);
+  text-decoration:none;background:var(--accent);color:var(--on-accent,#fff);border:0;border-radius:var(--r-pill);
   padding:16px 28px;cursor:pointer;box-shadow:var(--shadow-1);
   transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out),filter var(--dur) var(--ease-out)}
 .cta:hover{transform:translateY(-2px);box-shadow:var(--shadow-2);filter:saturate(1.06)}
@@ -345,6 +362,18 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .artists li{font-family:var(--display);font-weight:600;font-size:clamp(17px,2vw,22px);
   letter-spacing:-.02em;background:var(--panel);border:1px solid var(--line);
   border-radius:var(--r-pill);padding:11px 22px}
+/* The whole pill is the link, not just the words inside it - a target
+   the size of a name is a target most people miss on a phone. Done with
+   a class rather than :has(), which a browser two years old ignores -
+   and ignoring it here would leave the padding doubled. */
+.artists li.who{padding:0}
+.artists li.who a{display:block;padding:11px 22px;color:inherit;text-decoration:none}
+.artists li.who:hover{border-color:var(--accent)}
+.artists li.who a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;
+  border-radius:var(--r-pill)}
+.artists li.more{font-family:var(--body);font-weight:400;font-size:clamp(15px,1.6vw,17px);
+  background:none;border-color:transparent;color:var(--muted);padding-left:6px;
+  display:flex;align-items:center}
 /* ---------- Listen: playlist player with a clickable tray ----------
    The YouTube watch-page shape: player on the left, the playlist beside
    it. The tray is ours, not YouTube's, so it can wear the site's type
@@ -442,7 +471,7 @@ input,select,textarea{background:var(--panel);border:1.5px solid var(--line);bor
   font-family:var(--body);font-size:15px;padding:12px 14px;transition:border-color .2s}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none}
 textarea{resize:vertical;min-height:118px}
-button.send{background:var(--accent);color:#fff;border:0;border-radius:var(--r-pill);font-family:var(--body);font-size:15.5px;
+button.send{background:var(--accent);color:var(--on-accent,#fff);border:0;border-radius:var(--r-pill);font-family:var(--body);font-size:15.5px;
   font-weight:600;padding:16px 30px;cursor:pointer;box-shadow:var(--shadow-1);align-self:flex-start;
   transition:transform var(--dur-fast) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
 button.send:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
@@ -585,7 +614,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 <a class="skip" href="#main">Skip to content</a>
 
 <nav class="rack" aria-label="Rooms">
-  <a class="rack-brand" href="index.html" aria-label="Studio Amanorsac — home"><img src="images/logo.svg" alt="Studio Amanorsac"></a>
+  <a class="rack-brand" href="index.html" aria-label="Studio Amanorsac — home"><img src="images/logo-onDark.svg" alt="Studio Amanorsac"></a>
   <div class="rack-nav">
     <a class="strip" href="index.html"><span class="strip-name">Home</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip on" href="mixing.html"><span class="strip-name">Mixing</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
@@ -599,7 +628,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
 <div class="sitehead">
   <a class="sitehead-name" href="index.html">
-    <img class="sh-mark" src="images/logo.svg" alt="Amanorsac Studio">
+    <img class="sh-mark" src="images/logo-onDark.svg" alt="Amanorsac Studio">
     <span class="txt">Stephen Amanor Sackey</span>
   </a>
   <div class="sitehead-actions">
@@ -611,7 +640,11 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   <header class="hero short">
     <div class="hero-eyebrow">Studio</div>
     <h1>Mixing &amp;<br><em>Mastering</em></h1>
-    <p class="hero-thesis">Close harmony, lead vocals, and live captures that only happened once. Charlottesville, Virginia, and remote worldwide.</p>
+    <p class="hero-thesis">Bring me the song you believe in. I&rsquo;ll send you back the record you&rsquo;ve been hearing in your head since you wrote it.</p>
+    <!-- The place stays on the page, not only in the title tag. It was the
+         one visible mention, and a studio that never says where it is has
+         to be found some other way. -->
+    <p class="hero-where">Charlottesville, Virginia &mdash; and remote, worldwide.</p>
     <div class="wave" aria-hidden="true"></div>
   </header>
 
@@ -694,9 +727,23 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
     <h2>Some of the artists I&rsquo;ve worked with</h2>
     <p class="lede">This list is the short version.</p>
     <ul class="artists">
-      <li>Kingsley Anyenor</li>
-      <li>Viv Adjei</li>
-      <li>Blossom 3io</li>
+      <li class="who"><a href="https://www.instagram.com/kingsleyanyenor/" target="_blank" rel="noopener"
+             aria-label="Kingsley Anyenor on Instagram">Kingsley Anyenor</a></li>
+      <li class="who"><a href="https://www.instagram.com/vivi_adjei/" target="_blank" rel="noopener"
+             aria-label="Viv Adjei on Instagram">Viv Adjei</a></li>
+      <li class="who"><a href="https://www.instagram.com/maamle_music/" target="_blank" rel="noopener"
+             aria-label="Blossom 3io on Instagram">Blossom 3io</a></li>
+      <li class="who"><a href="https://www.instagram.com/isaacnarhofficial/" target="_blank" rel="noopener"
+             aria-label="Isaac Narh on Instagram">Isaac Narh</a></li>
+      <li class="who"><a href="https://www.instagram.com/briankuffour/" target="_blank" rel="noopener"
+             aria-label="Brian Kuffour on Instagram">Brian Kuffour</a></li>
+      <li class="who"><a href="https://www.instagram.com/siisibaidoo/" target="_blank" rel="noopener"
+             aria-label="Siisi Baidoo on Instagram">Siisi Baidoo</a></li>
+      <li class="who"><a href="https://www.instagram.com/dianaantwihamilton/" target="_blank" rel="noopener"
+             aria-label="Diana Hamilton on Instagram">Diana Hamilton</a></li>
+      <!-- Not a name, so it does not get a name's chip. It reads as the
+           end of the list rather than as one more artist. -->
+      <li class="more">and many more</li>
     </ul>
   </section>
 
@@ -788,15 +835,18 @@ var CONFIG = {
      Put mp3 files in the audio folder. 15-20 seconds each is plenty.
      Same passage in both so the comparison is honest. */
   ab: [
-    { title:"Close-harmony vocal", who:"Three-part trio",
-      raw:"audio/vocal-raw.mp3", mixed:"audio/vocal-mixed.mp3",
-      note:"Rough stems against the finished mix. Same eight bars." },
-    { title:"Live worship capture", who:"Single take, no re-tracking",
-      raw:"audio/live-raw.mp3", mixed:"audio/live-mixed.mp3",
-      note:"Board feed against the mixed and mastered release." },
-    { title:"Master chain", who:"Mix against final master",
-      raw:"audio/master-before.mp3", mixed:"audio/master-after.mp3",
-      note:"Level matched by ear so the comparison is about tone, not loudness." }
+    /* Relabelled to the material that actually exists: drums, lead
+       vocal, backing vocals. Each player still needs both halves of its
+       pair - the Before button has to have something to play. */
+    { title:"Drums", who:"As tracked, then mixed",
+      raw:"audio/drums-raw.mp3", mixed:"audio/drums-mixed.mp3",
+      note:"The kit straight off the session against the drum mix. Same bars." },
+    { title:"Lead vocal", who:"Raw take against the mix",
+      raw:"audio/lead-raw.mp3", mixed:"audio/lead-mixed.mp3",
+      note:"The vocal as sung, then sitting in the record." },
+    { title:"Backing vocals", who:"The stack, raw and blended",
+      raw:"audio/backing-raw.mp3", mixed:"audio/backing-mixed.mp3",
+      note:"Every voice as tracked, then tuned, timed and blended into one." }
   ],
 
   /* 6. PHOTOS -----------------------------------------------

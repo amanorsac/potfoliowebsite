@@ -40,6 +40,14 @@ export default {
 
         if (path === '/sitemap.xml') return await sitemap();
 
+        /* The live page is gone. It was in the sitemap, so search engines
+           were told it existed and some of them will keep asking; a
+           permanent redirect to the room that covers the same work is a
+           better answer than a 404 for anybody holding an old link. */
+        if (path === '/live' || path === '/live.html') {
+          return Response.redirect(SITE + '/mixing.html', 301);
+        }
+
         const m = path.match(/^\/blog\/([^/]+)\/?$/);
         if (m) return await postPage(decodeURIComponent(m[1]), env, request,
                                      new URL(request.url).searchParams.has('diag'));
@@ -550,8 +558,7 @@ const PAGES = [
   ['/performlive', 'monthly', '0.7'],
   ['/pulseroom',   'monthly', '0.7'],
   ['/harmoniemd',  'monthly', '0.7'],
-  ['/nebulatide',  'monthly', '0.7'],
-  ['/live',        'yearly',  '0.5']
+  ['/nebulatide',  'monthly', '0.7']
 ];
 
 async function sitemap() {

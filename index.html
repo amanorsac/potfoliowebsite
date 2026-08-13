@@ -108,6 +108,33 @@ body[data-room="live"]  { --accent:#C24A3E; --ink:#F6E3DC; --panel:#FDF0EB; --pa
 body[data-room="apps"]  { --accent:#2E8B6E; --ink:#E1EDE6; --panel:#F2F9F5; --panel-2:#D1E4D9; --line:#C2DACC; --muted:#5C6B64; }  /* cool software mint */
 body[data-room="piano"] { --accent:#9A7B3F; --ink:#F0E7D2; --panel:#FAF4E5; --panel-2:#E7D9BD; --line:#D9C8A4; }  /* parchment gold */
 
+/* ---------- the home page after dark ----------
+   Only this page, and only through the tokens the page already uses, so
+   nothing had to be rewritten to make it happen: --ink is the ground and
+   --paper the writing, which is the pair every rule here reads from.
+
+   The ground is not black. Black behind a photograph makes the
+   photograph look like a hole; a near-black with the brand's navy still
+   in it keeps the rooms sitting on something. Two steps up from it give
+   the cards an edge without a border doing the work.
+
+   The orange stays exactly as it was. It was chosen against cream and it
+   happens to be the one thing on the page that gains from a dark ground
+   rather than fighting it. */
+body[data-room="home"]{
+  --ink:#121019;          /* the ground */
+  --paper:#F3F1EC;        /* the writing */
+  --panel:#1A1824;        /* a card, one step up */
+  --panel-2:#232134;      /* and the step above that */
+  --line:#2E2B3E;
+  --muted:#9B94A6;        /* quiet, but 6.45:1 on the ground - measured */
+  --signal:#8F86F2;       /* the navy would disappear here; this is it, lit */
+  /* On cream a shadow is a soft grey. On this it has to be actual dark or
+     it is nothing at all. */
+  --shadow-1:0 1px 2px rgba(0,0,0,.5), 0 10px 24px -14px rgba(0,0,0,.7);
+  --shadow-2:0 2px 4px rgba(0,0,0,.55), 0 20px 40px -18px rgba(0,0,0,.75);
+}
+
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 /* Full-bleed strips are sized with 100vw, which includes the scrollbar
@@ -879,7 +906,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 <a class="skip" href="#main">Skip to content</a>
 
 <nav class="rack" aria-label="Rooms">
-  <a class="rack-brand" href="index.html" aria-label="Studio Amanorsac — home"><img src="images/logo.svg" alt="Studio Amanorsac"></a>
+  <a class="rack-brand" href="index.html" aria-label="Studio Amanorsac — home"><img src="images/logo-onDark.svg" alt="Studio Amanorsac"></a>
   <div class="rack-nav">
     <a class="strip on" href="index.html"><span class="strip-name">Home</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
     <a class="strip" href="mixing.html"><span class="strip-name">Mixing</span><span class="meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></a>
@@ -893,7 +920,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
 <div class="sitehead">
   <a class="sitehead-name" href="index.html">
-    <img class="sh-mark" src="images/logo.svg" alt="Amanorsac Studio">
+    <img class="sh-mark" src="images/logo-onDark.svg" alt="Amanorsac Studio">
     <span class="txt">Stephen Amanor Sackey</span>
   </a>
   <div class="sitehead-actions">
@@ -1015,22 +1042,6 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
           <span class="arr-tag">Software</span>
           <h3>Software</h3>
           <p>Built in the studio, not in a product meeting. Open it and you&rsquo;ll know what to do.</p>
-          <span class="arr-go">Enter the room →</span>
-        </div>
-      </a>
-      <!-- live.html had no way in from this page: not in the rack, not in
-           this list. A page nobody can reach is the same as a page that
-           does not exist, and this is the only room here that starts on a
-           stage rather than at a desk. -->
-      <a class="arr rise" href="live.html" style="--room:#D9603F;--room-ink:#8F3B24">
-        <!-- stage-01, not hero-live: the other one is four people posed in
-             white shirts, which could be any photograph of anybody. This
-             one is the actual job happening. -->
-        <div class="arr-media"><img src="images/stage-01.webp" alt="Directing from the keys on stage, band behind" loading="lazy"></div>
-        <div class="arr-body">
-          <span class="arr-tag">On air</span>
-          <h3>Live &amp; broadcast</h3>
-          <p>Not every mix starts as a studio file &mdash; a good share of mine arrives off a stage. I set up the live and broadcast mix so your Sunday sounds like your record.</p>
           <span class="arr-go">Enter the room →</span>
         </div>
       </a>

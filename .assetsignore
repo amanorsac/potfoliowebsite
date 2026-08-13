@@ -22,3 +22,18 @@ SETUP.md
 .agents/
 .claude/
 skills-lock.json
+
+# the untouched camera files behind the gallery. Kept in the repository
+# so a picture can be redone at a different size later; 31 MB of HEIC
+# nobody's browser can display is not something to serve.
+images/gallery/originals/
+
+# git's own storage. The assets directory is the repository root, so
+# without this line the walker sweeps .git/ into the site: every build
+# broke the day the photographs pushed git's pack file past Cloudflare's
+# 25 MiB per-file limit, and before that the repository's entire history
+# was being served as public files at /.git/. Neither is a thing a
+# website should do.
+/.git/
+/.wrangler/
+.DS_Store

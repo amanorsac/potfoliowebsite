@@ -225,7 +225,10 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(44px,8.4vw,104px);
   margin:0 0 30px;letter-spacing:-.042em}
 h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .hero.short h1{font-size:clamp(40px,7.4vw,86px)}
-.hero-thesis{font-size:clamp(18px,2.2vw,24px);line-height:1.6;max-width:36ch;margin:0 0 38px;letter-spacing:-.008em}
+.hero-thesis{font-size:clamp(18px,2.2vw,24px);line-height:1.6;max-width:36ch;margin:0 0 14px;letter-spacing:-.008em}
+/* Where the studio is, under the promise rather than inside it. */
+.hero-where{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 38px}
 .roles{display:flex;flex-wrap:wrap;gap:8px 10px;list-style:none;padding:0;margin:0 0 38px}
 .roles li{font-family:var(--body);font-size:13.5px;font-weight:500;color:var(--muted);
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r-pill);padding:8px 16px}
@@ -611,7 +614,11 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   <header class="hero short">
     <div class="hero-eyebrow">Studio</div>
     <h1>Mixing &amp;<br><em>Mastering</em></h1>
-    <p class="hero-thesis">Close harmony, lead vocals, and live captures that only happened once. Charlottesville, Virginia, and remote worldwide.</p>
+    <p class="hero-thesis">Bring me the song you believe in. I&rsquo;ll send you back the record you&rsquo;ve been hearing in your head since you wrote it.</p>
+    <!-- The place stays on the page, not only in the title tag. It was the
+         one visible mention, and a studio that never says where it is has
+         to be found some other way. -->
+    <p class="hero-where">Charlottesville, Virginia &mdash; and remote, worldwide.</p>
     <div class="wave" aria-hidden="true"></div>
   </header>
 

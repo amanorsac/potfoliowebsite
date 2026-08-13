@@ -11,9 +11,9 @@ Three players, each with a Before and an After button. The toggle keeps
 your place in the passage, so a listener compares the same moment, not
 two different bars. The page currently expects these six files:
 
-    vocal-raw.mp3      /  vocal-mixed.mp3      close-harmony vocal
-    live-raw.mp3       /  live-mixed.mp3       live worship capture
-    master-before.mp3  /  master-after.mp3     mix against final master
+    drums-raw.mp3      /  drums-mixed.mp3      drums
+    lead-raw.mp3       /  lead-mixed.mp3       lead vocal
+    backing-raw.mp3    /  backing-mixed.mp3    backing vocals
 
 Those slots are not fixed. If what you have is two different pairs, or
 four, say so - the titles, notes and count all live in one list and take

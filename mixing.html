@@ -835,15 +835,18 @@ var CONFIG = {
      Put mp3 files in the audio folder. 15-20 seconds each is plenty.
      Same passage in both so the comparison is honest. */
   ab: [
-    { title:"Close-harmony vocal", who:"Three-part trio",
-      raw:"audio/vocal-raw.mp3", mixed:"audio/vocal-mixed.mp3",
-      note:"Rough stems against the finished mix. Same eight bars." },
-    { title:"Live worship capture", who:"Single take, no re-tracking",
-      raw:"audio/live-raw.mp3", mixed:"audio/live-mixed.mp3",
-      note:"Board feed against the mixed and mastered release." },
-    { title:"Master chain", who:"Mix against final master",
-      raw:"audio/master-before.mp3", mixed:"audio/master-after.mp3",
-      note:"Level matched by ear so the comparison is about tone, not loudness." }
+    /* Relabelled to the material that actually exists: drums, lead
+       vocal, backing vocals. Each player still needs both halves of its
+       pair - the Before button has to have something to play. */
+    { title:"Drums", who:"As tracked, then mixed",
+      raw:"audio/drums-raw.mp3", mixed:"audio/drums-mixed.mp3",
+      note:"The kit straight off the session against the drum mix. Same bars." },
+    { title:"Lead vocal", who:"Raw take against the mix",
+      raw:"audio/lead-raw.mp3", mixed:"audio/lead-mixed.mp3",
+      note:"The vocal as sung, then sitting in the record." },
+    { title:"Backing vocals", who:"The stack, raw and blended",
+      raw:"audio/backing-raw.mp3", mixed:"audio/backing-mixed.mp3",
+      note:"Every voice as tracked, then tuned, timed and blended into one." }
   ],
 
   /* 6. PHOTOS -----------------------------------------------

@@ -329,15 +329,31 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
    A 4/5 crop box turned every frame into the same rectangle, which is
    exactly what a gallery should not do.
    ===================================================================== */
-.gallery{column-count:3;column-gap:14px}
-.gallery .shot{break-inside:avoid;margin:0 0 14px;aspect-ratio:auto;cursor:zoom-in;
-  transition:transform var(--dur) var(--ease-out),box-shadow var(--dur) var(--ease-out)}
-.gallery .shot img{width:100%;height:auto;object-fit:initial}
-.gallery .shot:hover{transform:translateY(-3px);box-shadow:var(--shadow-2)}
-.gallery .shot::after{opacity:.14}
-.gallery .shot:hover::after{opacity:0}
-@media (max-width:900px){ .gallery{column-count:2} }
-@media (max-width:520px){ .gallery{column-count:1} }
+/* A mosaic of small square tiles rather than a wall. Fifteen tiles
+   hold the whole set between them: every few seconds one tile fades to
+   a photograph that is not currently up, so the set shows itself
+   without anybody scrolling through twenty-two frames. The first tile
+   is double-size - the strongest picture, doing the most work. */
+.gallery{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.gallery .shot{position:relative;overflow:hidden;margin:0;aspect-ratio:1;cursor:zoom-in;
+  border-radius:var(--r-sm);background:var(--panel-2);box-shadow:var(--shadow-1);
+  transition:box-shadow var(--dur) var(--ease-out),transform var(--dur) var(--ease-out)}
+.gallery .shot.feat{grid-column:span 2;grid-row:span 2;aspect-ratio:auto}
+.gallery .shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:1;transition:opacity .9s var(--ease-out)}
+.gallery .shot img.dim{opacity:0}
+.gallery .shot:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+@media (max-width:900px){
+  .gallery{grid-template-columns:repeat(4,1fr)}
+  .gallery .shot:nth-child(n+12){display:none}
+}
+@media (max-width:520px){
+  /* Small on purpose: three columns of thumbnails and six tiles, so the
+     whole gallery is three short rows instead of a wall. The rotation
+     still brings every photograph through. */
+  .gallery{grid-template-columns:repeat(3,1fr);gap:7px}
+  .gallery .shot:nth-child(n+7){display:none}
+}
 
 .gal-lede{margin-bottom:34px}
 .gal-more{display:flex;justify-content:center;padding:30px 0 0}
@@ -548,11 +564,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   letter-spacing:.16em;text-transform:uppercase;color:#F7F6F2;text-shadow:0 1px 14px rgba(26,24,48,.92)}
 .band.empty{display:flex;align-items:center;justify-content:center;border-style:dashed}
 
-/* ---------- taller gallery, feature first tile ---------- */
-/* the first frame leads: it gets a column to itself at the top */
-.gallery .shot:first-child{column-span:all;margin-bottom:18px}
-.gallery .shot:first-child img{max-height:min(62vh,560px);
-  width:100%;object-fit:cover;object-position:center 38%}
+/* (the old column-masonry feature rules lived here; the mosaic above replaced them) */
 
 </style>
 <link rel="canonical" href="https://amanorsac.studio/about">
@@ -961,46 +973,99 @@ var CONFIG = {
   }
 
   /* ---- the gallery ----
-     Built to stay quick as the set grows: only the first FIRST_RUN
-     photographs are in the page on load, the rest arrive when asked
-     for, and every one of them is lazy and async-decoded so a long
-     wall of pictures never blocks the first screen. */
-  var FIRST_RUN = 12;
+     Fifteen tiles, twenty-two photographs. Every few seconds one tile
+     cross-fades to a picture that is not currently up, so the whole set
+     passes through without a wall of scrolling. The rotation stops when
+     the gallery is off screen, when the tab is hidden, and for anyone
+     who has asked their system for reduced motion - for them it is
+     simply a grid, and the lightbox arrows still reach every frame. */
+  var TILES = 15, EVERY = 3200;
   var gal=$('#gallery'), shots=[];
   if(gal){
     var key = gal.getAttribute('data-set') || 'home';
-    var all = (CONFIG.gallery[key] || []).map(function(item, i){
+    shots = (CONFIG.gallery[key] || []).map(function(item){
       return typeof item === 'string'
         ? { src:item, cap:'' }
         : { src:item.src, cap:item.cap || '' };
     });
-    shots = all;
 
-    function paint(from, to){
-      var frag = document.createDocumentFragment();
-      all.slice(from, to).forEach(function(o, n){
-        var i = from + n;
-        var d = shot(o.src, o.cap || 'Photograph ' + (i+1));
-        d.setAttribute('data-i', i);
-        var im = d.querySelector('img');
-        if(im){ im.loading = 'lazy'; im.decoding = 'async'; }
-        frag.appendChild(d);
+    var count = Math.min(TILES, shots.length);
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < count; i++){
+      var o = shots[i];
+      var d = shot(o.src, o.cap || 'Photograph ' + (i+1));
+      d.setAttribute('data-i', i);
+      if(i === 0) d.classList.add('feat');
+      var im = d.querySelector('img');
+      if(im){ im.loading = i < 3 ? 'eager' : 'lazy'; im.decoding = 'async'; }
+      frag.appendChild(d);
+    }
+    gal.appendChild(frag);
+    var moreBtn = $('#gal-more'); if(moreBtn) moreBtn.remove();
+
+    /* the photographs currently resting - everything not on a tile */
+    var bench = [];
+    for (var b = count; b < shots.length; b++) bench.push(b);
+
+    var timer = null, seen = true, lastTile = -1;
+
+    function swap(){
+      if(!bench.length) return;
+      var tiles = [].filter.call(gal.children, function(t){
+        return t.offsetWidth > 0;            // not hidden by the phone layout
       });
-      gal.appendChild(frag);
+      if(tiles.length < 2) return;
+      var t;
+      do { t = tiles[Math.floor(Math.random()*tiles.length)]; }
+      while (tiles.length > 1 && t === gal.children[lastTile]);
+      lastTile = [].indexOf.call(gal.children, t);
+
+      var incoming = bench.shift();
+      var outgoing = +t.getAttribute('data-i');
+      var o = shots[incoming];
+
+      var im = new Image();
+      im.src = o.src; im.alt = o.cap || ''; im.decoding = 'async';
+      im.className = 'dim';
+      var done = false;
+      function begin(){
+        if(done) return; done = true;
+        t.appendChild(im);
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){
+          im.classList.remove('dim');
+          var olds = t.querySelectorAll('img');
+          for (var k = 0; k < olds.length - 1; k++) olds[k].classList.add('dim');
+          setTimeout(function(){
+            var imgs = t.querySelectorAll('img');
+            for (var k2 = 0; k2 < imgs.length - 1; k2++) imgs[k2].remove();
+          }, 1000);
+        }); });
+        t.setAttribute('data-i', incoming);
+        bench.push(outgoing);
+      }
+      /* only fade once the picture has actually arrived; a fade to a
+         half-loaded image is a fade to a grey square */
+      if (im.decode) im.decode().then(begin).catch(function(){ bench.unshift(incoming); });
+      else { im.onload = begin; im.onerror = function(){ bench.unshift(incoming); }; }
     }
 
-    paint(0, FIRST_RUN);
-
-    var more = $('#gal-more');
-    if(more && all.length > FIRST_RUN){
-      var rest = all.length - FIRST_RUN;
-      more.hidden = false;
-      more.textContent = 'View all ' + all.length + ' photographs';
-      more.addEventListener('click', function(){
-        paint(FIRST_RUN, all.length);
-        more.remove();
-      });
+    function running(){ return timer !== null; }
+    function start(){
+      if (running() || !seen || document.hidden) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      timer = setInterval(swap, EVERY);
     }
+    function stop(){ if (timer){ clearInterval(timer); timer = null; } }
+
+    if ('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){
+        seen = es[0].isIntersecting;
+        seen ? start() : stop();
+      }, { rootMargin: '80px' }).observe(gal);
+    } else { start(); }
+    document.addEventListener('visibilitychange', function(){
+      document.hidden ? stop() : start();
+    });
   }
 
   /* ---- lightbox ---- */

@@ -114,7 +114,7 @@ export default {
    nobody remembers.
 
    Change one, change the other. */
-const CSP = "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; " +
+const CSP = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; " +
   "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.youtube.com " +
   "https://s.ytimg.com https://pagead2.googlesyndication.com https://tpc.googlesyndication.com " +
   "https://googleads.g.doubleclick.net https://adservice.google.com https://www.google.com " +

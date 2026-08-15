@@ -36,19 +36,42 @@
   .fig .d.up{color:#2E8B6E}
   .fig .d.down{color:#B4552F}
 
-  /* ---------- the daily bars ---------- */
-  .chart{display:flex;align-items:flex-end;gap:2px;height:132px;padding:0 0 2px;
-    border-bottom:1px solid var(--line);margin:0 0 8px}
-  .chart i{flex:1;min-width:2px;background:var(--accent);border-radius:2px 2px 0 0;
-    opacity:.85;min-height:2px;position:relative}
-  .chart i:hover{opacity:1}
-  .chart i span{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
-    white-space:nowrap;font-family:var(--mono);font-size:10px;background:var(--ink);
-    color:var(--surface);padding:4px 7px;border-radius:5px;margin-bottom:6px;
-    opacity:0;pointer-events:none;transition:opacity .15s}
-  .chart i:hover span{opacity:1}
-  .chart-x{display:flex;justify-content:space-between;font-family:var(--mono);
-    font-size:10px;color:var(--muted);margin:0 0 4px}
+  /* ---------- the big chart ----------
+     One chart, the cards above it are its tabs. Drawn as inline SVG so
+     it costs nothing to load and follows the theme's colours. */
+  .tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 14px}
+  .tab{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;cursor:pointer;text-align:left;font:inherit;color:inherit;
+    border-bottom:3px solid var(--line);transition:border-color .2s,background .2s}
+  .tab .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 8px}
+  .tab .v{font-size:28px;font-weight:600;line-height:1;margin:0}
+  .tab .d{font-size:12.5px;margin:7px 0 0;color:var(--muted)}
+  .tab .d.up{color:#2E8B6E}
+  .tab .d.down{color:#B4552F}
+  .tab.on{border-bottom-color:var(--accent)}
+  .tab:hover{background:var(--surface-2)}
+
+  .bigchart{position:relative;height:280px}
+  .bigchart svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .bigchart .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);
+    border-radius:8px;padding:8px 11px;font-size:12px;line-height:1.5;white-space:nowrap;
+    transform:translate(-50%,-115%);opacity:0;transition:opacity .12s;z-index:3}
+  .bigchart .tip b{font-size:14px}
+  .bigchart .tip small{display:block;font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+
+  /* ---------- bar lists (top content, channels, tech) ---------- */
+  .bars{list-style:none;margin:0;padding:0}
+  .bars li{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+    padding:8px 0;font-size:13.5px}
+  .bars .lab{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bars .lab small{display:block;color:var(--muted);font-size:11.5px}
+  .bars .num{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+  .bars .track{grid-column:1/-1;height:5px;border-radius:3px;background:var(--surface-2);
+    overflow:hidden}
+  .bars .track i{display:block;height:100%;border-radius:3px;background:var(--accent);
+    width:0;transition:width .8s var(--ease-out,ease)}
 
   /* ---------- lists ---------- */
   .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
@@ -95,19 +118,19 @@
 
   <p class="msg" id="m" role="status" aria-live="polite"></p>
 
-  <div class="figs" id="figs"></div>
+  <div class="tabs" id="tabs"></div>
 
   <div class="card">
-    <div class="card-head"><h2>By day</h2></div>
-    <div class="chart" id="chart"></div>
-    <div class="chart-x"><span id="x0"></span><span id="x1"></span></div>
+    <div class="bigchart" id="bigchart"><svg id="csvg" aria-hidden="true"></svg><div class="tip" id="ctip"></div></div>
   </div>
+
+  <div class="figs" id="figs" style="margin-top:14px"></div>
 
   <p class="sec">What they read</p>
   <div class="card">
     <div class="card-head"><h2>Most read</h2></div>
-    <p class="why">Time is how long the page was actually open. Scroll is how far down the average reader got — a low number on a long page means they left before the good part.</p>
-    <div class="tblwrap"><table class="tbl" id="pages"></table></div>
+    <p class="why">The bar is views against the busiest page. Time is how long the page was actually open; scroll is how far down the average reader got.</p>
+    <ul class="bars" id="pages"></ul>
   </div>
 
   <div class="cols">
@@ -145,10 +168,10 @@
 
   <p class="sec">On what</p>
   <div class="cols">
-    <div class="card"><div class="card-head"><h2>Device</h2></div><ul class="rows" id="devices"></ul></div>
-    <div class="card"><div class="card-head"><h2>Browser</h2></div><ul class="rows" id="browsers"></ul></div>
-    <div class="card"><div class="card-head"><h2>System</h2></div><ul class="rows" id="oses"></ul></div>
-    <div class="card"><div class="card-head"><h2>Country</h2></div><ul class="rows" id="countries"></ul></div>
+    <div class="card"><div class="card-head"><h2>Device</h2></div><ul class="bars" id="devices"></ul></div>
+    <div class="card"><div class="card-head"><h2>Browser</h2></div><ul class="bars" id="browsers"></ul></div>
+    <div class="card"><div class="card-head"><h2>System</h2></div><ul class="bars" id="oses"></ul></div>
+    <div class="card"><div class="card-head"><h2>Country</h2></div><ul class="bars" id="countries"></ul></div>
   </div>
 
   <div class="card">
@@ -196,11 +219,101 @@
         '<td'+(i?' class="n"':'')+'>'+c+'</td>').join('') + '</tr>').join('');
   }
   function simpleList(el, rows){
+    const peak = Math.max(1, ...rows.map(r => Number(r.visits)||0));
     el.innerHTML = rows.length
       ? rows.map(r => '<li><span class="lab">'+esc(r.label)+'</span>'+
-                      '<span class="num">'+num(r.visits)+'</span></li>').join('')
+          '<span class="num">'+num(r.visits)+'</span>'+
+          '<span class="track"><i data-w="'+Math.round(Number(r.visits)/peak*100)+'"></i></span></li>').join('')
       : '<li class="empty">Nothing yet.</li>';
+    grow(el);
   }
+
+  let metric = 'views', dailyRows = [];
+
+  /* bars grow after paint, so the page appears settled and then moves */
+  function grow(el){
+    requestAnimationFrame(() => requestAnimationFrame(() =>
+      $$('.track i', el).forEach(i => i.style.width = i.getAttribute('data-w') + '%')));
+  }
+
+  /* ---------- the big chart ----------
+     Inline SVG: an area with a soft fill, a line over it, and a
+     crosshair that follows the pointer with the day's numbers. Redrawn
+     whole on every change - at one path per metric there is nothing
+     worth diffing. */
+  function chart(){
+    const svg = $('#csvg'), tip = $('#ctip'), wrap = $('#bigchart');
+    const W = wrap.clientWidth || 900, H = wrap.clientHeight || 280;
+    const P = { t: 16, r: 14, b: 26, l: 40 };
+    const d = dailyRows;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    if (!d.length){
+      svg.innerHTML = '<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" '+
+        'fill="currentColor" opacity=".5" font-size="14">Nothing yet - the site records from its next visitor.</text>';
+      return;
+    }
+    const vals = d.map(r => Number(r[metric]) || 0);
+    const peak = Math.max(1, ...vals);
+    // a rounded ceiling so the top gridline is a number a person would say
+    const step = Math.pow(10, Math.floor(Math.log10(peak)));
+    const top = Math.ceil(peak / step) * step;
+    const x = i => P.l + (d.length === 1 ? (W-P.l-P.r)/2 : i * (W-P.l-P.r) / (d.length-1));
+    const y = v => P.t + (1 - v/top) * (H-P.t-P.b);
+
+    // grid: four lines, labelled
+    let g = '';
+    for (let i = 0; i <= 4; i++){
+      const v = top * i / 4, yy = y(v);
+      g += '<line x1="'+P.l+'" x2="'+(W-P.r)+'" y1="'+yy+'" y2="'+yy+'" stroke="currentColor" opacity=".08"/>' +
+           '<text x="'+(P.l-8)+'" y="'+(yy+3)+'" text-anchor="end" font-size="10" fill="currentColor" opacity=".45" font-family="monospace">'+ (v>=1000 ? (v/1000)+'k' : v) +'</text>';
+    }
+    // x labels: first, a middle, last
+    const lab = i => { const t = new Date(d[i].day);
+      return t.toLocaleDateString(undefined,{month:'short',day:'numeric'}); };
+    [0, Math.floor((d.length-1)/2), d.length-1]
+      .filter((v,i,a) => a.indexOf(v) === i)
+      .forEach(i => {
+        // the ends anchor inward, or the last date walks off the edge
+        const a = i === 0 ? 'start' : i === d.length-1 ? 'end' : 'middle';
+        g += '<text x="'+x(i)+'" y="'+(H-8)+'" text-anchor="'+a+'" font-size="10" fill="currentColor" opacity=".45" font-family="monospace">'+lab(i)+'</text>'; });
+
+    const pts = vals.map((v,i) => x(i) + ',' + y(v)).join(' ');
+    const area = P.l + ',' + y(0) + ' ' + pts + ' ' + (W-P.r) + ',' + y(0);
+    svg.innerHTML = g +
+      '<defs><linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/>' +
+        '<stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>' +
+      '<polygon points="'+area+'" fill="url(#fade)"/>' +
+      '<polyline points="'+pts+'" fill="none" stroke="var(--accent)" stroke-width="2.5" ' +
+        'stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<line id="cx" y1="'+P.t+'" y2="'+(H-P.b)+'" stroke="currentColor" opacity="0" stroke-dasharray="3 3"/>' +
+      '<circle id="cdot" r="4.5" fill="var(--accent)" stroke="var(--surface,#fff)" stroke-width="2" opacity="0"/>';
+
+    // the crosshair
+    wrap.onmousemove = e => {
+      const r = wrap.getBoundingClientRect();
+      const mx = e.clientX - r.left;
+      let i = Math.round((mx - P.l) / ((W-P.l-P.r) / Math.max(1, d.length-1)));
+      i = Math.max(0, Math.min(d.length-1, i));
+      const cx = $('#cx'), dot = $('#cdot');
+      cx.setAttribute('x1', x(i)); cx.setAttribute('x2', x(i)); cx.setAttribute('opacity','.35');
+      dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(vals[i])); dot.setAttribute('opacity','1');
+      tip.style.left = (x(i) / W * r.width) + 'px';
+      tip.style.top  = (y(vals[i]) / H * r.height) + 'px';
+      tip.style.opacity = 1;
+      tip.innerHTML = '<small>'+esc(new Date(d[i].day).toDateString().slice(0,10))+'</small>'+
+        '<b>'+num(vals[i])+'</b> '+metric+
+        '<br><span style="opacity:.75">'+num(d[i][metric==='views'?'visits':'views'])+' '+
+        (metric==='views'?'visits':'views')+'</span>';
+    };
+    wrap.onmouseleave = () => {
+      tip.style.opacity = 0;
+      const cx = $('#cx'), dot = $('#cdot');
+      if(cx) cx.setAttribute('opacity','0');
+      if(dot) dot.setAttribute('opacity','0');
+    };
+  }
+  addEventListener('resize', () => chart());
 
   async function draw(){
     say(m, 'Loading…');
@@ -225,32 +338,42 @@
     }
     say(m, '');
 
-    /* ---------- the headline ---------- */
+    /* ---------- the headline: two cards drive the chart ---------- */
     const s = (sum.data && sum.data[0]) || {};
+    dailyRows = daily.data || [];
+    $('#tabs').innerHTML = [
+      ['views',  'Page views', num(s.views),  delta(s.views, s.prev_views)],
+      ['visits', 'Visits',     num(s.visits), delta(s.visits, s.prev_visits)]
+    ].map(([key,k,v,d]) =>
+      '<button type="button" class="tab'+(metric===key?' on':'')+'" data-metric="'+key+'">'+
+      '<p class="k">'+k+'</p><p class="v">'+v+'</p>'+d+'</button>').join('');
+    $$('#tabs .tab').forEach(b => b.addEventListener('click', () => {
+      metric = b.getAttribute('data-metric');
+      $$('#tabs .tab').forEach(x => x.classList.toggle('on', x===b));
+      chart();
+    }));
+
     $('#figs').innerHTML = [
-      ['Visits',       num(s.visits),            delta(s.visits, s.prev_visits)],
       ['Visitors',     num(s.visitors),          '<span class="d">'+num(s.new_visitors)+' of them new</span>'],
-      ['Page views',   num(s.views),             delta(s.views, s.prev_views)],
       ['Bounce rate',  pct(s.bounce_pct),        delta(s.bounce_pct, s.prev_bounce_pct, true)],
       ['Avg visit',    secs(s.avg_session_s),    delta(s.avg_session_s, s.prev_avg_session_s)],
       ['Pages / visit',(s.pages_per_visit ?? 0), ''],
       ['Conversions',  num(s.conversions),       '<span class="d">'+pct(s.conversion_pct)+' of visits</span>']
     ].map(([k,v,d]) => '<div class="fig"><p class="k">'+k+'</p><p class="v">'+v+'</p>'+d+'</div>').join('');
 
-    /* ---------- by day ---------- */
-    const d = daily.data || [];
-    const peak = Math.max(1, ...d.map(r => Number(r.views)));
-    $('#chart').innerHTML = d.map(r =>
-      '<i style="height:'+Math.max(2, Math.round(Number(r.views)/peak*128))+'px">'+
-      '<span>'+esc(r.day)+' · '+num(r.views)+' views · '+num(r.visits)+' visits</span></i>').join('');
-    $('#x0').textContent = d.length ? d[0].day : '';
-    $('#x1').textContent = d.length ? d[d.length-1].day : '';
+    chart();
 
-    /* ---------- pages ---------- */
-    table($('#pages'), ['Page','Views','Visits','Time','Scroll','Bounce'], top.data || [],
-      r => [esc(r.path) + (r.title ? '<small style="display:block;color:var(--muted)">'+esc(r.title)+'</small>' : ''),
-            num(r.views), num(r.visits), secs(r.avg_s),
-            r.scroll_pct==null?'—':r.scroll_pct+'%', pct(r.bounce_pct)]);
+    /* ---------- pages, as bars against the busiest ---------- */
+    const tp = top.data || [];
+    const tpeak = Math.max(1, ...tp.map(r => Number(r.views)));
+    $('#pages').innerHTML = tp.length ? tp.map(r =>
+      '<li><span class="lab">'+esc(r.path)+
+        (r.title ? '<small>'+esc(r.title)+'</small>' : '')+'</span>'+
+      '<span class="num">'+num(r.views)+' views · '+secs(r.avg_s)+
+        (r.scroll_pct==null?'':' · '+r.scroll_pct+'% scrolled')+'</span>'+
+      '<span class="track"><i data-w="'+Math.round(Number(r.views)/tpeak*100)+'"></i></span></li>'
+    ).join('') : '<li class="empty">Nothing yet.</li>';
+    grow($('#pages'));
 
     const jr = kind => (jour.data || []).filter(r => r.kind === kind);
     table($('#landing'), ['Page','Visits','Bounce'], jr('landing'),

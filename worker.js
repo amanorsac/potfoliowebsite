@@ -234,14 +234,21 @@ async function handoutDownload(request, env) {
   /* Recorded now, but not yet confirmed. An address that never gets
      clicked stays in the list marked unconfirmed and is never written
      to - which is the point of doing it this way. */
+  /* The download must never be blocked by bookkeeping, but bookkeeping
+     that fails must at least say so: fetch only throws on network
+     failure, and a missing database function answers 404, politely and
+     invisibly. For a while that is exactly what happened - people were
+     handed files with nothing written down. These land in the Worker's
+     live logs. */
   try {
-    await fetch(SUPABASE_URL + '/rest/v1/rpc/record_subscriber', {
+    const r = await fetch(SUPABASE_URL + '/rest/v1/rpc/record_subscriber', {
       method: 'POST',
       headers: { 'content-type': 'application/json',
                  apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
       body: JSON.stringify({ p_email: email, p_app: app, p_source: source, p_consent: true })
     });
-  } catch (e) {}
+    if (!r.ok) console.error('record_subscriber refused:', r.status, await r.text());
+  } catch (e) { console.error('record_subscriber unreachable:', e && e.message); }
 
   /* The letter carries a signed link. Signed over the address as well as
      the file, so it opens the download for that person and nobody else,
@@ -324,13 +331,15 @@ async function confirmDownload(url, env) {
   if (!sameString(sig, want)) return confirmPage('That link is not one of ours.', null, null);
 
   try {
-    await fetch(SUPABASE_URL + '/rest/v1/rpc/confirm_subscriber', {
+    const r = await fetch(SUPABASE_URL + '/rest/v1/rpc/confirm_subscriber', {
       method: 'POST',
       headers: { 'content-type': 'application/json',
                  apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY },
       body: JSON.stringify({ p_email: email, p_app: app, p_platform: platform })
     });
-  } catch (e) {}
+    // the download proceeds either way; the loss is only the record of it
+    if (!r.ok) console.error('confirm_subscriber refused:', r.status, await r.text());
+  } catch (e) { console.error('confirm_subscriber unreachable:', e && e.message); }
 
   const t = Date.now() + TICKET_MINUTES * 60 * 1000;
   const path = '/download/' + app + '/' + platform;

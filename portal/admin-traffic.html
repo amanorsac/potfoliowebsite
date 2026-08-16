@@ -301,10 +301,10 @@
       tip.style.left = (x(i) / W * r.width) + 'px';
       tip.style.top  = (y(vals[i]) / H * r.height) + 'px';
       tip.style.opacity = 1;
+      const other = metric === 'views' ? 'visits' : 'views';
       tip.innerHTML = '<small>'+esc(new Date(d[i].day).toDateString().slice(0,10))+'</small>'+
         '<b>'+num(vals[i])+'</b> '+metric+
-        '<br><span style="opacity:.75">'+num(d[i][metric==='views'?'visits':'views'])+' '+
-        (metric==='views'?'visits':'views')+'</span>';
+        '<br><span style="opacity:.75">'+num(d[i][other]||0)+' '+other+'</span>';
     };
     wrap.onmouseleave = () => {
       tip.style.opacity = 0;
@@ -318,7 +318,8 @@
   async function draw(){
     say(m, 'Loading…');
 
-    const [sum, daily, top, jour, acq, tech, evs, spd] = await Promise.all([
+    const since = d => new Date(Date.now() - d*86400e3).toISOString();
+    const [sum, daily, top, jour, acq, tech, evs, spd, dls] = await Promise.all([
       sb.rpc('analytics_summary',     { p_days: days }),
       sb.rpc('analytics_daily',       { p_days: days }),
       sb.rpc('analytics_top_pages',   { p_days: days, p_limit: 12 }),
@@ -326,10 +327,14 @@
       sb.rpc('analytics_acquisition', { p_days: days }),
       sb.rpc('analytics_tech',        { p_days: days }),
       sb.rpc('analytics_events',      { p_days: days }),
-      sb.rpc('analytics_speed',       { p_days: days })
+      sb.rpc('analytics_speed',       { p_days: days }),
+      /* app downloads ride along on the same chart. Two windows of
+         events, so the card can say how this period compares. */
+      sb.from('download_events').select('at').gte('at', since(days*2)).limit(10000)
     ]);
 
     const bad = [sum,daily,top,jour,acq,tech,evs,spd].find(r => r.error);
+    if (dls.error) console.warn('download_events unreadable:', dls.error.message);
     if(bad){
       say(m, /function|does not exist|schema cache/i.test(bad.error.message)
         ? 'Analytics is not set up in the database yet, or the latest version has not been run. Open supabase-analytics.sql, paste the whole file into the Supabase SQL editor, run it, then reload this page.'
@@ -338,12 +343,32 @@
     }
     say(m, '');
 
-    /* ---------- the headline: two cards drive the chart ---------- */
+    /* ---------- the headline: three cards drive the chart ---------- */
     const s = (sum.data && sum.data[0]) || {};
     dailyRows = daily.data || [];
+
+    /* downloads, folded in per day. A day can have downloads without a
+       single page view - a link clicked from an inbox is exactly that -
+       so days missing from the views series are added, not dropped. */
+    const cut = since(days);
+    const byDay = {};
+    (dls.data || []).forEach(e => {
+      if (e.at < cut) return;
+      const k = String(e.at).slice(0,10);
+      byDay[k] = (byDay[k] || 0) + 1;
+    });
+    const have = {};
+    dailyRows.forEach(r => { r.downloads = byDay[r.day] || 0; have[r.day] = 1; });
+    Object.keys(byDay).filter(k => !have[k]).forEach(k =>
+      dailyRows.push({ day: k, views: 0, visits: 0, downloads: byDay[k] }));
+    dailyRows.sort((a,b) => a.day < b.day ? -1 : 1);
+    const dlNow  = (dls.data || []).filter(e => e.at >= cut).length;
+    const dlPrev = (dls.data || []).length - dlNow;
+
     $('#tabs').innerHTML = [
-      ['views',  'Page views', num(s.views),  delta(s.views, s.prev_views)],
-      ['visits', 'Visits',     num(s.visits), delta(s.visits, s.prev_visits)]
+      ['views',     'Page views', num(s.views),  delta(s.views, s.prev_views)],
+      ['visits',    'Visits',     num(s.visits), delta(s.visits, s.prev_visits)],
+      ['downloads', 'Downloads',  num(dlNow),    delta(dlNow, dlPrev)]
     ].map(([key,k,v,d]) =>
       '<button type="button" class="tab'+(metric===key?' on':'')+'" data-metric="'+key+'">'+
       '<p class="k">'+k+'</p><p class="v">'+v+'</p>'+d+'</button>').join('');

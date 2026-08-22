@@ -349,6 +349,14 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 /* White on this slide's cyan reads at 1.9:1, which is a button nobody
    can read. The app's own pages put near-black on the cyan; so does this. */
 .hc-slide.launch .cta{color:#06131a}
+/* The floating screenshots own the right half of this slide, so the
+   words keep to the left half instead of running underneath them. */
+@media (min-width:1000px){
+  .hc-slide.launch h1,.hc-slide.launch .hero-thesis{max-width:50%}
+  /* sized so "Nebula Tide" holds one line beside the floating cards;
+     at the house scale it wrapped and the headline became three lines */
+  .hc-slide.launch h1{font-size:clamp(34px,4.4vw,52px)}
+}
 .hc-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
   /* the room colour itself is too light for 11px type on paper - this is
      the same hue with the lightness taken out, set per slide */
@@ -939,15 +947,28 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
       <!-- The launch slide leads. First thing anyone sees until the next
            app ships; when that day comes this article moves down and the
-           new one takes the front. -->
-      <article class="hc-slide on launch" style="--room:#3FD3E4;--room-ink:#0F7A87" aria-roledescription="slide" aria-label="1 of 5">
+           new one takes the front. The screenshots float the way the App
+           Store slide's do - same classes, same drift - so the launch
+           reads as a member of the same family, just louder. -->
+      <article class="hc-slide on launch" style="--room:#4FE3FF;--room-ink:#0F6E8A" aria-roledescription="slide" aria-label="1 of 5">
         <div class="hc-media"><img src="images/apps/pulseroom-hero.webp" alt="" fetchpriority="high"></div>
+        <div class="hc-float">
+          <a class="fa" href="nebulatide.html"
+             style="--x:4%;--y:12%;--w:62%;--rot:-3deg;--z:3;--i:0">
+            <span class="fa-in"><img src="images/apps/nt-playing.webp" alt="" loading="lazy"><b>Nebula Tide</b></span></a>
+          <a class="fa" href="nebulatide.html"
+             style="--x:52%;--y:40%;--w:46%;--rot:2.5deg;--z:2;--i:1">
+            <span class="fa-in"><img src="images/apps/nt-planets.webp" alt="" loading="lazy"><b>All twelve keys</b></span></a>
+          <a class="fa" href="nebulatide.html"
+             style="--x:10%;--y:62%;--w:42%;--rot:3deg;--z:1;--i:2">
+            <span class="fa-in"><img src="images/apps/nt-stage.webp" alt="" loading="lazy"><b>On stage</b></span></a>
+        </div>
         <div class="hc-body">
-          <p class="hc-eyebrow">Out now &middot; free</p>
-          <h1>PulseRoom <em>is out</em></h1>
-          <p class="hero-thesis">Drop a song in and it finds the tempo, then tunes delay, reverb, EQ and compression to it.</p>
+          <p class="hc-eyebrow">Out now &middot; Windows and Mac</p>
+          <h1>Nebula Tide<br><em>is out</em></h1>
+          <p class="hero-thesis">Endless, seamless drone pads. Real recordings in all twelve keys. One click, infinite atmosphere.</p>
           <div class="hero-cta">
-            <a class="cta" href="pulseroom.html">Get PulseRoom</a>
+            <a class="cta" href="nebulatide.html">Get Nebula Tide</a>
           </div>
           <div class="wave" aria-hidden="true"></div>
         </div>

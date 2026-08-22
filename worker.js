@@ -163,7 +163,14 @@ const INSTALLERS = {
   'pulseroom:windows': { keys: ['pulseroom/PulseRoom-Windows.zip', 'PulseRoom-Windows.zip'],
                          as: 'PulseRoom-Windows.zip', title: 'PulseRoom for Windows' },
   'pulseroom:mac':     { keys: ['pulseroom/PulseRoom-macOS.zip', 'PulseRoom-macOS.zip'],
-                         as: 'PulseRoom-macOS.zip',   title: 'PulseRoom for Mac' }
+                         as: 'PulseRoom-macOS.zip',   title: 'PulseRoom for Mac' },
+  /* Windows only, which is what the app's own page claims - macOS is
+     "planned", and the map must not promise what the bucket cannot
+     hand over. Several candidate keys because the upload happened
+     before the name was agreed. */
+  'nebulatide:windows':{ keys: ['nebulatide/NebulaTide-Windows.zip', 'NebulaTide-Windows.zip',
+                                'nebulatide/Nebula-Tide-Windows.zip', 'NebulaTide.zip'],
+                         as: 'NebulaTide-Windows.zip', title: 'Nebula Tide for Windows' }
 };
 
 const TICKET_MINUTES = 15;
@@ -365,7 +372,7 @@ function confirmPage(heading, note, ticket, status) {
 (note ? '<p>' + esc(note) + '</p>' : '') +
 (ticket ? '<a class="b" href="' + esc(ticket) + '" download>Download now</a>' +
           '<script>setTimeout(function(){location.href=' + JSON.stringify(ticket) + ';},700);<\/script>'
-        : '<a class="b" href="' + SITE + '/pulseroom">Back to PulseRoom</a>') +
+        : '<a class="b" href="' + SITE + '/apps.html">Back to the App Store</a>') +
 '<a class="s" href="' + SITE + '">amanorsac.studio</a>' +
 '</main></body></html>';
   return new Response(page, {

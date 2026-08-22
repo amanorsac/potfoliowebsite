@@ -290,7 +290,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
 }
 </script>
 </head>
-<body>
+<body data-app="nebulatide">
 
 <div class="sky" aria-hidden="true"></div>
 <div class="stars" aria-hidden="true"></div>
@@ -301,11 +301,11 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
 </div>
 
 <header class="hero wrap">
-  <span class="status">Private beta · Windows</span>
+  <span class="status">Windows · standalone and VST3</span>
   <h1>An ocean of sound. In every key.</h1>
   <p class="sub">Nebula Tide plays endless, seamless drone pads — real recordings in all twelve keys — inside an interface that’s alive. One click, infinite atmosphere.</p>
   <div class="cta-row">
-    <a class="cta" href="apps.html#access">Request the beta</a>
+    <a class="cta" data-dl="win" href="apps.html#access">Download for Windows</a>
     <a class="cta ghost" href="#features">See the instrument</a>
   </div>
   <p class="fine">Windows standalone and VST3 · macOS and iPad planned</p>
@@ -441,7 +441,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   <h2>The tide is waiting.</h2>
   <p class="lede">Nebula Tide is in private testing on Windows. Tell us where you’d use it and we’ll send you a build.</p>
   <div class="cta-row">
-    <a class="cta" href="apps.html#access">Request the beta</a>
+    <a class="cta" data-dl="win" href="apps.html#access">Download for Windows</a>
     <a class="cta ghost" href="apps.html">Back to the App Store</a>
   </div>
 </section>
@@ -469,5 +469,7 @@ if('IntersectionObserver' in window &&
 }
 </script>
 <script src="assets/track.js" defer></script>
+<link rel="stylesheet" href="/assets/download-gate.css">
+<script src="/assets/download-gate.js?v=3" defer></script>
 </body>
 </html>

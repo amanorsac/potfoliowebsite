@@ -1,0 +1,65 @@
+/* =====================================================================
+   The download gate's clothes.
+
+   One file because the gate now opens on more than one page - PulseRoom
+   first, Nebula Tide next - and two copies of a dialog's styles drift
+   until the second page looks subtly broken. Everything here reads the
+   page's own colour variables, so the panel wears each app's palette.
+   ===================================================================== */
+.dlg{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px}
+.dlg[hidden]{display:none}
+.dlg-back{position:absolute;inset:0;background:rgba(4,5,9,.72);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.dlg-box{position:relative;width:min(430px,100%);background:var(--panel,#12151C);
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:26px 24px 22px;
+  box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.dlg-x{position:absolute;top:10px;right:12px;background:none;border:0;color:var(--muted);
+  font-size:24px;line-height:1;cursor:pointer;padding:6px 8px;min-width:32px;min-height:32px}
+.dlg-x:hover{color:var(--text)}
+.dlg-eyebrow{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--dim,#8A8698);margin:0 0 8px}
+.dlg-box h2{font-size:25px;margin:0 0 10px;letter-spacing:-.01em}
+.dlg-sub{color:var(--muted);font-size:14px;line-height:1.65;margin:0 0 20px}
+.dlg-size{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim,#8A8698);margin:10px 0 0;text-align:center}
+/* Only the field labels. Written as .dlg-field so it cannot reach the
+   consent line below it - as .dlg-box label it did, and set a sentence
+   somebody has to read in shouting mono at nine and a half pixels. */
+.dlg-box label.dlg-field{display:block;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim,#8A8698);margin:0 0 7px}
+.dlg-box input[type=email]{width:100%;background:var(--bg,#0C0E12);border:1px solid var(--line);
+  border-radius:9px;padding:11px 13px;color:var(--text);font:inherit;font-size:15px}
+.dlg-box input[type=email]:focus{outline:none;border-color:var(--accent)}
+.dlg-box label.dlg-check{display:flex;gap:11px;align-items:flex-start;margin:16px 0 20px;
+  font-family:var(--body);font-size:13px;letter-spacing:0;text-transform:none;
+  color:var(--muted);line-height:1.6;cursor:pointer}
+.dlg-check input{margin:1px 0 0;width:17px;height:17px;flex:0 0 auto;accent-color:var(--accent);cursor:pointer}
+.dlg-check:hover span{color:var(--text)}
+.dlg-go{width:100%;justify-content:center;text-align:center}
+.dlg-go[disabled]{opacity:.6;cursor:default}
+.dlg-msg{font-size:13px;color:var(--muted);margin:12px 0 0;min-height:1.2em;text-align:center}
+.dlg-msg.bad{color:#E08A7A}
+/* the half that replaces the form once the letter is away */
+.dlg-done{text-align:center;padding:6px 0 4px}
+.dlg-done[hidden]{display:none}
+/* p.dlg-tick, not .dlg-tick: the .dlg-done p rule below is the more
+   specific of the two and was overriding the auto margins, which left
+   the icon sitting against the left edge instead of centred. */
+.dlg-done p.dlg-tick{width:46px;height:46px;margin:0 auto 16px;border-radius:50%;
+  display:grid;place-items:center;font-size:21px;color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.dlg-done h3{font-size:20px;margin:0 0 9px}
+.dlg-done p{color:var(--muted);font-size:14px;line-height:1.65;margin:0 0 14px}
+.dlg-done b{color:var(--text);font-weight:600;word-break:break-all}
+.dlg-small{font-size:12.5px !important;color:var(--dim,#8A8698) !important;margin:0 !important}
+/* Send it again, or say the address was wrong. Quiet, because neither is
+   the thing to do first - the thing to do first is go and look. */
+.dlg-again{display:flex;align-items:center;justify-content:center;gap:9px;
+  margin:18px 0 0;flex-wrap:wrap}
+.dlg-link{background:none;border:0;padding:0;cursor:pointer;font:inherit;
+  font-size:13px;color:var(--accent);text-decoration:underline;
+  text-underline-offset:3px;text-decoration-thickness:1px}
+.dlg-link:hover{color:var(--text)}
+.dlg-link[disabled]{color:var(--dim,#8A8698);text-decoration:none;cursor:default}
+.dlg-dot{color:var(--dim,#8A8698);font-size:13px}
+.dlg-msg2{margin-top:10px !important}

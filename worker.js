@@ -168,9 +168,10 @@ const INSTALLERS = {
      "planned", and the map must not promise what the bucket cannot
      hand over. Several candidate keys because the upload happened
      before the name was agreed. */
-  'nebulatide:windows':{ keys: ['nebulatide/NebulaTide-Windows.zip', 'NebulaTide-Windows.zip',
-                                'nebulatide/Nebula-Tide-Windows.zip', 'NebulaTide.zip'],
-                         as: 'NebulaTide-Windows.zip', title: 'Nebula Tide for Windows' }
+  'nebulatide:windows':{ keys: ['nebulatide/NebulaTide-Windows.zip', 'NebulaTide-Windows.zip'],
+                         as: 'NebulaTide-Windows.zip', title: 'Nebula Tide for Windows' },
+  'nebulatide:mac':    { keys: ['nebulatide/NebulaTide-macOS.zip', 'NebulaTide-macOS.zip'],
+                         as: 'NebulaTide-macOS.zip',   title: 'Nebula Tide for Mac' }
 };
 
 const TICKET_MINUTES = 15;

@@ -37,3 +37,5 @@ images/gallery/originals/
 /.git/
 /.wrangler/
 .DS_Store
+# the camera original behind the launch slide; the page serves the webp
+images/apps/Pulse Room Carasol Background.jpg

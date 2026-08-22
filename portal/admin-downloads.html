@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Downloads · Studio admin</title>
+<script>
+/* set the theme BEFORE first paint so there is no flash of the wrong colours */
+(function(){ var t='light'; try{ t=localStorage.getItem('portal-theme')||'light'; }catch(e){}
+  document.documentElement.setAttribute('data-theme',t); })();
+</script>
+<link rel="icon" href="../images/logo.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F7F5F1">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AMANORSAC">
+<link rel="stylesheet" href="../assets/portal.css">
+<style>
+  .figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 22px}
+  .fig{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .fig .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 8px}
+  .fig .v{font-size:30px;font-weight:600;line-height:1;margin:0}
+  .fig .d{font-size:12.5px;margin:7px 0 0;color:var(--muted)}
+
+  .tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  .tbl th,.tbl td{text-align:left;padding:9px 10px 9px 0;border-bottom:1px solid var(--line);
+    white-space:nowrap}
+  .tbl th{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:400}
+  .tbl td:first-child,.tbl th:first-child{white-space:normal;width:100%;
+    max-width:0;overflow:hidden;text-overflow:ellipsis}
+  .tbl td.n,.tbl th.n{text-align:right;padding-right:0;padding-left:16px}
+  .tbl td.n{font-family:var(--mono);font-size:12.5px}
+  .tbl tr:last-child td{border-bottom:0}
+  .tblwrap{overflow-x:auto}
+  .why{font-size:12.5px;color:var(--muted);margin:-4px 0 14px}
+  .empty{color:var(--muted);font-size:14px;margin:0;padding:8px 0}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+    text-transform:uppercase;border-radius:999px;padding:3px 9px}
+  .pill.ok{background:color-mix(in srgb,#2E8B6E 14%,transparent);color:#2E8B6E}
+  .pill.wait{background:var(--surface-2);color:var(--muted)}
+  .pill.gone{background:color-mix(in srgb,#B4552F 12%,transparent);color:#B4552F}
+
+  .csv{margin:14px 0 0}
+</style>
+</head>
+<body>
+<header class="top" id="topbar"></header>
+<main>
+  <div class="head">
+    <p class="eyebrow">Studio admin</p>
+    <h1>Downloads</h1>
+    <p class="sub">What was taken, how many times, and the addresses that asked.
+      A download only counts once the link in the email was actually used.</p>
+  </div>
+
+  <p class="msg" id="m" role="status" aria-live="polite"></p>
+
+  <div class="figs" id="figs"></div>
+
+  <div class="card">
+    <div class="card-head"><h2>What, and how many times</h2></div>
+    <p class="why">One row per app and platform. Asking for a link is not counted;
+      clicking it is, so a person who downloads twice counts twice — that is the
+      honest number for &ldquo;how many times&rdquo;.</p>
+    <div class="tblwrap"><table class="tbl" id="what"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>The last twenty-five</h2></div>
+    <div class="tblwrap"><table class="tbl" id="recent"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>The list</h2></div>
+    <p class="why">Everyone who put an address in, whatever happened next.
+      Confirmed means the link in their inbox was clicked, which is proof the
+      address is real.</p>
+    <div class="tblwrap"><table class="tbl" id="subs"></table></div>
+    <div class="csv">
+      <button class="btn" id="csv">Download CSV — the addresses worth writing to</button>
+      <p class="why" style="margin-top:8px">Consented, confirmed, and not
+        unsubscribed. Nothing else belongs in a mailing tool.</p>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/portal.js"></script>
+<script>
+(async () => {
+  const me = await requireAdmin(); if(!me) return;
+  await mountChrome('admin-downloads');
+
+  const m = $('#m');
+  const APPS = { pulseroom:'PulseRoom', performlive:'PerformLive',
+                 harmoniemd:'HarmonieMD', nebulatide:'Nebula Tide' };
+  const nice = s => APPS[s] || (s ? s[0].toUpperCase()+s.slice(1) : '—');
+  const when = iso => {
+    if(!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ', ' +
+           d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+  };
+
+  say(m, 'Loading…');
+  const [stats, events, subs] = await Promise.all([
+    sb.rpc('subscriber_stats').single(),
+    sb.from('download_events').select('*').order('at',{ascending:false}).limit(1000),
+    sb.from('subscribers').select('*').order('created_at',{ascending:false}).limit(500)
+  ]);
+  if (stats.error || events.error || subs.error){
+    say(m, 'Could not load: ' + (stats.error||events.error||subs.error).message +
+      ' — has supabase-downloads.sql been run?', 'err');
+    return;
+  }
+  say(m, '');
+  const S = stats.data || {};
+  const ev = events.data || [];
+  const people = subs.data || [];
+
+  // ---- the headline numbers ----
+  $('#figs').innerHTML =
+    fig('Downloads', S.downloads, S.downloads_week ? '+'+S.downloads_week+' this week' : '') +
+    fig('People on the list', S.total, S.this_week ? '+'+S.this_week+' this week' : '') +
+    fig('Confirmed', S.confirmed,
+        S.total ? Math.round(100*(S.confirmed||0)/S.total) + '% of the list' : '');
+  function fig(k,v,d){
+    return '<div class="fig"><p class="k">'+k+'</p><p class="v">'+(v||0)+'</p>'+
+           (d ? '<p class="d">'+d+'</p>' : '')+'</div>';
+  }
+
+  // ---- what was downloaded, and how many times ----
+  const per = {};
+  ev.forEach(e => {
+    const k = (e.app||'?') + ':' + (e.platform||'?');
+    (per[k] = per[k] || { app:e.app, platform:e.platform, n:0, last:e.at }).n++;
+  });
+  const rows = Object.values(per).sort((a,b)=>b.n-a.n);
+  $('#what').innerHTML = rows.length
+    ? '<tr><th>App</th><th>Platform</th><th class="n">Times</th><th class="n">Most recent</th></tr>' +
+      rows.map(r => '<tr><td>'+esc(nice(r.app))+'</td><td>'+esc(r.platform||'—')+
+        '</td><td class="n">'+r.n+'</td><td class="n">'+when(r.last)+'</td></tr>').join('')
+    : '<tr><td class="empty">Nothing yet. The count starts the first time somebody clicks their link.</td></tr>';
+
+  // ---- the last twenty-five ----
+  $('#recent').innerHTML = ev.length
+    ? '<tr><th>Who</th><th>Took</th><th class="n">When</th></tr>' +
+      ev.slice(0,25).map(e => '<tr><td>'+esc(e.email||'—')+'</td><td>'+
+        esc(nice(e.app))+' · '+esc(e.platform||'')+'</td><td class="n">'+when(e.at)+'</td></tr>').join('')
+    : '<tr><td class="empty">Nothing yet.</td></tr>';
+
+  // ---- the list ----
+  $('#subs').innerHTML = people.length
+    ? '<tr><th>Address</th><th>Came for</th><th>Standing</th><th class="n">Joined</th></tr>' +
+      people.map(p => {
+        const st = p.unsubscribed_at ? '<span class="pill gone">Unsubscribed</span>'
+                 : p.confirmed_at    ? '<span class="pill ok">Confirmed</span>'
+                 :                     '<span class="pill wait">Never clicked</span>';
+        return '<tr><td>'+esc(p.email)+'</td><td>'+esc(nice(p.app))+'</td><td>'+st+
+               '</td><td class="n">'+when(p.created_at)+'</td></tr>';
+      }).join('')
+    : '<tr><td class="empty">Nobody yet. The gate on the PulseRoom page fills this.</td></tr>';
+
+  // ---- the CSV: only the addresses that may actually be written to ----
+  $('#csv').addEventListener('click', () => {
+    const keep = people.filter(p => p.consented && p.confirmed_at && !p.unsubscribed_at);
+    if(!keep.length){ say(m, 'No confirmed, consenting addresses yet.', 'err'); return; }
+    const q = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
+    const csv = ['email,app,source,consented_at,confirmed_at,joined']
+      .concat(keep.map(p => [p.email,p.app,p.source,p.consented_at,p.confirmed_at,p.created_at]
+        .map(q).join(',')))
+      .join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv' }));
+    a.download = 'amanorsac-subscribers.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    say(m, keep.length + ' address' + (keep.length===1?'':'es') + ' exported.', 'ok');
+  });
+})();
+</script>
+</body>
+</html>

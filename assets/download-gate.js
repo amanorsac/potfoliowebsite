@@ -44,9 +44,12 @@
          promised the download started "as soon as you continue", which
          was not what happened next, and being surprised by a website is
          how people decide it is broken. */
-      '<p class="dlg-sub">PulseRoom is free. Enter your email and I will send ' +
-        'a verification link &mdash; opening it verifies the address and starts ' +
-        'the download.</p>' +
+      /* No app name and no price here: this one panel now opens on
+         every app page, and a claim that is true of one app becomes a
+         lie on the next. The page behind it does the selling. */
+      '<p class="dlg-sub">Enter your email and I will send a verification ' +
+        'link &mdash; opening it verifies the address and starts the ' +
+        'download.</p>' +
       '<form novalidate>' +
         '<label class="dlg-field" for="dlg-email">Email</label>' +
         '<input id="dlg-email" type="email" autocomplete="email" ' +

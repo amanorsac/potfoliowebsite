@@ -224,13 +224,18 @@
     const { count: reviews } = await sb.from('revision_requests')
       .select('id',{count:'exact',head:true}).neq('status','done');
     const { data: allInv } = await sb.from('invoices').select('amount_cents,status');
+    /* tolerate the downloads schema not being installed yet */
+    let dls = 0;
+    try { const r = await sb.rpc('subscriber_stats').single();
+          if(!r.error && r.data) dls = r.data.downloads || 0; } catch(e){}
     const owed = (allInv||[]).filter(i => i.status !== 'paid' && i.status !== 'void')
                              .reduce((t,i) => t + i.amount_cents, 0);
     $('#stats').innerHTML =
       '<a class="stat" href="#clients-card"><b>'+clients.length+'</b><span>Clients</span></a>'+
       '<a class="stat" href="admin-projects.html"><b>'+(open||0)+'</b><span>Active projects</span></a>'+
       '<a class="stat" href="admin-reviews.html"><b>'+(reviews||0)+'</b><span>Open mix reviews</span></a>'+
-      '<a class="stat" href="admin-billing.html"><b>'+money(owed)+'</b><span>Awaiting payment</span></a>';
+      '<a class="stat" href="admin-billing.html"><b>'+money(owed)+'</b><span>Awaiting payment</span></a>'+
+      '<a class="stat" href="admin-downloads.html"><b>'+dls+'</b><span>App downloads</span></a>';
   }
 
   await load();

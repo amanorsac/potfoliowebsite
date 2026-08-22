@@ -43,6 +43,7 @@ type Plan = {
   subject: string;
   line: string;      // one sentence, used for WhatsApp/SMS and the email lede
   detail?: string;   // optional second line
+  digest?: boolean;  // true: queue it for the next digest instead of sending
 };
 
 /** Human wording for each stage state. */
@@ -66,6 +67,7 @@ async function planFor(hook: Hook): Promise<Plan | null> {
     const word = STAGE_WORD[String(r.state)] ?? `is now ${r.state}`;
     return {
       event: "stage",
+      digest: true,
       project_id: String(r.project_id),
       subject: `${name} — ${r.state === "blocked" ? "we need you" : "update"}`,
       line: `${name} ${word}.`,
@@ -78,6 +80,7 @@ async function planFor(hook: Hook): Promise<Plan | null> {
     if (r.direction !== "to_client") return null;
     return {
       event: "file",
+      digest: true,
       project_id: String(r.project_id),
       subject: "A new file is ready",
       line: `${r.label ?? "A file"} is waiting for you in the portal.`,
@@ -130,6 +133,7 @@ async function planFor(hook: Hook): Promise<Plan | null> {
     const body = String(r.body ?? "");
     return {
       event: "message",
+      digest: true,
       project_id: String(r.project_id),
       subject: "A message from the studio",
       line: body.length > 160 ? body.slice(0, 157) + "…" : body,
@@ -228,6 +232,28 @@ Deno.serve(async (req) => {
 
   const plan = await planFor(hook);
   if (!plan) return json({ skipped: "nothing worth saying" });
+
+  /* Stages, files and messages no longer email one by one - a week of
+     work on a song was arriving as five separate letters, and five
+     letters about one song teach a client to stop opening them. These
+     queue instead, and the send-digest function folds everything queued
+     into one email when the studio presses the button on the project
+     page. Money and the welcome still go at once: an invoice must not
+     sit in a queue, and the first hello is the one email that should
+     not wait. */
+  if (plan.digest) {
+    const { data: project } = await db.from("projects")
+      .select("client_id").eq("id", plan.project_id).single();
+    if (!project) return json({ skipped: "no such project" });
+    await db.from("notifications").insert({
+      project_id: plan.project_id, client_id: project.client_id,
+      event: plan.event, channel: "digest",
+      subject: plan.subject,
+      body: plan.line + (plan.detail ? "\n" + plan.detail : ""),
+      status: "queued",
+    });
+    return json({ ok: true, queued: plan.event });
+  }
 
   // Who is this for?
   const { data: project } = await db.from("projects")

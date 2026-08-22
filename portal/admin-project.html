@@ -52,6 +52,13 @@
       </select>
       <span class="msg" id="ps-msg" role="status" aria-live="polite"></span>
     </div>
+    <!-- Stage moves, files and studio messages queue instead of each
+         sending an email; this is the button that folds the queue into
+         one letter. The count on it is the promise of what will be sent. -->
+    <div class="fieldrow" style="margin-top:12px;align-items:center;gap:10px">
+      <button class="btn" id="digest-go" type="button" disabled>Email the client</button>
+      <span class="msg" id="digest-msg" role="status" aria-live="polite"></span>
+    </div>
   </div>
 
   <div class="grid2">
@@ -138,6 +145,46 @@
   await mountChrome('admin-projects');
 
   const PID = new URLSearchParams(location.search).get('id');
+
+  /* ---- the digest button ----
+     Shows how many updates are waiting; disabled at zero so it cannot
+     send an empty letter. The count refreshes after every action on
+     this page that queues something. */
+  async function digestCount(){
+    const btn = $('#digest-go'); if(!btn) return;
+    const { count } = await sb.from('notifications')
+      .select('id', { count:'exact', head:true })
+      .eq('project_id', PID).eq('status','queued').eq('channel','digest');
+    btn.disabled = !count;
+    btn.textContent = count
+      ? 'Email the client — ' + count + ' update' + (count===1?'':'s') + ' waiting'
+      : 'Email the client — nothing new to send';
+  }
+  $('#digest-go').addEventListener('click', async () => {
+    const btn = $('#digest-go'), m2 = $('#digest-msg');
+    btn.disabled = true;
+    say(m2, 'Sending…');
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/send-digest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json',
+                   'Authorization': 'Bearer ' + (session ? session.access_token : ''),
+                   'apikey': SUPABASE_KEY },
+        body: JSON.stringify({ project_id: PID })
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(out.error || 'The send-digest function refused — is it deployed?');
+      say(m2, 'Sent: "' + out.subject + '"', 'ok');
+    } catch (err) {
+      say(m2, err.message, 'err');
+    }
+    digestCount();
+  });
+  setTimeout(digestCount, 400);
+  /* actions on this page queue new updates; keep the count honest
+     without polling hard */
+  setInterval(digestCount, 30000);
   if(!PID){ location.replace('admin.html'); return; }
   $('#as-client').setAttribute('href', 'project.html?id=' + PID);
 

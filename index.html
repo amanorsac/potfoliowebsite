@@ -346,6 +346,9 @@ h1 em{font-style:normal;font-weight:800;color:var(--accent)}
 .hc-body{position:relative;width:100%;max-width:1080px;margin:0 auto;padding:0 var(--gut);
   transform:translateY(14px);opacity:0;transition:transform var(--dur-slow) var(--ease-out) 80ms,opacity var(--dur-slow) var(--ease-out) 80ms}
 .hc-slide.on .hc-body{transform:none;opacity:1}
+/* White on this slide's cyan reads at 1.9:1, which is a button nobody
+   can read. The app's own pages put near-black on the cyan; so does this. */
+.hc-slide.launch .cta{color:#06131a}
 .hc-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
   /* the room colour itself is too light for 11px type on paper - this is
      the same hue with the lightness taken out, set per slide */
@@ -934,8 +937,24 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
   <section class="hc" id="hero" aria-roledescription="carousel" aria-label="Studio Amanorsac">
     <div class="hc-track">
 
-      <article class="hc-slide on" style="--room:#EF9F27;--room-ink:#885B16" aria-roledescription="slide" aria-label="1 of 4">
-        <div class="hc-media"><img src="images/hero-home.webp" alt="" fetchpriority="high"></div>
+      <!-- The launch slide leads. First thing anyone sees until the next
+           app ships; when that day comes this article moves down and the
+           new one takes the front. -->
+      <article class="hc-slide on launch" style="--room:#3FD3E4;--room-ink:#0F7A87" aria-roledescription="slide" aria-label="1 of 5">
+        <div class="hc-media"><img src="images/apps/pulseroom-hero.webp" alt="" fetchpriority="high"></div>
+        <div class="hc-body">
+          <p class="hc-eyebrow">Out now &middot; free</p>
+          <h1>PulseRoom <em>is out</em></h1>
+          <p class="hero-thesis">Drop a song in and it finds the tempo, then tunes delay, reverb, EQ and compression to it.</p>
+          <div class="hero-cta">
+            <a class="cta" href="pulseroom.html">Get PulseRoom</a>
+          </div>
+          <div class="wave" aria-hidden="true"></div>
+        </div>
+      </article>
+
+      <article class="hc-slide" style="--room:#EF9F27;--room-ink:#885B16" aria-roledescription="slide" aria-label="2 of 5" hidden>
+        <div class="hc-media"><img src="images/hero-home.webp" alt="" loading="lazy"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Accra &nbsp;→&nbsp; Virginia</p>
           <h1><em>Amanorsac</em></h1>
@@ -948,7 +967,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </article>
 
-      <article class="hc-slide" style="--room:#C0722B;--room-ink:#945821" aria-roledescription="slide" aria-label="2 of 4" hidden>
+      <article class="hc-slide" style="--room:#C0722B;--room-ink:#945821" aria-roledescription="slide" aria-label="3 of 5" hidden>
         <div class="hc-media"><img src="images/mixing-studio.webp" alt="" loading="lazy"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Studio</p>
@@ -958,7 +977,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
         </div>
       </article>
 
-      <article class="hc-slide" style="--room:#E8A33D;--room-ink:#845D23" aria-roledescription="slide" aria-label="3 of 4" hidden>
+      <article class="hc-slide" style="--room:#E8A33D;--room-ink:#845D23" aria-roledescription="slide" aria-label="4 of 5" hidden>
         <div class="hc-media"><img src="images/hero-mixing.webp" alt="" loading="lazy"></div>
         <div class="hc-body">
           <p class="hc-eyebrow">Writing</p>
@@ -970,7 +989,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 
       <!-- No photograph on this one: a picture of a desk says nothing about
            software. The apps themselves float here, and each one is a door. -->
-      <article class="hc-slide store" style="--room:#8B7BFF;--room-ink:#6459B8" aria-roledescription="slide" aria-label="4 of 4" hidden>
+      <article class="hc-slide store" style="--room:#8B7BFF;--room-ink:#6459B8" aria-roledescription="slide" aria-label="5 of 5" hidden>
         <div class="hc-media"><span class="hc-canvas" aria-hidden="true"></span></div>
         <div class="hc-float">
           <a class="fa" href="performlive.html"

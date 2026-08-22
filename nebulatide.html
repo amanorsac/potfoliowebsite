@@ -155,9 +155,42 @@ h1{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:
   border:1px solid color-mix(in srgb,var(--accent-bright) 34%,transparent);box-shadow:none}
 .hero .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
   text-transform:uppercase;color:var(--dim);margin:0}
-.hero-shot{margin-top:clamp(36px,6vh,64px);border:1px solid var(--line);
-  border-radius:var(--r-lg);overflow:hidden;
-  box-shadow:0 24px 80px rgba(0,0,0,.55)}
+/* ---------- the floating hero ----------
+   The same trick as the App Store slide on the home page: instead of one
+   static capture, the captures themselves drift over the sky, and each
+   one is a door to the part of the page that explains it. Drift lives on
+   the anchor and lift on the inner, so the hover transform is never
+   fighting the animation for the same property. */
+.hero-float{position:relative;margin-top:clamp(36px,6vh,64px);aspect-ratio:16/9}
+.hero-float .fa{position:absolute;left:var(--x);top:var(--y);width:var(--w);
+  z-index:var(--z);text-decoration:none;display:block;
+  animation:ntdrift 9s ease-in-out infinite;
+  animation-delay:calc(var(--i) * -2.3s)}
+.hero-float .fa-in{display:block;position:relative;overflow:hidden;
+  border-radius:var(--r);background:#031320;border:1px solid var(--line);
+  box-shadow:0 18px 54px rgba(0,0,0,.5);transform:rotate(var(--rot));
+  transition:transform .52s var(--ease),box-shadow .52s var(--ease),
+             border-color .52s var(--ease)}
+.hero-float .fa img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:center top}
+.hero-float .fa b{position:absolute;left:0;right:0;bottom:0;padding:26px 13px 10px;
+  font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:-.01em;
+  color:#EAFBFF;background:linear-gradient(180deg,transparent,rgba(2,12,22,.88))}
+.hero-float .fa:hover,.hero-float .fa:focus-visible{z-index:9}
+.hero-float .fa:hover .fa-in,.hero-float .fa:focus-visible .fa-in{
+  transform:rotate(0deg) translateY(-8px) scale(1.045);
+  border-color:color-mix(in srgb,var(--accent-bright) 55%,transparent);
+  box-shadow:0 30px 74px rgba(0,0,0,.6), 0 0 44px -14px var(--accent-bright)}
+@keyframes ntdrift{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@media (max-width:820px){
+  /* a phone has room for one capture, not a constellation of five */
+  .hero-float{aspect-ratio:auto}
+  .hero-float .fa{position:static;width:auto;animation:none}
+  .hero-float .fa + .fa{display:none}
+  .hero-float .fa-in{transform:none}
+}
+@media (prefers-reduced-motion:reduce){ .hero-float .fa{animation:none} }
+/* the cards land the reader mid-page; keep the sticky bar off the heading */
+[id]{scroll-margin-top:76px}
 
 /* ---------- section headings ---------- */
 h2{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.12;
@@ -309,8 +342,20 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
     <a class="cta ghost" href="#features">See the instrument</a>
   </div>
   <p class="fine">Windows standalone and VST3 · macOS and iPad planned</p>
-  <div class="hero-shot rise">
-    <img src="images/apps/nt-idle.webp" alt="Nebula Tide at rest: the Deep Current preset on stage, twelve key planets on their orbit, and the volume, reverb and pan controls below" fetchpriority="high">
+  <!-- The same floating apps as the carousel on the home page, except
+       here every card is one of this instrument's own captures, and each
+       one jumps to the feature it shows. -->
+  <div class="hero-float rise">
+    <a class="fa" href="#stage" style="--x:2%;--y:6%;--w:46%;--rot:-2.5deg;--z:5;--i:0">
+      <span class="fa-in"><img src="images/apps/nt-idle.webp" alt="Nebula Tide at rest: the Deep Current preset on stage, twelve key planets on their orbit, and the volume, reverb and pan controls below" fetchpriority="high"><b>One stage</b></span></a>
+    <a class="fa" href="#living" style="--x:52%;--y:0%;--w:34%;--rot:2deg;--z:3;--i:1">
+      <span class="fa-in"><img src="images/apps/nt-playing.webp" alt="Nebula Tide playing: the pad lit, the starfield streaking, E flat selected on the planet ring" loading="lazy"><b>It breathes</b></span></a>
+    <a class="fa" href="#keys" style="--x:58%;--y:46%;--w:38%;--rot:-2deg;--z:4;--i:2">
+      <span class="fa-in"><img src="images/apps/nt-planets.webp" alt="The twelve key planets on their orbit line, E flat selected and glowing" loading="lazy"><b>Twelve keys</b></span></a>
+    <a class="fa" href="#stars" style="--x:28%;--y:58%;--w:30%;--rot:3deg;--z:2;--i:3">
+      <span class="fa-in"><img src="images/apps/nt-stars.webp" alt="The FX star in gold on the left and the texture star in ice blue on the right, flanking the stage" loading="lazy"><b>Two stars</b></span></a>
+    <a class="fa" href="#space" style="--x:0%;--y:62%;--w:28%;--rot:2.5deg;--z:1;--i:4">
+      <span class="fa-in"><img src="images/apps/nt-space.webp" alt="The footer controls: volume knob, the Room, Plate and Hall buttons with Mix, Size and Damp sliders, and the crossfade control" loading="lazy"><b>Three rooms</b></span></a>
   </div>
 </header>
 
@@ -318,14 +363,14 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
   <h2>A pad in the right key, right now.</h2>
   <p class="lede">Synths want programming. Loop packs end and click. A YouTube video is in the wrong key with an ad in the middle of your set. All anyone actually needs is a beautiful bed of sound that starts when you press it and doesn’t stop until you say so.</p>
 
-  <div class="feat-wide rise" style="--k:var(--accent-bright)">
+  <div class="feat-wide rise" id="keys" style="--k:var(--accent-bright)">
     <p class="kicker">Twelve keys</p>
     <h3>Your E♭ was never a stretched C.</h3>
     <p>Every preset ships as twelve separate studio recordings, one for each key — nothing is pitch-shifted anywhere in the engine. Tap a planet and the pad crossfades into a recording that was actually performed in that key, formants and character intact.</p>
     <div class="shot"><img src="images/apps/nt-planets.webp" alt="The twelve key planets on their orbit line, E flat selected and glowing" loading="lazy"></div>
   </div>
 
-  <div class="feat rise" style="--k:var(--accent)">
+  <div class="feat rise" id="living" style="--k:var(--accent)">
     <div class="feat-copy">
       <p class="kicker">The living interface</p>
       <h3>It breathes with the sound.</h3>
@@ -334,14 +379,14 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
     <div class="shot"><img src="images/apps/nt-playing.webp" alt="Nebula Tide playing: the pad lit, the starfield streaking, E flat selected on the planet ring" loading="lazy"></div>
   </div>
 
-  <div class="feat-wide rise" style="--k:var(--gold)">
+  <div class="feat-wide rise" id="stars" style="--k:var(--gold)">
     <p class="kicker">Two stars</p>
     <h3>Weather included.</h3>
     <p>A gold star on the left for effects — claps, prayers, swells. An ice-blue star on the right for textures — wind, rain, birds, a room full of people. Both loop on their own, both survive a preset change, and both fade out gracefully when the drone stops. Drag a star vertically to set its level.</p>
     <div class="shot"><img src="images/apps/nt-stars.webp" alt="The FX star in gold on the left and the texture star in ice blue on the right, flanking the stage" loading="lazy"></div>
   </div>
 
-  <div class="feat flip rise" style="--k:var(--ice)">
+  <div class="feat flip rise" id="stage" style="--k:var(--ice)">
     <div class="feat-copy">
       <p class="kicker">One stage</p>
       <h3>One preset. One key. One word telling you what it’s doing.</h3>
@@ -350,7 +395,7 @@ footer .who{margin-left:auto;font-family:var(--mono);font-size:10px;
     <div class="shot"><img src="images/apps/nt-stage.webp" alt="The centre of the app: one glowing DEEP CURRENT pad square, the orbit arcs around it and the planet ring below" loading="lazy"></div>
   </div>
 
-  <div class="feat-wide rise" style="--k:var(--accent-bright)">
+  <div class="feat-wide rise" id="space" style="--k:var(--accent-bright)">
     <p class="kicker">Space</p>
     <h3>Three rooms, three clicks.</h3>
     <p>Room, Plate and Hall — each tuned to the character of the classics rather than left as a generic algorithm. Mix, Size and Damp are there when you want to go further, and every preset arrives with its own sensible defaults already dialled.</p>
